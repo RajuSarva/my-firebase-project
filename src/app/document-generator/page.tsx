@@ -111,57 +111,70 @@ export default function DocumentGeneratorPage() {
     const logoWidth = 75;
     const logoHeight = (logoImg.height * logoWidth) / logoImg.width;
 
-    const addPageContent = (docInstance: jsPDF, pageNumber: number) => {
-      docInstance.setPage(pageNumber);
-      docInstance.addImage(logoImg, 'PNG', margin, 20, logoWidth, logoHeight);
-      docInstance.line(margin, 20 + logoHeight + 10, pdfWidth - margin, 20 + logoHeight + 10);
-      
-      docInstance.saveGraphicsState();
-      docInstance.setGState(new (doc as any).GState({opacity: 0.1}));
-      docInstance.addImage(logoImg, 'PNG', pdfWidth / 2 - 100, doc.internal.pageSize.getHeight() / 2 - 50, 200, (200 * logoImg.height) / logoImg.width);
-      docInstance.restoreGraphicsState();
+    const addPageContent = (docInstance: jsPDF) => {
+        const pageCount = (docInstance.internal as any).getNumberOfPages();
+        for (let i = 1; i <= pageCount; i++) {
+            docInstance.setPage(i);
+            // Header
+            docInstance.addImage(logoImg, 'PNG', margin, 20, logoWidth, logoHeight);
+            docInstance.line(margin, 20 + logoHeight + 10, pdfWidth - margin, 20 + logoHeight + 10);
+            
+            // Watermark
+            docInstance.saveGraphicsState();
+            docInstance.setGState(new (doc as any).GState({opacity: 0.1}));
+            docInstance.addImage(logoImg, 'PNG', pdfWidth / 2 - 100, doc.internal.pageSize.getHeight() / 2 - 50, 200, (200 * logoImg.height) / logoImg.width);
+            docInstance.restoreGraphicsState();
+        }
     };
 
     const tokens = new Lexer().lex(result.markdownContent);
     const body: any[] = [];
+    
+    const processList = (items: any[], depth: number) => {
+        items.forEach(item => {
+            let itemText = item.text || '';
+            if (item.tokens) {
+                itemText = item.tokens.map((t: any) => t.text || '').join('');
+            }
+            
+            body.push({
+                content: `${' '.repeat(depth * 4)}• ${itemText}`,
+                styles: { fontSize: 10, cellPadding: 1 }
+            });
+            if (item.items && item.items.length > 0) {
+                processList(item.items, depth + 1);
+            }
+        });
+    };
 
-    const processToken = (token: Token) => {
+    tokens.forEach(token => {
       switch (token.type) {
         case 'heading':
           body.push({
             content: token.text,
             styles: {
               fontStyle: 'bold',
-              fontSize: token.depth === 1 ? 18 : (token.depth === 2 ? 16 : 14),
+              fontSize: token.depth === 1 ? 16 : (token.depth === 2 ? 14 : 12),
+              cellPadding: { top: token.depth === 1 ? 8: 6, bottom: 4 }
             },
           });
           break;
         case 'paragraph':
-          body.push({ content: token.text, styles: { fontSize: 12 } });
+          body.push({ content: token.text, styles: { fontSize: 10, cellPadding: 2 } });
           break;
         case 'list':
-           token.items.forEach(item => {
-             const itemText = item.tokens.map(t => 'text' in t ? t.text : '').join('');
-             body.push({
-               content: `• ${itemText}`,
-               styles: { fontSize: 12, cellPadding: { left: 10 } }
-             });
-           });
+          processList(token.items, 0);
           break;
         case 'space':
           body.push({ content: '', styles: { fontSize: 6 } });
           break;
         case 'text':
           if (token.text.trim()) {
-            body.push({ content: token.text, styles: { fontSize: 12 } });
+            body.push({ content: token.text, styles: { fontSize: 10, cellPadding: 2 } });
           }
           break;
       }
-    };
-    
-    tokens.forEach(token => processToken(token));
-
-    addPageContent(doc, 1);
+    });
 
     autoTable(doc, {
       startY: 20 + logoHeight + 20,
@@ -171,16 +184,21 @@ export default function DocumentGeneratorPage() {
         font: 'helvetica',
         overflow: 'linebreak',
         cellPadding: 2,
-        fontSize: 12,
       },
       columnStyles: {
         0: { cellWidth: pdfWidth - margin * 2 },
       },
       didDrawPage: (data) => {
-        addPageContent(doc, data.pageNumber);
+        // DidDrawPage is called AFTER the page is added, so we apply header/watermark here.
+        addPageContent(doc);
       },
       margin: { top: 20 + logoHeight + 20, bottom: 40 }
     });
+
+    // Ensure the first page content is added if only one page is created.
+    if ((doc.internal as any).getNumberOfPages() === 1) {
+        addPageContent(doc);
+    }
 
     doc.save(`${form.getValues('title') || 'document'}.pdf`);
   };
