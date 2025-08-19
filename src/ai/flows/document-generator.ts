@@ -15,6 +15,7 @@ const GenerateRefinedDocumentInputSchema = z.object({
   title: z.string().describe('The title of the document.'),
   description: z.string().describe('The description of the document.'),
   documentType: z.enum(['BRD', 'FRS', 'SRS']).describe('The type of the document to generate.'),
+  currentDate: z.string().describe('The current date for the document.'),
   uploadedFile: z
     .string()
     .optional()
@@ -38,6 +39,7 @@ Base the document on the following inputs:
 - Document Title: {{{title}}}
 - Project Description: {{{description}}}
 - Document Type: {{{documentType}}}
+- Current Date: {{{currentDate}}}
 {{#if uploadedFile}}
 - Additional Context from Uploaded File: {{media url=uploadedFile}}
 {{/if}}
@@ -45,80 +47,88 @@ Base the document on the following inputs:
 Adhere strictly to the following structure based on the Document Type, ensuring every section is flushed out with substantial detail and examples.
 
 **If Document Type is "BRD" (Business Requirements Document):**
-Generate a complete BRD using the following template. Adapt the content based on the provided Title and Description. Be extremely detailed.
+Generate a complete BRD using the following template. Be extremely detailed and comprehensive, adapting the content logically from the project title and description.
 
 # Business Requirements Document (BRD) - {{{title}}}
 
 ## 1. Introduction
-This document outlines the business requirements for the development of {{{title}}}. The application aims to {{{description}}}.
+This document outlines the business requirements for the development of the {{{title}}}. The application aims to {{{description}}}.
 
 ## 2. Project Goals and Objectives
-*   **Goal**: To develop a user-friendly and efficient application, {{{title}}}, that facilitates the primary goal derived from the project description.
+*   **Goal**: To develop a user-friendly and efficient application, {{{title}}}, that connects drivers with empty seats and passengers heading in the same direction, facilitating shared rides and reducing traffic congestion and carbon emissions.
 *   **Objectives**:
-    *   [Generate a detailed list of 5-7 specific business objectives based on the project description. Examples: Increase user engagement, Reduce operational costs, Enhance user satisfaction, Streamline a specific process, Provide a reliable platform for X.]
+    *   Increase the utilization of car capacity.
+    *   Reduce traffic congestion in urban areas.
+    *   Lower individual transportation costs.
+    *   Minimize environmental impact through reduced emissions.
+    *   Provide a convenient and reliable ride-sharing platform.
 
 ## 3. Target Audience
-*   **[Primary User Persona]**: [Describe the primary user type, their needs, and why they would use the app, based on the description.]
-*   **[Secondary User Persona]**: [Describe a secondary user type, their needs, and how they would benefit from the app.]
-*   **(Add more personas if implied by the description.)**
+*   **Drivers**: Individuals who own cars and are willing to share their rides with others, offsetting travel costs.
+*   **Passengers**: Individuals seeking a convenient and affordable alternative to public transportation or personal vehicles.
 
 ## 4. Scope
 *   **Inclusions**:
-    *   User registration and profile management.
-    *   Core feature 1 (Derive from description).
-    *   Core feature 2 (Derive from description).
-    *   Core feature 3 (Derive from description).
-    *   In-app communication or notification system.
-    *   Secure payment or transaction system (if applicable).
-    *   Rating and review system.
-    *   Dashboard or history functionality.
-    *   Support for web and/or mobile platforms (iOS and Android).
+    *   User registration and profile management (both driver and passenger).
+    *   Ride posting and searching functionality.
+    *   Real-time ride matching based on location and destination.
+    *   In-app communication between drivers and passengers.
+    *   Secure payment gateway integration.
+    *   Rating and review system for drivers and passengers.
+    *   Route optimization and navigation.
+    *   Trip history tracking.
+    *   Support for multiple platforms (iOS and Android).
 *   **Exclusions**:
-    *   [List 2-3 logical exclusions. Examples: Direct integration with unrelated third-party legacy systems, Features not mentioned in the core description, Hardware components.]
+    *   Ride insurance provided directly by the application.
+    *   Direct driver employment or management.
+    *   Integration with public transportation schedules.
 
 ## 5. Functional Requirements
-*   **User Registration and Authentication**: Users should be able to register using their email, phone number, or social media. Implement two-factor authentication for security.
-*   **Profile Management**: Users should be able to create and manage their profiles, including personal information, preferences, and profile pictures.
-*   **[Core Feature 1 - Detailed]**: [Provide a detailed breakdown of the first core feature based on the description. Explain what the user can do and how the system should respond.]
-*   **[Core Feature 2 - Detailed]**: [Provide a detailed breakdown of the second core feature. Explain the user interactions and system behavior.]
-*   **[Core Feature 3 - Detailed]**: [Provide a detailed breakdown of the third core feature, covering all aspects of its functionality.]
-*   **In-app Communication**: A system for users to receive notifications or communicate with each other/the system.
-*   **Payment Integration**: If applicable, describe the secure payment gateway integration for processing transactions.
-*   **Rating and Review System**: Users should be able to rate and review services, products, or other users.
-*   **History/Dashboard**: Users should have access to a dashboard or history section to view their past activities.
+*   **User Registration and Authentication**: Users should be able to register with their email, phone number, or social media accounts. Two-factor authentication for enhanced security.
+*   **Profile Management**: Users should be able to create and manage their profiles, including personal information, profile picture, and vehicle details (for drivers).
+*   **Ride Posting (Drivers)**: Drivers should be able to post their planned trips, specifying origin, destination, date, time, available seats, and price per seat.
+*   **Ride Searching (Passengers)**: Passengers should be able to search for available rides based on their origin, destination, and preferred travel dates/times.
+*   **Real-time Matching**: The application should provide real-time matching of drivers and passengers based on their specified criteria.
+*   **In-app Communication**: Drivers and passengers should be able to communicate with each other through in-app messaging or calling features.
+*   **Payment Integration**: Secure payment gateway integration for processing ride payments.
+*   **Rating and Review System**: Users should be able to rate and review each other after completing a trip.
+*   **Route Optimization and Navigation**: Integration with a mapping service to provide optimized routes and real-time navigation for drivers.
+*   **Trip History**: Users should be able to access a history of their past trips, including details like date, time, cost, and other relevant information.
 
 ## 6. Non-Functional Requirements
-*   **Performance**: The application must be responsive, with page load times under 3 seconds, and handle at least 1000 concurrent users without performance degradation.
-*   **Security**: All user data, especially personal information and passwords, must be encrypted both in transit (TLS 1.2+) and at rest (AES-256).
-*   **Scalability**: The architecture must be horizontally scalable to support a 50% growth in user base year-over-year without major re-architecting.
-*   **Usability**: The user interface must be intuitive and follow standard HCI principles. A user should be able to complete core tasks without training.
-*   **Reliability**: The system must have an uptime of 99.9% and include data backup and recovery plans.
-*   **Accessibility**: The application must comply with WCAG 2.1 AA standards.
+*   **Performance**: The application should be responsive and perform efficiently under high user load.
+*   **Security**: User data should be protected through robust security measures.
+*   **Scalability**: The application architecture should be scalable to accommodate future growth in user base and features.
+*   **Usability**: The application should be user-friendly and intuitive to navigate.
+*   **Reliability**: The application should be reliable and available with minimal downtime.
+*   **Accessibility**: The application should adhere to accessibility guidelines for users with disabilities.
 
 ## 7. Technical Requirements
-*   **Platform**: Specify iOS, Android, and/or Web application.
-*   **Technology Stack**: To be determined, but may include modern frameworks like React/Next.js for frontend, Node.js/Python for backend, and a SQL/NoSQL database.
-*   **API Integrations**: List potential third-party API integrations (e.g., Google Maps, Stripe, Twilio).
+*   **Platform**: iOS and Android mobile applications.
+*   **Technology Stack**: (To be determined based on further analysis, but may include technologies such as React Native, Node.js, MongoDB, etc.)
+*   **API Integrations**: Mapping API (e.g., Google Maps, Mapbox), Payment Gateway API (e.g., Stripe, PayPal).
 
 ## 8. Open Issues/Risks
-*   **Competition**: Analysis of key competitors in the market.
-*   **User Adoption**: The challenge of attracting a critical mass of users.
-*   **Data Security**: Risks associated with protecting sensitive user data from breaches.
-*   **Regulatory Compliance**: Adherence to relevant local and international regulations (e.g., GDPR, CCPA).
+*   **Competition**: Existing ride-sharing platforms.
+*   **User Adoption**: Attracting a critical mass of users.
+*   **Security Concerns**: Protecting user data and preventing fraud.
+*   **Regulatory Compliance**: Adhering to local transportation regulations.
 
 ## 9. Future Enhancements (Roadmap)
-*   [Suggest a logical future enhancement based on the project description.]
-*   [Suggest a second logical future enhancement.]
-*   [Suggest a third logical future enhancement.]
+*   Integration with public transportation schedules.
+*   Carpool scheduling for recurring trips.
+*   Enhanced safety features (e.g., emergency contact sharing).
+*   Gamification to encourage carpooling.
 
 ## 10. Approval
 _________________________
 (Project Sponsor)
 
 _________________________
-(Date)
+({{{currentDate}}})
 
-This BRD serves as the foundation for the development of {{{title}}}.
+This BRD serves as the foundation for the development of the {{{title}}}. It will be reviewed and updated as needed throughout the project lifecycle.
+
 
 **If Document Type is "FRS" (Functional Requirements Specification):**
 Generate a complete and exhaustive FRS based on the provided title and description. This document needs to be extremely detailed, breaking down every function into minute steps, user stories, and validation criteria. Use the following template as a strict guide.
@@ -128,13 +138,13 @@ Generate a complete and exhaustive FRS based on the provided title and descripti
 ## Document Overview
 - **Document Title**: {{{title}}} - Functional Requirements Specification
 - **Version**: 1.0
-- **Date**: [Current Date]
+- **Date**: {{{currentDate}}}
 - **Prepared by**: AI Requirement Analyst
 
 ## Document Control
 | Version | Date          | Description    | Author                |
 |---------|---------------|----------------|-----------------------|
-| 1.0     | [Current Date]| Initial Draft  | AI Requirement Analyst|
+| 1.0     | {{{currentDate}}}| Initial Draft  | AI Requirement Analyst|
 
 ## 1. Purpose
 This document defines the functional requirements for the **{{{title}}}**. It aims to provide a secure, user-friendly, and robust solution that addresses the core functionalities outlined in the project description: **{{{description}}}**. This document will guide developers, QA teams, and project managers throughout the development lifecycle.
@@ -144,64 +154,52 @@ This document defines the functional requirements for the **{{{title}}}**. It ai
 ### 2.1 User Management & Authentication
 
 #### **Feature**: Secure Registration
-- **User Story**: As a new user, I want to register an account securely using my email and a password, so that I can access the platform's features.
+- **User Story**: As a new user, I want to register an account securely using my email and phone number, so that I can create an account and access the platform.
 - **Use Case**: User Registration
 - **Actor**: New User
 - **Pre-conditions**:
     1. The user has a valid email address.
-    2. The user has access to the internet.
+    2. The user has a valid Phone Number.
 - **Basic Flow**:
-    1. The user navigates to the application and selects the "Register" or "Sign Up" option.
-    2. The user enters their full name, email address, and a strong password.
-    3. The user agrees to the Terms of Service and Privacy Policy.
-    4. The user clicks the "Register" button.
-    5. The system sends a verification link or code to the user's email address.
-    6. The user clicks the link or enters the code to verify their account.
+    1. The user opens the app and selects "Register."
+    2. The user selects the registration method: Manual or Social Media.
+    3. If manual registration: User enters Full name, Email, Phone number, Date of Birth (DOB), Blood group, Gender (Male, Female, Other). The user clicks the "Continue" button.
+    4. The system sends a verification email and SMS with OTP.
+    5. User lands on the OTP verification page.
+    6. The user enters OTP and clicks the "Verify" button.
+    7. Users can request to resend OTP if needed.
+    8. The system verifies OTP and creates a user account.
 - **Post-Condition**:
-    1. A new user account is created in the system with a 'verified' status.
-    2. The user is automatically logged in and redirected to the main dashboard or welcome page.
+    1. A user account is created and can be used to log in.
+    2. If the email or phone number is already registered, the user is notified.
 - **Validation**:
-    1. Email address must be in a valid format (e.g., user@domain.com).
-    2. Email address must be unique within the system.
-    3. Password must meet complexity requirements (e.g., minimum 8 characters, 1 uppercase, 1 number, 1 special character).
-    4. Full name should not be empty.
+    1. Email address should be in a valid format (e.g., example@example.com).
+    2. Email address should be unique and not already registered.
+    3. Phone number should be 10 digits long and unique.
+    4. OTP should be 4 digits long and valid for a specified timeframe.
+    5. Full name should not exceed 100 characters.
 
 #### **Feature**: Secure Login
-- **User Story**: As a registered user, I want to log in with my email and password, so that I can access my account and use the application.
+- **User Story**: Once registered, users can log in using their registered credentials.
 - **Use Case**: User Login
-- **Actor**: Registered User
-- **Pre-condition**: The user has a verified account.
+- **Actor**: Registered users
+- **Pre-condition**: User has a registered account.
 - **Basic Flow**:
-    1. The user navigates to the "Login" or "Sign In" page.
-    2. The user enters their registered email and password.
-    3. The user clicks the "Login" button.
-    4. The system authenticates the user's credentials against the database.
-    5. Upon successful authentication, the user is granted access and redirected to their dashboard.
+    1. User opens the app and selects "Sign In."
+    2. User enters their registered mobile number.
+    3. System sends OTP to the user's mobile number.
+    4. User enters OTP and selects "Verify".
+    5. System authenticates the user's credentials.
+    6. Users are granted access to the platform.
 - **Post-Condition**:
-    1. The user is successfully logged in and a session is created.
-- **Validation**:
-    1. An error message "Invalid email or password" is displayed if credentials do not match.
-    2. After multiple failed attempts (e.g., 5), the account should be temporarily locked.
-
-#### **Feature**: Profile Management
-- **User Story**: As a user, I want to view and update my profile information, so that my details are always current.
-- **Use Case**: Manage Profile
-- **Actor**: Registered User
-- **Pre-condition**: The user is logged in.
-- **Basic Flow**:
-    1. The user navigates to their "Profile" or "Account Settings" section.
-    2. The user can view their current information (e.g., name, email, profile picture).
-    3. The user can edit fields such as their name, profile picture, and other relevant details.
-    4. The user clicks "Save" to apply the changes.
-- **Post-Condition**: The user's profile information is updated in the database.
-- **Validation**:
-    1. Editable fields must adhere to their specific validation rules (e.g., email format).
+    1. User is logged in and can access the platform.
+    2. If credentials are incorrect, the user is notified.
 
 ---
 
 ### 2.2 Core Application Features
 
-**(Generate 3-5 core features based on the project description. For each feature, provide the same detailed breakdown as above: Feature, User Story, Use Case, Actor, Pre-condition, Basic Flow, Post-Condition, and Validation.)**
+**(Generate 5-7 core features based on the project description. For each feature, provide the same detailed breakdown as above: Feature, User Story, Use Case, Actor, Pre-condition, Basic Flow, Post-Condition, and Validation.)**
 
 #### **Feature**: [Core Feature 1 from Description]
 - **User Story**: As a [user type], I want to [perform a core action], so that I can [achieve a primary goal].
@@ -209,45 +207,40 @@ This document defines the functional requirements for the **{{{title}}}**. It ai
 - **Actor**: [User Type]
 - **Pre-condition**: [e.g., User is logged in, User has necessary permissions]
 - **Basic Flow**:
-    1. [Step-by-step description of the user's interaction with the feature.]
+    1. [Extremely detailed, step-by-step description of the user's interaction with the feature.]
     2. [System response to each user action.]
     3. ...
 - **Post-Condition**: [The state of the system after the flow is completed successfully.]
 - **Validation**:
-    1. [Validation rule for input data.]
-    2. [Error handling for invalid actions.]
-
-#### **Feature**: [Core Feature 2 from Description]
-- **User Story**: As a [user type], I want to [perform another core action], so that I can [achieve another goal].
-- **Use Case**: [Name of Use Case]
-- **Actor**: [User Type]
-- **Pre-condition**: [e.g., User has completed a previous step.]
-- **Basic Flow**:
-    1. [Step-by-step description.]
-    2. ...
-- **Post-Condition**: [Result of the successful action.]
-- **Validation**:
-    1. [Validation rule.]
+    1. [Detailed validation rule for input data.]
+    2. [Detailed error handling for invalid actions.]
 
 ---
 
-## 3. Administrative Panel (If applicable)
+## 3. Administrative Panels
 
-**(If the description implies an admin role, generate 1-2 admin features.)**
+**(If the description implies an admin role, generate detailed features for each type of admin: Hospital, Doctor, Lab, and Super Admin, covering all their functionalities like management of beds, services, profiles, appointments, reports, users, settings, etc.)**
 
-#### **Feature**: [Admin Feature 1, e.g., User Management]
-- **User Story**: As an admin, I want to view and manage user accounts, so that I can maintain the platform and support users.
-- **Use Case**: Manage Users
-- **Actor**: Administrator
-- **Pre-condition**: Admin is logged in to the administrative panel.
-- **Basic Flow**:
-    1. Admin navigates to the "Users" section.
-    2. A list of all registered users is displayed with search and filter options.
-    3. Admin can view details of a specific user.
-    4. Admin can perform actions like deactivating or deleting a user account.
-- **Post-Condition**: User account status is updated as per the admin's action.
-- **Validation**:
-    1. A confirmation dialog must be shown before any destructive action (e.g., deleting a user).
+---
+## 4. System Architecture
+- **Technology Stack**:
+    - **Frontend**: Html5/CSS3/Javascript
+    - **Application**: React Native
+    - **Backend**: Laravel
+    - **Database**: MySQL
+    - **APIs & Integrations**: SMS, Map, Social Login, firebase notification
+
+## 5. Intended Audience & Usage
+- **Developers**: To implement system functionalities.
+- **QA Team**: To validate features against specifications.
+- **Project Manager & Business Analysts**: To ensure business alignment.
+- **Stakeholders**: To review and approve system capabilities.
+
+## 6. Client Acknowledgment and Approval
+By signing below, the client acknowledges and approves the contents of this document, including the features, requirements, and specifications outlined. This approval signifies that all details are correct and satisfactory.
+Client Name: ____________________________
+Signature: ______________________________
+Date: _________________________________
 
 
 **If Document Type is "SRS" (Software Requirements Specification):**
@@ -322,4 +315,17 @@ const generateRefinedDocumentFlow = ai.defineFlow(
   }
 );
 
-export const generateRefinedDocument = generateRefinedDocumentFlow;
+export async function generateRefinedDocument(input: Omit<GenerateRefinedDocumentInput, 'currentDate'>): Promise<GenerateRefinedDocumentOutput> {
+    const currentDate = new Date().toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+    });
+
+    return generateRefinedDocumentFlow({
+        ...input,
+        currentDate,
+    });
+}
+
+    
