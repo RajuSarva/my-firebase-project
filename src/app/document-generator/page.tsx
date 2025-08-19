@@ -7,8 +7,8 @@ import { z } from "zod";
 import { useState, useTransition, useRef } from "react";
 import type { GenerateRefinedDocumentOutput } from "@/ai/flows/document-generator";
 import jsPDF from "jspdf";
-import autoTable from 'jspdf-autotable';
-import { marked, Lexer } from "marked";
+import html2canvas from "html2canvas";
+import { marked } from "marked";
 
 
 import { DashboardLayout } from "@/components/dashboard-layout";
@@ -98,110 +98,55 @@ export default function DocumentGeneratorPage() {
       }
     });
   };
-
+  
   const handleDownloadPdf = async () => {
-    if (!result?.markdownContent) return;
+    const reportElement = reportRef.current;
+    if (!reportElement) return;
 
-    const doc = new jsPDF('p', 'pt', 'a4');
-    const pdfWidth = doc.internal.pageSize.getWidth();
-    const margin = 40;
-
-    const logoImg = new Image();
-    logoImg.src = STATIC_LOGO_BASE64;
-    const logoWidth = 75;
-    const logoHeight = (logoImg.height * logoWidth) / logoImg.width;
-
-    const addPageContent = (docInstance: jsPDF) => {
-        const pageCount = (docInstance.internal as any).getNumberOfPages();
-        for (let i = 1; i <= pageCount; i++) {
-            docInstance.setPage(i);
-            // Header
-            docInstance.addImage(logoImg, 'PNG', margin, 20, logoWidth, logoHeight);
-            docInstance.line(margin, 20 + logoHeight + 10, pdfWidth - margin, 20 + logoHeight + 10);
-            
-            // Watermark
-            docInstance.saveGraphicsState();
-            docInstance.setGState(new (doc as any).GState({opacity: 0.1}));
-            docInstance.addImage(logoImg, 'PNG', pdfWidth / 2 - 100, doc.internal.pageSize.getHeight() / 2 - 50, 200, (200 * logoImg.height) / logoImg.width);
-            docInstance.restoreGraphicsState();
-        }
-    };
-
-    const tokens = new Lexer().lex(result.markdownContent);
-    const body: any[] = [];
+    const canvas = await html2canvas(reportElement, {
+      scale: 2,
+      useCORS: true,
+      backgroundColor: null, 
+    });
     
-    const processList = (items: any[], depth: number) => {
-        items.forEach(item => {
-            let itemText = '';
-            if(item.tokens && item.tokens.length > 0) {
-              itemText = item.tokens.map((t: any) => t.text).join('');
-            } else {
-              itemText = item.text || '';
-            }
-            
-            body.push({
-                content: `${' '.repeat(depth * 4)}• ${itemText}`,
-                styles: { fontSize: 10, cellPadding: 1, halign: 'left' }
-            });
-            if (item.items && item.items.length > 0) {
-                processList(item.items, depth + 1);
-            }
-        });
-    };
+    const imgData = canvas.toDataURL('image/png');
+    
+    const pdf = new jsPDF('p', 'pt', 'a4');
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = pdf.internal.pageSize.getHeight();
+    const margin = 40;
+    
+    const imgProps = pdf.getImageProperties(imgData);
+    const imgWidth = pdfWidth - margin * 2;
+    const imgHeight = (imgProps.height * imgWidth) / imgProps.width;
 
-    tokens.forEach(token => {
-      switch (token.type) {
-        case 'heading':
-          body.push({
-            content: token.text,
-            styles: {
-              fontStyle: 'bold',
-              fontSize: token.depth === 1 ? 16 : (token.depth === 2 ? 14 : 12),
-              cellPadding: { top: token.depth === 1 ? 8: 6, bottom: 4 }
-            },
-          });
-          break;
-        case 'paragraph':
-          body.push({ content: token.text, styles: { fontSize: 10, cellPadding: 2 } });
-          break;
-        case 'list':
-          processList(token.items, 0);
-          break;
-        case 'space':
-          body.push({ content: '', styles: { fontSize: 6 } });
-          break;
-        case 'text':
-          if (token.text && token.text.trim()) {
-            body.push({ content: token.text, styles: { fontSize: 10, cellPadding: 2 } });
-          }
-          break;
-      }
-    });
+    let heightLeft = imgHeight;
+    let position = 20;
 
-    autoTable(doc, {
-      startY: 20 + logoHeight + 20,
-      body: body,
-      theme: 'plain',
-      styles: {
-        font: 'helvetica',
-        overflow: 'linebreak',
-        cellPadding: 2,
-      },
-      columnStyles: {
-        0: { cellWidth: pdfWidth - margin * 2 },
-      },
-      didDrawPage: (data) => {
-        addPageContent(doc);
-      },
-      margin: { top: 20 + logoHeight + 20, bottom: 40 }
-    });
+    pdf.addImage(imgData, 'PNG', margin, position, imgWidth, imgHeight);
+    heightLeft -= (pdfHeight - position - margin);
 
-    // Final check to add content to the first page if it's the only one.
-    if ((doc.internal as any).getNumberOfPages() === 1) {
-        addPageContent(doc);
+    while (heightLeft > 0) {
+      position = -heightLeft - margin;
+      pdf.addPage();
+      pdf.addImage(imgData, 'PNG', margin, position, imgWidth, imgHeight);
+      heightLeft -= pdfHeight;
     }
+    
+    pdf.save(`${form.getValues('title') || 'document'}.pdf`);
+  };
 
-    doc.save(`${form.getValues('title') || 'document'}.pdf`);
+  const handleDownloadMd = () => {
+    if (!result) return;
+    const blob = new Blob([result.markdownContent], { type: 'text/markdown' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${form.getValues('title') || 'document'}.md`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
   };
 
   return (
@@ -338,14 +283,18 @@ export default function DocumentGeneratorPage() {
                   <CardTitle>Generated Document</CardTitle>
                 </CardHeader>
                 <CardContent>
-                   <div className="prose prose-sm dark:prose-invert max-w-none bg-muted p-4 rounded-md overflow-y-auto text-sm max-h-[500px]">
-                      <div ref={reportRef} dangerouslySetInnerHTML={{ __html: htmlContent }} />
+                   <div ref={reportRef} className="prose prose-sm dark:prose-invert max-w-none bg-muted p-4 rounded-md overflow-y-auto text-sm max-h-[500px]">
+                      <div dangerouslySetInnerHTML={{ __html: htmlContent }} />
                     </div>
                 </CardContent>
                 <CardFooter className="flex gap-2">
                   <Button variant="outline" onClick={handleDownloadPdf} disabled={!htmlContent}>
                     <Download className="mr-2" />
                     Download .pdf
+                  </Button>
+                   <Button variant="outline" onClick={handleDownloadMd} disabled={!result}>
+                    <Download className="mr-2" />
+                    Download .md
                   </Button>
                 </CardFooter>
               </Card>
