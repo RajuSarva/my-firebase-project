@@ -48,7 +48,10 @@ export async function generateWireframes(input: GenerateWireframesInput): Promis
 const prompt = ai.definePrompt({
   name: 'generateWireframesPrompt',
   input: {schema: GenerateWireframesInputSchema},
-  output: {schema: GenerateWireframesOutputSchema},
+  output: {schema: z.object({
+    homepageWireframeText: z.string().describe('Descriptive text outlining the homepage wireframe.'),
+    featureScreenWireframeText: z.string().describe('Descriptive text outlining the key feature screen wireframe.'),
+  })},
   prompt: `You are an expert UI/UX designer specializing in generating wireframes for web applications.
 
 You will generate wireframes for two screens:
@@ -61,24 +64,10 @@ Title: {{{title}}}
 Description: {{{description}}}
 
 {{#if uploadedFile}}
-Uploaded File Content: {{{uploadedFile}}}
+Uploaded File Content: {{media url=uploadedFile}}
 {{/if}}
 
 First, generate descriptive text for both wireframes, detailing the layout, key elements, and functionality of each screen.
-
-Then, generate visual representations of both wireframes as images. Ensure the images are clear and effectively communicate the layout.
-
-Output the homepage and feature screen wireframes in both descriptive text and visual (.png) formats.
-
-
-Here's the format for your response:
-
-{
-  "homepageWireframeText": "...",
-  "featureScreenWireframeText": "...",
-  "homepageWireframeImage": "data:image/png;base64,...",
-  "featureScreenWireframeImage": "data:image/png;base64,..."
-}
 `,
 });
 

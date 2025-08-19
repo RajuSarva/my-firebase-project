@@ -38,11 +38,7 @@ const prompt = ai.definePrompt({
   name: 'generateFlowchartPrompt',
   input: {schema: GenerateFlowchartInputSchema},
   output: {schema: GenerateFlowchartOutputSchema},
-  prompt: `You are an expert in creating flowcharts using Mermaid syntax.\n\n  Create a flowchart based on the following information:\n\n  Title: {{{title}}}\n  Description: {{{description}}}\n  {{#if uploadedFile}}\n  Additional context from uploaded file: {{{uploadedFile}}}\n  {{/if}}\n\n  Ensure the flowchart is clear, concise, and accurately represents the process described. Use appropriate Mermaid syntax elements to define the steps, decisions, and connections in the process.\n\n  The flowchart should be returned in Mermaid syntax. Do not include any explanations or other text. ONLY return the Mermaid syntax. Return the full mermaid syntax string. Do not use \`graph LR\` or \`graph TD\`. Instead, use \`mermaid\`.\n  Here is an example:\n  \`\`\`mermaid\n  graph LR\n      A[Start] --> B{Decision}
-      B -- Yes --> C[Process 1]
-      B -- No --> D[Process 2]
-      C --> E[End]
-      D --> E\n  \`\`\``,
+  prompt: `You are an expert in creating flowcharts using Mermaid syntax.\n\n  Create a flowchart based on the following information:\n\n  Title: {{{title}}}\n  Description: {{{description}}}\n  {{#if uploadedFile}}\n  Additional context from uploaded file: {{media url=uploadedFile}}\n  {{/if}}\n\n  Ensure the flowchart is clear, concise, and accurately represents the process described. Use appropriate Mermaid syntax elements to define the steps, decisions, and connections in the process.\n\n  The flowchart should be returned in Mermaid syntax. Do not include any explanations or other text. ONLY return the Mermaid syntax. Return the full mermaid syntax string. Do not use \`graph LR\` or \`graph TD\`. Instead, use \`mermaid\`.\n  Here is an example:\n  \`\`\`mermaid\n  graph LR\n      A[Start] --> B{Decision}\n      B -- Yes --> C[Process 1]\n      B -- No --> D[Process 2]\n      C --> E[End]\n      D --> E\n  \`\`\``,
 });
 
 const generateFlowchartFlow = ai.defineFlow(
@@ -56,4 +52,3 @@ const generateFlowchartFlow = ai.defineFlow(
     return output!;
   }
 );
-
