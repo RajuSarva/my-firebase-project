@@ -13,6 +13,8 @@ interface FileUploadProps {
   accept?: string;
   className?: string;
   disabled?: boolean;
+  buttonIcon?: React.ElementType;
+  buttonText?: string;
 }
 
 export function FileUpload({
@@ -21,6 +23,8 @@ export function FileUpload({
   accept,
   className,
   disabled,
+  buttonIcon: ButtonIcon = Paperclip,
+  buttonText = "Optional File Upload"
 }: FileUploadProps) {
   const id = useId();
   const [fileName, setFileName] = useState(value?.name || "");
@@ -42,10 +46,10 @@ export function FileUpload({
 
   return (
     <div className={cn("grid gap-2", className)}>
-      <Label htmlFor={id}>Optional File Upload</Label>
+      <Label htmlFor={id}>{buttonText}</Label>
       <div className="flex items-center gap-2">
         <div className="relative w-full">
-          <Paperclip className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <ButtonIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             id={id}
             type="file"
