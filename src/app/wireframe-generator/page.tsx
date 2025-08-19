@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useForm } from "react-hook-form";
@@ -80,8 +81,8 @@ export default function WireframeGeneratorPage() {
     });
   };
 
-  const renderResultCard = (title: string, text: string, image: string, fileName: string) => (
-     <Card>
+  const renderResultCard = (title: string, text: string, image: string, index: number) => (
+     <Card key={index}>
       <CardHeader>
         <CardTitle>{title}</CardTitle>
       </CardHeader>
@@ -95,18 +96,18 @@ export default function WireframeGeneratorPage() {
         </div>
       </CardContent>
       <CardFooter className="flex gap-2">
-        <Button variant="outline" size="sm" onClick={() => downloadFile({ content: text, fileName: `${fileName}_description.txt`, contentType: 'text/plain' })}>
-          <FileText className="mr-2" /> Text
+        <Button variant="outline" size="sm" onClick={() => downloadFile({ content: text, fileName: `${title.replace(/\s+/g, '_').toLowerCase()}_${index}_desc.txt`, contentType: 'text/plain' })}>
+          <FileText className="mr-2 h-4 w-4" /> Text
         </Button>
-        <Button variant="outline" size="sm" onClick={() => downloadFile({ content: image, fileName: `${fileName}_wireframe.png`, contentType: 'image/png' })}>
-          <Download className="mr-2" /> Image
+        <Button variant="outline" size="sm" onClick={() => downloadFile({ content: image, fileName: `${title.replace(/\s+/g, '_').toLowerCase()}_${index}_wireframe.png`, contentType: 'image/png' })}>
+          <Download className="mr-2 h-4 w-4" /> Image
         </Button>
       </CardFooter>
     </Card>
   )
 
-  const renderSkeletonCard = () => (
-    <Card>
+  const renderSkeletonCard = (index: number) => (
+    <Card key={index}>
       <CardHeader><Skeleton className="h-6 w-3/4" /></CardHeader>
       <CardContent className="space-y-4">
         <Skeleton className="aspect-video w-full" />
@@ -131,7 +132,7 @@ export default function WireframeGeneratorPage() {
         </header>
 
         <div className="grid lg:grid-cols-3 gap-8 items-start">
-          <Card className="lg:col-span-1">
+          <Card className="lg:col-span-1 sticky top-4">
             <CardHeader>
               <CardTitle>Wireframe Details</CardTitle>
               <CardDescription>
@@ -190,7 +191,7 @@ export default function WireframeGeneratorPage() {
                           />
                         </FormControl>
                         <FormDescription>
-                          Upload a file for layout hints.
+                          Upload an FRS or other doc for layout hints.
                         </FormDescription>
                         <FormMessage />
                       </FormItem>
@@ -206,32 +207,19 @@ export default function WireframeGeneratorPage() {
           
           <div className="lg:col-span-2 grid md:grid-cols-2 gap-8">
             {isPending && (
-              <>
-                {renderSkeletonCard()}
-                {renderSkeletonCard()}
-              </>
+              Array.from({ length: 4 }).map((_, index) => renderSkeletonCard(index))
             )}
 
-            {result && (
-              <>
-                {renderResultCard("Homepage Wireframe", result.homepageWireframeText, result.homepageWireframeImage, "homepage")}
-                {renderResultCard("Key Feature Screen Wireframe", result.featureScreenWireframeText, result.featureScreenWireframeImage, "feature_screen")}
-              </>
+            {result && result.wireframes.map((wireframe, index) => 
+                renderResultCard(wireframe.screenName, wireframe.description, wireframe.image, index)
             )}
             
             {!isPending && !result && (
-              <>
-                <Card className="flex flex-col items-center justify-center min-h-[400px]">
-                    <CardContent className="text-center">
-                        <p className="text-muted-foreground">Homepage wireframe will appear here.</p>
-                    </CardContent>
-                </Card>
-                <Card className="flex flex-col items-center justify-center min-h-[400px]">
-                    <CardContent className="text-center">
-                        <p className="text-muted-foreground">Feature screen wireframe will appear here.</p>
-                    </CardContent>
-                </Card>
-              </>
+              <Card className="md:col-span-2 flex flex-col items-center justify-center min-h-[400px]">
+                  <CardContent className="text-center">
+                      <p className="text-muted-foreground">Your generated wireframes will appear here.</p>
+                  </CardContent>
+              </Card>
             )}
           </div>
         </div>
