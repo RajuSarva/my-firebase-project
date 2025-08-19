@@ -50,10 +50,8 @@ Adhere strictly to the following structure based on the Document Type, ensuring 
 **If Document Type is "BRD" (Business Requirements Document):**
 Generate a complete and exhaustive BRD using the following template. The document must be extremely detailed, at least 10 pages long, and thoroughly developed. Fill in every section with rich, relevant content derived from the project's title, description, and any uploaded file.
 
-# {{{title}}}: Business Requirement Document
-
+# Lead Generation App: Business Requirement Document
 ## 1. Author and Change Control
-
 | Approver | Name | Date Approved | Role | Signature | Version |
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | | [Project Sponsor Name] | {{{currentDate}}} | Stakeholder | | 1.0 |
@@ -277,7 +275,7 @@ This document defines the functional requirements for the **{{{title}}}**. It ai
 
 ### **2.2 Core Application Features**
 
-**(Generate 5-7 core features based on the project description and uploaded file. For each feature, provide the same detailed breakdown as above: Feature, User Story, Use Case, Actor, Pre-condition, Basic Flow, Post-Condition, and Validation.)**
+**(Generate 8-10 core features based on the project description and uploaded file. For each feature, provide the same extremely detailed breakdown as the examples above. Ensure the "Basic Flow" section contains a comprehensive, step-by-step description of user actions and system responses. The "Validation" section must contain multiple, specific validation rules.)**
 
 #### **Feature**: [Core Feature 1 from Description/File]
 - **User Story**: As a [user type], I want to [perform a core action], so that I can [achieve a primary goal].
@@ -285,13 +283,15 @@ This document defines the functional requirements for the **{{{title}}}**. It ai
 - **Actor**: [User Type]
 - **Pre-condition**: [e.g., User is logged in, User has necessary permissions]
 - **Basic Flow**:
-    1. [Extremely detailed, step-by-step description of the user's interaction with the feature.]
+    1. [Extremely detailed, step-by-step description of the user's interaction with the feature. Add many steps.]
     2. [System response to each user action.]
     3. ...
 - **Post-Condition**: [The state of the system after the flow is completed successfully.]
 - **Validation**:
-    1. [Detailed validation rule for input data.]
-    2. [Detailed error handling for invalid actions.]
+    1. [Detailed validation rule for input data 1.]
+    2. [Detailed validation rule for input data 2.]
+    3. [Detailed error handling for invalid actions.]
+    4. ...
 
 ---
 
