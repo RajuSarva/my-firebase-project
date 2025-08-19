@@ -8,7 +8,7 @@ import { useState, useTransition, useRef } from "react";
 import type { GenerateRefinedDocumentOutput } from "@/ai/flows/document-generator";
 import jsPDF from "jspdf";
 import autoTable from 'jspdf-autotable';
-import { marked, Lexer } from "marked";
+import { marked, Lexer, type Token } from "marked";
 
 
 import { DashboardLayout } from "@/components/dashboard-layout";
@@ -108,11 +108,8 @@ export default function DocumentGeneratorPage() {
 
     const logoImg = new Image();
     logoImg.src = STATIC_LOGO_BASE64;
-    
     const logoWidth = 75;
-    const img = new Image();
-    img.src = STATIC_LOGO_BASE64;
-    const logoHeight = (img.height * logoWidth) / img.width;
+    const logoHeight = (logoImg.height * logoWidth) / logoImg.width;
 
     const addPageContent = (docInstance: jsPDF, pageNumber: number) => {
       docInstance.setPage(pageNumber);
@@ -121,79 +118,68 @@ export default function DocumentGeneratorPage() {
       
       docInstance.saveGraphicsState();
       docInstance.setGState(new (doc as any).GState({opacity: 0.1}));
-      docInstance.addImage(logoImg, 'PNG', pdfWidth / 2 - 100, doc.internal.pageSize.getHeight() / 2 - 50, 200, (200 * img.height) / img.width);
+      docInstance.addImage(logoImg, 'PNG', pdfWidth / 2 - 100, doc.internal.pageSize.getHeight() / 2 - 50, 200, (200 * logoImg.height) / logoImg.width);
       docInstance.restoreGraphicsState();
     };
-
-    addPageContent(doc, 1);
 
     const tokens = new Lexer().lex(result.markdownContent);
     const body: any[] = [];
 
-    const processTokens = (tokensToProcess: marked.Token[], depth = 0) => {
-      tokensToProcess.forEach(token => {
-        switch (token.type) {
-          case 'heading':
-            let fontSize = 12;
-            let fontStyle: 'bold' | 'normal' = 'bold';
-            if (token.depth === 1) fontSize = 18;
-            if (token.depth === 2) fontSize = 16;
-            if (token.depth >= 3) fontSize = 14;
-            body.push({ content: token.text, styles: { fontStyle, fontSize } });
-            break;
-          case 'paragraph':
+    const processToken = (token: Token) => {
+      switch (token.type) {
+        case 'heading':
+          body.push({
+            content: token.text,
+            styles: {
+              fontStyle: 'bold',
+              fontSize: token.depth === 1 ? 18 : (token.depth === 2 ? 16 : 14),
+            },
+          });
+          break;
+        case 'paragraph':
+          body.push({ content: token.text, styles: { fontSize: 12 } });
+          break;
+        case 'list':
+           token.items.forEach(item => {
+             const itemText = item.tokens.map(t => 'text' in t ? t.text : '').join('');
+             body.push({
+               content: `• ${itemText}`,
+               styles: { fontSize: 12, cellPadding: { left: 10 } }
+             });
+           });
+          break;
+        case 'space':
+          body.push({ content: '', styles: { fontSize: 6 } });
+          break;
+        case 'text':
+          if (token.text.trim()) {
             body.push({ content: token.text, styles: { fontSize: 12 } });
-            break;
-          case 'list':
-            token.items.forEach((item) => {
-              if (item.type === 'list_item') {
-                const bullet = '•';
-                const itemText = item.tokens.map(t => 'text' in t ? t.text : '').join('');
-                const content = `${bullet} ${itemText}`;
-                
-                body.push({
-                  content: content,
-                  styles: { fontSize: 12, cellPadding: { left: 10 + depth * 15 } }
-                });
-
-                const nestedList = item.tokens.find(t => t.type === 'list') as marked.Tokens.List;
-                if (nestedList) {
-                  processTokens(nestedList.items, depth + 1);
-                }
-              }
-            });
-            break;
-          case 'space':
-            body.push({ content: '', styles: { fontSize: 6 } });
-            break;
-          case 'text':
-            if (token.text.trim()) {
-              body.push({ content: token.text, styles: { fontSize: 12 } });
-            }
-            break;
-        }
-      });
+          }
+          break;
+      }
     };
+    
+    tokens.forEach(token => processToken(token));
 
-    processTokens(tokens);
+    addPageContent(doc, 1);
 
     autoTable(doc, {
-        startY: 20 + logoHeight + 20,
-        body: body,
-        theme: 'plain',
-        styles: {
-            font: 'helvetica',
-            overflow: 'linebreak',
-            cellPadding: 2,
-            fontSize: 12,
-        },
-        columnStyles: {
-            0: { cellWidth: pdfWidth - margin * 2 },
-        },
-        didDrawPage: (data) => {
-            addPageContent(doc, data.pageNumber);
-        },
-        margin: { top: 20 + logoHeight + 20, bottom: 40 }
+      startY: 20 + logoHeight + 20,
+      body: body,
+      theme: 'plain',
+      styles: {
+        font: 'helvetica',
+        overflow: 'linebreak',
+        cellPadding: 2,
+        fontSize: 12,
+      },
+      columnStyles: {
+        0: { cellWidth: pdfWidth - margin * 2 },
+      },
+      didDrawPage: (data) => {
+        addPageContent(doc, data.pageNumber);
+      },
+      margin: { top: 20 + logoHeight + 20, bottom: 40 }
     });
 
     doc.save(`${form.getValues('title') || 'document'}.pdf`);
@@ -359,5 +345,3 @@ export default function DocumentGeneratorPage() {
     </DashboardLayout>
   );
 }
-
-    
