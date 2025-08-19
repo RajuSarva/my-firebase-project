@@ -76,10 +76,7 @@ const generateWireframesFlow = ai.defineFlow(
   async (input) => {
     const model = input.uploadedFile ? 'googleai/gemini-pro-vision' : 'googleai/gemini-1.5-flash-latest';
     
-    const llmResponse = await prompt.generate({
-        model: model,
-        input: input,
-    });
+    const llmResponse = await prompt(input, { model });
     
     const output = llmResponse.output();
 
