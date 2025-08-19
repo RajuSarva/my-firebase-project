@@ -101,68 +101,76 @@ export default function DocumentGeneratorPage() {
 
   const handleDownloadPdf = async () => {
     if (!result?.markdownContent) return;
-  
+
     const doc = new jsPDF('p', 'pt', 'a4');
     const pdfWidth = doc.internal.pageSize.getWidth();
     const margin = 40;
-  
-    // Load logo from base64 string
+
     const logoImg = new Image();
     logoImg.src = STATIC_LOGO_BASE64;
     
-    // We don't need to wait for onload for base64 images, but we'll keep the structure in case.
     const logoWidth = 75;
     const img = new Image();
     img.src = STATIC_LOGO_BASE64;
     const logoHeight = (img.height * logoWidth) / img.width;
-  
+
     const addPageContent = (docInstance: jsPDF, pageNumber: number) => {
       docInstance.setPage(pageNumber);
-      // Header
       docInstance.addImage(logoImg, 'PNG', margin, 20, logoWidth, logoHeight);
       docInstance.line(margin, 20 + logoHeight + 10, pdfWidth - margin, 20 + logoHeight + 10);
       
-      // Watermark
       docInstance.saveGraphicsState();
       docInstance.setGState(new (doc as any).GState({opacity: 0.1}));
       docInstance.addImage(logoImg, 'PNG', pdfWidth / 2 - 100, doc.internal.pageSize.getHeight() / 2 - 50, 200, (200 * img.height) / img.width);
       docInstance.restoreGraphicsState();
     };
-  
+
     addPageContent(doc, 1);
-  
+
     const tokens = new Lexer().lex(result.markdownContent);
     const body: any[] = [];
 
-    const processTokens = (tokens: marked.Token[], depth = 0) => {
-      tokens.forEach(token => {
-        if (token.type === 'heading') {
-          let fontSize = 12;
-          let fontStyle: 'bold' | 'normal' = 'bold';
-          if (token.depth === 1) fontSize = 18;
-          if (token.depth === 2) fontSize = 16;
-          if (token.depth === 3) fontSize = 14;
-          body.push({ content: token.text, styles: { fontStyle, fontSize } });
-        } else if (token.type === 'paragraph') {
-          body.push({ content: token.text, styles: { fontSize: 12 } });
-        } else if (token.type === 'list') {
-          token.items.forEach(item => {
-            const bullet = '•';
-            const itemText = item.tokens.map(t => 'text' in t ? t.text : '').join('');
-            const content = `${bullet} ${itemText}`;
-            body.push({ content, styles: { fontSize: 12, cellPadding: { left: 10 + depth * 15 } } });
-            
-            if (item.tokens.some(t => t.type === 'list')) {
+    const processTokens = (tokensToProcess: marked.Token[], depth = 0) => {
+      tokensToProcess.forEach(token => {
+        switch (token.type) {
+          case 'heading':
+            let fontSize = 12;
+            let fontStyle: 'bold' | 'normal' = 'bold';
+            if (token.depth === 1) fontSize = 18;
+            if (token.depth === 2) fontSize = 16;
+            if (token.depth >= 3) fontSize = 14;
+            body.push({ content: token.text, styles: { fontStyle, fontSize } });
+            break;
+          case 'paragraph':
+            body.push({ content: token.text, styles: { fontSize: 12 } });
+            break;
+          case 'list':
+            token.items.forEach((item) => {
+              if (item.type === 'list_item') {
+                const bullet = '•';
+                const itemText = item.tokens.map(t => 'text' in t ? t.text : '').join('');
+                const content = `${bullet} ${itemText}`;
+                
+                body.push({
+                  content: content,
+                  styles: { fontSize: 12, cellPadding: { left: 10 + depth * 15 } }
+                });
+
                 const nestedList = item.tokens.find(t => t.type === 'list') as marked.Tokens.List;
-                if(nestedList) {
-                   processTokens(nestedList.items, depth + 1);
+                if (nestedList) {
+                  processTokens(nestedList.items, depth + 1);
                 }
+              }
+            });
+            break;
+          case 'space':
+            body.push({ content: '', styles: { fontSize: 6 } });
+            break;
+          case 'text':
+            if (token.text.trim()) {
+              body.push({ content: token.text, styles: { fontSize: 12 } });
             }
-          });
-        } else if (token.type === 'space') {
-          body.push({ content: '', styles: { fontSize: 6 } });
-        } else if (token.type === 'text' && token.text.trim()) {
-           body.push({ content: token.text, styles: { fontSize: 12 } });
+            break;
         }
       });
     };
@@ -177,6 +185,7 @@ export default function DocumentGeneratorPage() {
             font: 'helvetica',
             overflow: 'linebreak',
             cellPadding: 2,
+            fontSize: 12,
         },
         columnStyles: {
             0: { cellWidth: pdfWidth - margin * 2 },
@@ -350,3 +359,5 @@ export default function DocumentGeneratorPage() {
     </DashboardLayout>
   );
 }
+
+    
