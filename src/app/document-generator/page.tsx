@@ -132,14 +132,16 @@ export default function DocumentGeneratorPage() {
     
     const processList = (items: any[], depth: number) => {
         items.forEach(item => {
-            let itemText = item.text || '';
-            if (item.tokens) {
-                itemText = item.tokens.map((t: any) => t.text || '').join('');
+            let itemText = '';
+            if(item.tokens && item.tokens.length > 0) {
+              itemText = item.tokens.map((t: any) => t.text).join('');
+            } else {
+              itemText = item.text || '';
             }
             
             body.push({
                 content: `${' '.repeat(depth * 4)}• ${itemText}`,
-                styles: { fontSize: 10, cellPadding: 1 }
+                styles: { fontSize: 10, cellPadding: 1, halign: 'left' }
             });
             if (item.items && item.items.length > 0) {
                 processList(item.items, depth + 1);
@@ -169,7 +171,7 @@ export default function DocumentGeneratorPage() {
           body.push({ content: '', styles: { fontSize: 6 } });
           break;
         case 'text':
-          if (token.text.trim()) {
+          if (token.text && token.text.trim()) {
             body.push({ content: token.text, styles: { fontSize: 10, cellPadding: 2 } });
           }
           break;
@@ -189,13 +191,12 @@ export default function DocumentGeneratorPage() {
         0: { cellWidth: pdfWidth - margin * 2 },
       },
       didDrawPage: (data) => {
-        // DidDrawPage is called AFTER the page is added, so we apply header/watermark here.
         addPageContent(doc);
       },
       margin: { top: 20 + logoHeight + 20, bottom: 40 }
     });
 
-    // Ensure the first page content is added if only one page is created.
+    // Final check to add content to the first page if it's the only one.
     if ((doc.internal as any).getNumberOfPages() === 1) {
         addPageContent(doc);
     }
