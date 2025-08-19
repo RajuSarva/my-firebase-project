@@ -17,7 +17,7 @@ const GenerateWireframesInputSchema = z.object({
   uploadedFile: z
     .string()
     .optional()
-    .describe("A file, as a data URI string."),
+    .describe("A file, as a data URI string that must include a MIME type and use Base64 encoding. Expected format: 'data:<mimetype>;base64,<encoded_data>'."),
 });
 
 export type GenerateWireframesInput = z.infer<typeof GenerateWireframesInputSchema>;
@@ -76,43 +76,47 @@ const generateWireframesFlow = ai.defineFlow(
   async (input) => {
     const model = input.uploadedFile ? 'googleai/gemini-pro-vision' : 'googleai/gemini-1.5-flash-latest';
     
-    const llmResponse = await ai.generate({
-        prompt: {
-            text: prompt.prompt,
-            input: input,
-        },
+    const llmResponse = await prompt.generate({
         model: model,
-        output: {
-            schema: prompt.output.schema,
-        },
-        config: prompt.config,
+        input: input,
     });
     
     const output = llmResponse.output();
+
+    if (!output) {
+      throw new Error("Failed to generate wireframe text descriptions.");
+    }
 
     // Generate images for the wireframes in parallel with text generation to improve perceived performance
     const [homepageWireframeImage, featureScreenWireframeImage] = await Promise.all([
       ai.generate({
         model: 'googleai/gemini-2.0-flash-preview-image-generation',
-        prompt: `Generate a wireframe image for the homepage based on this description: ${output?.homepageWireframeText}`,
+        prompt: `Generate a wireframe image for the homepage based on this description: ${output.homepageWireframeText}`,
         config: {
           responseModalities: ['TEXT', 'IMAGE'],
         },
       }),
       ai.generate({
         model: 'googleai/gemini-2.0-flash-preview-image-generation',
-        prompt: `Generate a wireframe image for the key feature screen based on this description: ${output?.featureScreenWireframeText}`,
+        prompt: `Generate a wireframe image for the key feature screen based on this description: ${output.featureScreenWireframeText}`,
         config: {
           responseModalities: ['TEXT', 'IMAGE'],
         },
       }),
     ]);
+    
+    const homepageImage = homepageWireframeImage.media?.url;
+    const featureScreenImage = featureScreenWireframeImage.media?.url;
+
+    if (!homepageImage || !featureScreenImage) {
+        throw new Error("Failed to generate wireframe images.");
+    }
 
     return {
-      homepageWireframeText: output!.homepageWireframeText,
-      featureScreenWireframeText: output!.featureScreenWireframeText,
-      homepageWireframeImage: homepageWireframeImage.media!.url,
-      featureScreenWireframeImage: featureScreenWireframeImage.media!.url,
+      homepageWireframeText: output.homepageWireframeText,
+      featureScreenWireframeText: output.featureScreenWireframeText,
+      homepageWireframeImage: homepageImage,
+      featureScreenWireframeImage: featureScreenImage,
     };
   }
 );

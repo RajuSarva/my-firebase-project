@@ -17,7 +17,7 @@ const GenerateRefinedDocumentInputSchema = z.object({
   uploadedFile: z
     .string()
     .optional()
-    .describe("A file, as a data URI string."),
+    .describe("A file, as a data URI string that must include a MIME type and use Base64 encoding. Expected format: 'data:<mimetype>;base64,<encoded_data>'."),
 });
 export type GenerateRefinedDocumentInput = z.infer<typeof GenerateRefinedDocumentInputSchema>;
 
@@ -76,16 +76,9 @@ const generateRefinedDocumentFlow = ai.defineFlow(
   async (input) => {
     const model = input.uploadedFile ? 'googleai/gemini-pro-vision' : 'googleai/gemini-1.5-flash-latest';
     
-    const llmResponse = await ai.generate({
-      prompt: {
-        text: refineDocumentPrompt.prompt,
-        input: input,
-      },
+    const llmResponse = await refineDocumentPrompt.generate({
       model: model,
-      output: {
-        schema: refineDocumentPrompt.output.schema,
-      },
-      config: refineDocumentPrompt.config,
+      input: input,
     });
     
     return llmResponse.output()!;

@@ -1,4 +1,3 @@
-// src/ai/flows/flowchart-generator.ts
 'use server';
 /**
  * @fileOverview Generates a flowchart in Mermaid syntax from a description and an optional file.
@@ -17,7 +16,7 @@ const GenerateFlowchartInputSchema = z.object({
   uploadedFile: z
     .string()
     .optional()
-    .describe("A file, as a data URI string."),
+    .describe("A file, as a data URI string that must include a MIME type and use Base64 encoding. Expected format: 'data:<mimetype>;base64,<encoded_data>'."),
 });
 
 export type GenerateFlowchartInput = z.infer<typeof GenerateFlowchartInputSchema>;
@@ -45,16 +44,9 @@ const generateFlowchartFlow = ai.defineFlow(
   async (input) => {
     const model = input.uploadedFile ? 'googleai/gemini-pro-vision' : 'googleai/gemini-1.5-flash-latest';
     
-    const llmResponse = await ai.generate({
-        prompt: {
-            text: prompt.prompt,
-            input: input,
-        },
+    const llmResponse = await prompt.generate({
         model: model,
-        output: {
-            schema: prompt.output.schema,
-        },
-        config: prompt.config,
+        input: input,
     });
     
     return llmResponse.output()!;
