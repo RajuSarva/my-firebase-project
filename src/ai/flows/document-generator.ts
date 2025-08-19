@@ -209,7 +209,7 @@ Include placeholder for payment information if applicable.
 
 
 **If Document Type is "FRS" (Functional Requirements Specification):**
-Generate a complete and exhaustive FRS based on the provided title, description, and uploaded file. This document needs to be extremely detailed, breaking down every function into minute steps, user stories, and validation criteria. Use the following template as a strict guide. All headings and subheadings MUST be bold.
+Generate a complete and exhaustive FRS based on the provided title, description, and uploaded file. This document needs to be extremely detailed and at least 10 pages long, breaking down every function into minute steps, user stories, and validation criteria. Use the following template as a strict guide. All headings and subheadings MUST be bold.
 
 # **Functional Requirement Specification - {{{title}}}**
 
