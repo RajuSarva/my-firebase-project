@@ -61,12 +61,12 @@ export function MermaidPreview({ chart, title }: MermaidPreviewProps) {
   
   const downloadPNG = () => {
     if (!svg) return;
-    const svgBlob = new Blob([svg], { type: "image/svg+xml;charset=utf-8" });
-    const url = URL.createObjectURL(svgBlob);
     
     const img = new Image();
-    img.crossOrigin = "anonymous"; // Fix for tainted canvas error
     
+    // Use a data URI to avoid tainting the canvas
+    const svgDataUri = "data:image/svg+xml;base64," + btoa(unescape(encodeURIComponent(svg)));
+
     img.onload = () => {
       const canvas = document.createElement("canvas");
       const padding = 40;
@@ -103,10 +103,9 @@ export function MermaidPreview({ chart, title }: MermaidPreviewProps) {
 
         const pngUrl = canvas.toDataURL("image/png");
         downloadFile({ content: pngUrl, fileName: `${title || 'flowchart'}.png`, contentType: 'image/png' });
-        URL.revokeObjectURL(url);
       }
     };
-    img.src = url;
+    img.src = svgDataUri;
   };
 
   return (
