@@ -54,7 +54,7 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
-const STATIC_LOGO_URL = 'https://placehold.co/150x75.png';
+const STATIC_LOGO_URL = '/logo.png';
 
 export default function DocumentGeneratorPage() {
   const [isPending, startTransition] = useTransition();
@@ -111,9 +111,24 @@ export default function DocumentGeneratorPage() {
     const logoImg = new Image();
     logoImg.crossOrigin = "anonymous";
     logoImg.src = STATIC_LOGO_URL;
-    await new Promise(resolve => logoImg.onload = resolve);
+    
+    try {
+      await new Promise((resolve, reject) => {
+        logoImg.onload = resolve;
+        logoImg.onerror = reject;
+      });
+    } catch (error) {
+        console.error("Error loading logo:", error);
+        toast({
+          variant: "destructive",
+          title: "Logo Error",
+          description: "Could not load the logo. Make sure 'logo.png' is in the 'public' folder.",
+        });
+        return;
+    }
+    
     const logoWidth = 75;
-    const logoHeight = 37.5;
+    const logoHeight = (logoImg.height * logoWidth) / logoImg.width;
   
     const addPageContent = (docInstance: jsPDF, pageNumber: number) => {
       docInstance.setPage(pageNumber);
@@ -124,53 +139,37 @@ export default function DocumentGeneratorPage() {
       // Watermark
       docInstance.saveGraphicsState();
       docInstance.setGState(new doc.GState({opacity: 0.1}));
-      docInstance.addImage(logoImg, 'PNG', pdfWidth / 2 - 100, doc.internal.pageSize.getHeight() / 2 - 50, 200, 100);
+      docInstance.addImage(logoImg, 'PNG', pdfWidth / 2 - 100, doc.internal.pageSize.getHeight() / 2 - 50, 200, (200 * logoImg.height) / logoImg.width);
       docInstance.restoreGraphicsState();
     };
   
     addPageContent(doc, 1);
   
     const tokens = new Lexer().lex(result.markdownContent);
-    let y = 20 + logoHeight + 20;
     const body: any[] = [];
   
     tokens.forEach(token => {
-      let text = '';
-      let styles: { fontStyle?: 'bold' | 'normal', fontSize?: number } = {};
-  
-      switch (token.type) {
-        case 'heading':
-          text = token.text;
-          if (token.depth === 1) styles = { fontStyle: 'bold', fontSize: 18 };
-          else if (token.depth === 2) styles = { fontStyle: 'bold', fontSize: 16 };
-          else styles = { fontStyle: 'bold', fontSize: 14 };
-          break;
-        case 'paragraph':
-          text = token.text;
-          styles = { fontSize: 12 };
-          break;
-        case 'list':
-            token.items.forEach(item => {
-                let itemText = `• ${item.text}\n`;
-                body.push({ content: itemText, styles: { fontSize: 12 } });
-            });
-            return; // Skip adding to body array directly
-        case 'space':
-             body.push({ content: '', styles: { fontSize: 12 } });
-             return;
-        case 'text':
-            text = token.text;
-            styles = { fontSize: 12 };
-            break;
-      }
-      
-      if(text) {
-          body.push({ content: text, styles });
+      if (token.type === 'heading') {
+        let fontSize = 12;
+        if (token.depth === 1) fontSize = 18;
+        if (token.depth === 2) fontSize = 16;
+        if (token.depth === 3) fontSize = 14;
+        body.push({ content: token.text, styles: { fontStyle: 'bold', fontSize } });
+      } else if (token.type === 'paragraph') {
+        body.push({ content: token.text, styles: { fontSize: 12 } });
+      } else if (token.type === 'list') {
+        token.items.forEach(item => {
+          body.push({ content: `• ${item.text}`, styles: { fontSize: 12, cellPadding: {top: 2, right: 2, bottom: 2, left: 10} } });
+        });
+      } else if (token.type === 'space') {
+        body.push({ content: '', styles: { fontSize: 6 } });
+      } else if (token.type === 'text') {
+        body.push({ content: token.text, styles: { fontSize: 12 } });
       }
     });
 
     autoTable(doc, {
-        startY: y,
+        startY: 20 + logoHeight + 20,
         body: body,
         theme: 'plain',
         styles: {
@@ -183,7 +182,12 @@ export default function DocumentGeneratorPage() {
         },
         didDrawPage: (data) => {
             addPageContent(doc, data.pageNumber);
-        }
+            if (data.pageNumber > 1) {
+              doc.setPage(data.pageNumber);
+              doc.setY(40);
+            }
+        },
+        margin: { top: 20 + logoHeight + 20 }
     });
 
     doc.save(`${form.getValues('title') || 'document'}.pdf`);
@@ -349,5 +353,3 @@ export default function DocumentGeneratorPage() {
     </DashboardLayout>
   );
 }
-
-    
