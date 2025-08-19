@@ -139,12 +139,12 @@ Generate a complete and exhaustive FRS based on the provided title and descripti
 - **Document Title**: {{{title}}} - Functional Requirements Specification
 - **Version**: 1.0
 - **Date**: {{{currentDate}}}
-- **Prepared by**: AI Requirement Analyst
+- **Prepared by**: Team Geega Tech
 
 ## Document Control
 | Version | Date          | Description    | Author                |
 |---------|---------------|----------------|-----------------------|
-| 1.0     | {{{currentDate}}}| Initial Draft  | AI Requirement Analyst|
+| 1.0     | {{{currentDate}}}| Initial Draft  | Team Geega Tech|
 
 ## 1. Purpose
 This document defines the functional requirements for the **{{{title}}}**. It aims to provide a secure, user-friendly, and robust solution that addresses the core functionalities outlined in the project description: **{{{description}}}**. This document will guide developers, QA teams, and project managers throughout the development lifecycle.
