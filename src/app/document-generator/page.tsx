@@ -105,51 +105,57 @@ export default function DocumentGeneratorPage() {
 
   const handleDownloadPdf = () => {
     if (!result) return;
-
+  
     const doc = new jsPDF() as jsPDFWithAutoTable;
     const tokens = marked.lexer(result.markdownContent);
-
-    let y = 15; // Initial Y position
-    const pageHeight = doc.internal.pageSize.height;
+  
+    let y = 15;
     const margin = 15;
+    const pageHeight = doc.internal.pageSize.height;
+    const maxWidth = doc.internal.pageSize.width - margin * 2;
+  
     const listStack: ('ordered' | 'unordered')[] = [];
-    const listCounters: number[] = [];
-
+    let listCounters: number[] = [];
+  
     const checkPageBreak = (spaceNeeded: number) => {
       if (y + spaceNeeded > pageHeight - margin) {
         doc.addPage();
         y = margin;
       }
     };
-
+  
     const processToken = (token: marked.Token) => {
+      let textLines: string[];
       switch (token.type) {
         case 'heading':
           checkPageBreak(15);
           doc.setFont('helvetica', 'bold');
-          doc.setFontSize(22 - token.depth * 2); // h1=20, h2=18, ...
-          doc.text(token.text, margin, y);
-          y += 10;
+          doc.setFontSize(22 - token.depth * 2);
+          textLines = doc.splitTextToSize(token.text, maxWidth);
+          doc.text(textLines, margin, y);
+          y += textLines.length * 7;
           break;
-
+  
         case 'paragraph':
           checkPageBreak(10);
           doc.setFont('helvetica', 'normal');
           doc.setFontSize(12);
-          const lines = doc.splitTextToSize(token.text, doc.internal.pageSize.width - margin * 2);
-          doc.text(lines, margin, y);
-          y += lines.length * 6;
+          textLines = doc.splitTextToSize(token.text, maxWidth);
+          doc.text(textLines, margin, y);
+          y += textLines.length * 6;
           break;
           
         case 'list':
+          y += 2;
+          checkPageBreak(5);
           listStack.push(token.ordered ? 'ordered' : 'unordered');
           listCounters.push(token.start || 1);
           token.items.forEach(processToken);
           listStack.pop();
           listCounters.pop();
-          y += 5;
+          y += 3;
           break;
-
+  
         case 'list_item':
           checkPageBreak(8);
           doc.setFont('helvetica', 'normal');
@@ -162,31 +168,31 @@ export default function DocumentGeneratorPage() {
             bullet = `${listCounters[counterIndex]}.`;
             listCounters[counterIndex]++;
           } else {
-            bullet = '-';
+            bullet = '•'; // A proper bullet character
           }
           
-          const itemLines = doc.splitTextToSize(token.text, doc.internal.pageSize.width - indent - margin - 5);
+          const itemLines = doc.splitTextToSize(token.text, maxWidth - indent - 5);
           doc.text(`${bullet}`, indent, y);
           doc.text(itemLines, indent + 5, y);
           y += itemLines.length * 6;
           
           if(token.tokens) {
-            token.tokens.forEach(processToken)
+            token.tokens.forEach(processToken);
           }
           break;
-
+  
         case 'space':
           y += 5;
           break;
-
+  
         case 'hr':
           checkPageBreak(10);
           doc.line(margin, y, doc.internal.pageSize.width - margin, y);
           y += 5;
           break;
       }
-    }
-
+    };
+  
     tokens.forEach(processToken);
     doc.save(`${form.getValues("title") || "document"}.pdf`);
   };
