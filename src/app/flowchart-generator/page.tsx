@@ -67,7 +67,7 @@ export default function FlowchartGeneratorPage() {
       const response = await handleFlowchartGeneration(formData);
       if (response.success && response.data) {
         // Ensure the mermaid syntax is correctly formatted
-        const mermaidSyntax = response.data.mermaidSyntax.replace(/^```mermaid\n|```$/g, '').trim();
+        const mermaidSyntax = response.data.mermaidSyntax.replace(/^```mermaid\n|```$/g, '').replace(/^mermaid\n/, '').trim();
         setResult({ mermaidSyntax });
       } else {
         toast({
