@@ -45,31 +45,82 @@ Base the document on the following inputs:
 Adhere strictly to the following structure based on the Document Type, ensuring every section is flushed out with substantial detail and examples.
 
 **If Document Type is "BRD" (Business Requirements Document):**
-Generate a complete BRD with the following sections, making sure each subsection is elaborate:
-1.  **Introduction**:
-    *   1.1. Purpose (Clearly state the business problem and the document's objective.)
-    *   1.2. Scope (Detail what is in and out of scope for the project.)
-    *   1.3. Business Objectives (List specific, measurable, achievable, relevant, and time-bound (SMART) goals.)
-    *   1.4. Stakeholders (List all key stakeholders and their roles/responsibilities.)
-2.  **Business Process Overview**:
-    *   2.1. Current Process (As-Is) (Provide a detailed narrative and diagram of the existing workflow.)
-    *   2.2. Proposed Process (To-Be) (Provide a detailed narrative and diagram of the new, improved workflow.)
-    *   2.3. Use Case Diagram (A comprehensive diagram showing actor interactions with the system.)
-3.  **Functional Requirements**:
-    *   3.1. High-Level Features (List and describe each major feature in exhaustive detail.)
-    *   3.2. User Stories (Provide at least 15-20 detailed user stories with acceptance criteria for each.)
-4.  **Non-Functional Requirements**:
-    *   4.1. Performance (e.g., response times, concurrent users.)
-    *   4.2. Security (e.g., data encryption, access control.)
-    *   4.3. Usability (e.g., accessibility standards, user interface guidelines.)
-    *   4.4. Scalability (e.g., expected growth in users/data.)
-    *   4.5. Compliance (e.g., GDPR, HIPAA.)
-5.  **Assumptions and Constraints**:
-    *   5.1. Business Assumptions
-    *   5.2. Technical Constraints
-6.  **Success Metrics**:
-    *   6.1. Key Performance Indicators (KPIs) (Define how success will be measured.)
-7.  **Glossary** (Define all key terms used in the document.)
+Generate a complete BRD using the following template. Adapt the content based on the provided Title and Description. Be extremely detailed.
+
+# Business Requirements Document (BRD) - {{{title}}}
+
+## 1. Introduction
+This document outlines the business requirements for the development of the {{{title}}}. The application aims to {{{description}}}.
+
+## 2. Project Goals and Objectives
+*   **Goal**: To develop a user-friendly and efficient application, {{{title}}}, that connects [User A] with [User B] to [Primary Goal from Description].
+*   **Objectives**:
+    *   [Generate a detailed list of 5-7 specific business objectives based on the project description. Examples: Increase utilization of X, Reduce Y, Lower costs for Z, Minimize environmental impact, Provide a convenient and reliable platform.]
+
+## 3. Target Audience
+*   **[Primary User Persona, e.g., Drivers]**: [Describe this user type, their needs, and why they would use the app, based on the description.]
+*   **[Secondary User Persona, e.g., Passengers]**: [Describe this user type, their needs, and why they would use the app, based on the description.]
+*   **(Add more personas if implied by the description.)**
+
+## 4. Scope
+*   **Inclusions**:
+    *   User registration and profile management for all user types.
+    *   Core feature 1 (e.g., Ride posting and searching).
+    *   Core feature 2 (e.g., Real-time matching based on key criteria).
+    *   Core feature 3 (e.g., In-app communication).
+    *   Secure payment gateway integration (if applicable).
+    *   Rating and review system for users.
+    *   Core feature 4 (e.g., Route optimization and mapping).
+    *   History/Dashboard functionality.
+    *   Support for multiple platforms (iOS and Android).
+*   **Exclusions**:
+    *   [List 2-3 logical exclusions. Examples: Direct insurance provided by the app, Direct employment of users, Integration with unrelated third-party systems.]
+
+## 5. Functional Requirements
+*   **User Registration and Authentication**: Users should be able to register with their email, phone number, or social media accounts. Implement two-factor authentication for enhanced security.
+*   **Profile Management**: Users should be able to create and manage their profiles, including personal information, profile picture, and other relevant details (e.g., vehicle details for drivers).
+*   **[Core Feature 1 - Detailed]**: [Provide a detailed description of the first core feature. e.g., For a carpool app, "Drivers should be able to post their planned trips, specifying origin, destination, date, time, available seats, and price per seat."]
+*   **[Core Feature 2 - Detailed]**: [Provide a detailed description of the second core feature. e.g., "Passengers should be able to search for available rides based on their origin, destination, and preferred travel dates/times."]
+*   **Real-time Matching**: The application should provide real-time matching of users based on their specified criteria.
+*   **In-app Communication**: Users should be able to communicate with each other through in-app messaging or calling features.
+*   **Payment Integration**: Secure payment gateway integration for processing payments.
+*   **Rating and Review System**: Users should be able to rate and review each other after completing an interaction.
+*   **[Core Feature 3 - Detailed]**: [Provide a detailed description of another core feature, e.g., "Integration with a mapping service to provide optimized routes and real-time navigation."]
+*   **Trip History**: Users should be able to access a history of their past activities, including details like date, time, cost, and other relevant information.
+
+## 6. Non-Functional Requirements
+*   **Performance**: The application should be responsive and perform efficiently under high user load.
+*   **Security**: User data should be protected through robust security measures, including data encryption.
+*   **Scalability**: The application architecture should be scalable to accommodate future growth in user base and features.
+*   **Usability**: The application should be user-friendly and intuitive to navigate.
+*   **Reliability**: The application should be reliable and available with minimal downtime (e.g., 99.9% uptime).
+*   **Accessibility**: The application should adhere to WCAG 2.1 AA accessibility guidelines.
+
+## 7. Technical Requirements
+*   **Platform**: iOS and Android mobile applications.
+*   **Technology Stack**: (To be determined based on further analysis, but may include technologies such as React Native/Flutter for cross-platform, or Swift/Kotlin for native, and a backend like Node.js, Python, or Go with a database like PostgreSQL or MongoDB.)
+*   **API Integrations**: Mapping API (e.g., Google Maps, Mapbox), Payment Gateway API (e.g., Stripe, PayPal), and potentially others based on features.
+
+## 8. Open Issues/Risks
+*   **Competition**: Analyze existing competitors in the market.
+*   **User Adoption**: The challenge of attracting a critical mass of users to ensure platform viability.
+*   **Security Concerns**: Protecting user data and preventing fraudulent activities.
+*   **Regulatory Compliance**: Adhering to local regulations that may apply to the application's domain.
+
+## 9. Future Enhancements (Roadmap)
+*   [Suggest a logical future enhancement, e.g., "Integration with public transportation schedules."]
+*   [Suggest another logical future enhancement, e.g., "Scheduling for recurring trips/interactions."]
+*   [Suggest another logical future enhancement, e.g., "Enhanced safety features (e.g., emergency contact sharing)."]
+*   [Suggest another logical future enhancement, e.g., "Gamification to encourage platform use."]
+
+## 10. Approval
+_________________________
+(Project Sponsor)
+
+_________________________
+(Date)
+
+This BRD serves as the foundation for the development of the {{{title}}}. It will be reviewed and updated as needed throughout the project lifecycle.
 
 **If Document Type is "FRS" (Functional Requirements Specification):**
 Generate a complete and exhaustive FRS. This document needs to be extremely detailed, breaking down every function into minute steps.
@@ -188,5 +239,3 @@ const generateRefinedDocumentFlow = ai.defineFlow(
 );
 
 export const generateRefinedDocument = generateRefinedDocumentFlow;
-
-    
