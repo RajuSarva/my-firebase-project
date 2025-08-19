@@ -84,18 +84,20 @@ const generateWireframesFlow = ai.defineFlow(
       throw new Error("Failed to generate wireframe text descriptions.");
     }
 
+    const wireframeImagePrompt = (description: string) => `Generate a clean, black and white, low-fidelity UI wireframe for a mobile app screen. The wireframe should be schematic, using simple shapes like rectangles for placeholders (e.g., images, buttons) and squiggly lines for text. Do not include any color, detailed graphics, or realistic photos. The output must look like a professional, early-stage design mockup. The wireframe should be based on this description: ${description}`;
+
     // Generate images for the wireframes in parallel with text generation to improve perceived performance
     const [homepageWireframeImage, featureScreenWireframeImage] = await Promise.all([
       ai.generate({
         model: 'googleai/gemini-2.0-flash-preview-image-generation',
-        prompt: `Generate a wireframe image for the homepage based on this description: ${output.homepageWireframeText}`,
+        prompt: wireframeImagePrompt(output.homepageWireframeText),
         config: {
           responseModalities: ['TEXT', 'IMAGE'],
         },
       }),
       ai.generate({
         model: 'googleai/gemini-2.0-flash-preview-image-generation',
-        prompt: `Generate a wireframe image for the key feature screen based on this description: ${output.featureScreenWireframeText}`,
+        prompt: wireframeImagePrompt(output.featureScreenWireframeText),
         config: {
           responseModalities: ['TEXT', 'IMAGE'],
         },
