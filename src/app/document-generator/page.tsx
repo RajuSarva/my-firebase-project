@@ -6,7 +6,7 @@ import { z } from "zod";
 import { useState, useTransition, useRef } from "react";
 import type { GenerateRefinedDocumentOutput } from "@/ai/flows/document-generator";
 import jsPDF from "jspdf";
-import html2canvas from "html2canvas";
+import "jspdf-autotable";
 import { marked } from "marked";
 
 import { DashboardLayout } from "@/components/dashboard-layout";
@@ -42,7 +42,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { handleDocumentGeneration } from "@/lib/actions";
 import { useToast } from "@/hooks/use-toast";
 import { Download } from "lucide-react";
-import { STATIC_LOGO_BASE64 } from "@/lib/logo";
 
 const formSchema = z.object({
   title: z.string().min(2, { message: "Title must be at least 2 characters." }),
@@ -54,6 +53,10 @@ const formSchema = z.object({
 });
 
 type FormValues = z.infer<typeof formSchema>;
+
+interface jsPDFWithAutoTable extends jsPDF {
+  autoTable: (options: any) => jsPDF;
+}
 
 export default function DocumentGeneratorPage() {
   const [isPending, startTransition] = useTransition();
@@ -100,41 +103,92 @@ export default function DocumentGeneratorPage() {
     });
   };
 
-  const handleDownloadPdf = async () => {
-    const reportElement = reportRef.current;
-    if (!reportElement) return;
+  const handleDownloadPdf = () => {
+    if (!result) return;
 
-    const canvas = await html2canvas(reportElement, {
-      scale: 2,
-      useCORS: true,
-      backgroundColor: null,
-    });
+    const doc = new jsPDF() as jsPDFWithAutoTable;
+    const tokens = marked.lexer(result.markdownContent);
 
-    const imgData = canvas.toDataURL("image/png");
+    let y = 15; // Initial Y position
+    const pageHeight = doc.internal.pageSize.height;
+    const margin = 15;
+    const listStack: ('ordered' | 'unordered')[] = [];
+    const listCounters: number[] = [];
 
-    const pdf = new jsPDF("p", "pt", "a4");
-    const pdfWidth = pdf.internal.pageSize.getWidth();
-    const pdfHeight = pdf.internal.pageSize.getHeight();
-    const margin = 40;
+    const checkPageBreak = (spaceNeeded: number) => {
+      if (y + spaceNeeded > pageHeight - margin) {
+        doc.addPage();
+        y = margin;
+      }
+    };
 
-    const imgProps = pdf.getImageProperties(imgData);
-    const imgWidth = pdfWidth - margin * 2;
-    const imgHeight = (imgProps.height * imgWidth) / imgProps.width;
+    const processToken = (token: marked.Token) => {
+      switch (token.type) {
+        case 'heading':
+          checkPageBreak(15);
+          doc.setFont('helvetica', 'bold');
+          doc.setFontSize(22 - token.depth * 2); // h1=20, h2=18, ...
+          doc.text(token.text, margin, y);
+          y += 10;
+          break;
 
-    let heightLeft = imgHeight;
-    let position = 20;
+        case 'paragraph':
+          checkPageBreak(10);
+          doc.setFont('helvetica', 'normal');
+          doc.setFontSize(12);
+          const lines = doc.splitTextToSize(token.text, doc.internal.pageSize.width - margin * 2);
+          doc.text(lines, margin, y);
+          y += lines.length * 6;
+          break;
+          
+        case 'list':
+          listStack.push(token.ordered ? 'ordered' : 'unordered');
+          listCounters.push(token.start || 1);
+          token.items.forEach(processToken);
+          listStack.pop();
+          listCounters.pop();
+          y += 5;
+          break;
 
-    pdf.addImage(imgData, "PNG", margin, position, imgWidth, imgHeight);
-    heightLeft -= pdfHeight - position - margin;
+        case 'list_item':
+          checkPageBreak(8);
+          doc.setFont('helvetica', 'normal');
+          doc.setFontSize(12);
+          const indent = margin + (listStack.length - 1) * 10;
+          
+          let bullet;
+          if (listStack[listStack.length - 1] === 'ordered') {
+            const counterIndex = listCounters.length - 1;
+            bullet = `${listCounters[counterIndex]}.`;
+            listCounters[counterIndex]++;
+          } else {
+            bullet = '-';
+          }
+          
+          const itemLines = doc.splitTextToSize(token.text, doc.internal.pageSize.width - indent - margin - 5);
+          doc.text(`${bullet}`, indent, y);
+          doc.text(itemLines, indent + 5, y);
+          y += itemLines.length * 6;
+          
+          if(token.tokens) {
+            token.tokens.forEach(processToken)
+          }
+          break;
 
-    while (heightLeft > 0) {
-      position = -heightLeft - margin;
-      pdf.addPage();
-      pdf.addImage(imgData, "PNG", margin, position, imgWidth, imgHeight);
-      heightLeft -= pdfHeight;
+        case 'space':
+          y += 5;
+          break;
+
+        case 'hr':
+          checkPageBreak(10);
+          doc.line(margin, y, doc.internal.pageSize.width - margin, y);
+          y += 5;
+          break;
+      }
     }
 
-    pdf.save(`${form.getValues("title") || "document"}.pdf`);
+    tokens.forEach(processToken);
+    doc.save(`${form.getValues("title") || "document"}.pdf`);
   };
 
   const handleDownloadMd = () => {
@@ -303,7 +357,7 @@ export default function DocumentGeneratorPage() {
                   <Button
                     variant="outline"
                     onClick={handleDownloadPdf}
-                    disabled={!htmlContent}
+                    disabled={!result}
                   >
                     <Download className="mr-2" />
                     Download .pdf
