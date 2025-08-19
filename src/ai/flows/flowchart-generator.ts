@@ -46,7 +46,7 @@ const generateFlowchartFlow = ai.defineFlow(
     
     const llmResponse = await prompt(input, { model });
     
-    return llmResponse.output()!;
+    return llmResponse.output!;
   }
 );
 

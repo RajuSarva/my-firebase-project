@@ -78,7 +78,7 @@ const generateRefinedDocumentFlow = ai.defineFlow(
     
     const llmResponse = await refineDocumentPrompt(input, { model });
     
-    return llmResponse.output()!;
+    return llmResponse.output!;
   }
 );
 

@@ -78,7 +78,7 @@ const generateWireframesFlow = ai.defineFlow(
     
     const llmResponse = await prompt(input, { model });
     
-    const output = llmResponse.output();
+    const output = llmResponse.output;
 
     if (!output) {
       throw new Error("Failed to generate wireframe text descriptions.");
