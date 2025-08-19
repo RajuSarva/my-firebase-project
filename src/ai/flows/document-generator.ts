@@ -41,13 +41,14 @@ Base the document on the following inputs:
 - Document Type: {{{documentType}}}
 - Current Date: {{{currentDate}}}
 {{#if uploadedFile}}
-- Additional Context from Uploaded File: {{media url=uploadedFile}}
+- **Primary Source of Information**: The content of the following uploaded document should be used as the main source for generating the detailed requirements.
+- Uploaded File Content: {{media url=uploadedFile}}
 {{/if}}
 
 Adhere strictly to the following structure based on the Document Type, ensuring every section is flushed out with substantial detail and examples.
 
 **If Document Type is "BRD" (Business Requirements Document):**
-Generate a complete BRD using the following template. Be extremely detailed and comprehensive, adapting the content logically from the project title and description.
+Generate a complete BRD using the following template. Be extremely detailed and comprehensive, adapting the content logically from the project title, description, and uploaded file.
 
 # Business Requirements Document (BRD) - {{{title}}}
 
@@ -131,7 +132,7 @@ This BRD serves as the foundation for the development of the {{{title}}}. It wil
 
 
 **If Document Type is "FRS" (Functional Requirements Specification):**
-Generate a complete and exhaustive FRS based on the provided title and description. This document needs to be extremely detailed, breaking down every function into minute steps, user stories, and validation criteria. Use the following template as a strict guide.
+Generate a complete and exhaustive FRS based on the provided title, description, and uploaded file. This document needs to be extremely detailed, breaking down every function into minute steps, user stories, and validation criteria. Use the following template as a strict guide.
 
 # Functional Requirement Specification - {{{title}}}
 
@@ -199,9 +200,9 @@ This document defines the functional requirements for the **{{{title}}}**. It ai
 
 ### 2.2 Core Application Features
 
-**(Generate 5-7 core features based on the project description. For each feature, provide the same detailed breakdown as above: Feature, User Story, Use Case, Actor, Pre-condition, Basic Flow, Post-Condition, and Validation.)**
+**(Generate 5-7 core features based on the project description and uploaded file. For each feature, provide the same detailed breakdown as above: Feature, User Story, Use Case, Actor, Pre-condition, Basic Flow, Post-Condition, and Validation.)**
 
-#### **Feature**: [Core Feature 1 from Description]
+#### **Feature**: [Core Feature 1 from Description/File]
 - **User Story**: As a [user type], I want to [perform a core action], so that I can [achieve a primary goal].
 - **Use Case**: [Name of Use Case]
 - **Actor**: [User Type]
@@ -219,7 +220,7 @@ This document defines the functional requirements for the **{{{title}}}**. It ai
 
 ## 3. Administrative Panels
 
-**(If the description implies an admin role, generate detailed features for each type of admin: Hospital, Doctor, Lab, and Super Admin, covering all their functionalities like management of beds, services, profiles, appointments, reports, users, settings, etc.)**
+**(If the description or file implies an admin role, generate detailed features for each type of admin: Hospital, Doctor, Lab, and Super Admin, covering all their functionalities like management of beds, services, profiles, appointments, reports, users, settings, etc.)**
 
 ---
 ## 4. System Architecture
@@ -244,7 +245,7 @@ Date: _________________________________
 
 
 **If Document Type is "SRS" (Software Requirements Specification):**
-Generate a complete SRS based on the IEEE 830 standard with exhaustive detail in every section:
+Generate a complete SRS based on the IEEE 830 standard with exhaustive detail in every section, deriving details from the title, description, and uploaded file:
 1.  **Introduction**:
     *   1.1. Purpose
     *   1.2. Document Conventions

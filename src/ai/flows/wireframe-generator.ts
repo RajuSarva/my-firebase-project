@@ -1,3 +1,4 @@
+
 'use server';
 
 /**
@@ -49,21 +50,21 @@ const prompt = ai.definePrompt({
   })},
   prompt: `You are an expert UI/UX designer specializing in generating wireframes for web applications.
 
-You will generate wireframes for two screens:
+You will generate detailed textual descriptions for two screens:
 1.  Homepage: The main landing page of the application.
 2.  Key Feature Screen: A screen showcasing a core feature of the application.
 
-Use the following information to generate the wireframes:
+Use the following information to generate the wireframe descriptions. If an FRS or other document is uploaded, it should be the **primary source of information** for the layout and elements.
 
 Title: {{{title}}}
 Description: {{{description}}}
 
 {{#if uploadedFile}}
-Uploaded File Content:
+**Primary Source Document Content:**
 {{media url=uploadedFile}}
 {{/if}}
 
-First, generate descriptive text for both wireframes, detailing the layout, key elements, and functionality of each screen. This text must be in English.
+For each screen, generate descriptive text detailing the layout, key elements, and functionality. This text must be in English.
 `,
 });
 
@@ -121,3 +122,5 @@ const generateWireframesFlow = ai.defineFlow(
 );
 
 export const generateWireframes = generateWireframesFlow;
+
+    
