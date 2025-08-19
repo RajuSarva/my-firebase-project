@@ -231,10 +231,6 @@ export default function DocumentGeneratorPage() {
                     <Download className="mr-2" />
                     Download .md
                   </Button>
-                   <Button variant="outline" onClick={() => downloadFile({ content: result.pdfContent, fileName: 'document.pdf', contentType: 'application/pdf' })}>
-                    <Download className="mr-2" />
-                    Download .pdf
-                  </Button>
                 </CardFooter>
               </Card>
             )}

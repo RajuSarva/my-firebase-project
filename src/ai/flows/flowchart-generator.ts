@@ -30,9 +30,6 @@ const GenerateFlowchartOutputSchema = z.object({
 
 export type GenerateFlowchartOutput = z.infer<typeof GenerateFlowchartOutputSchema>;
 
-export async function generateFlowchart(input: GenerateFlowchartInput): Promise<GenerateFlowchartOutput> {
-  return generateFlowchartFlow(input);
-}
 
 const prompt = ai.definePrompt({
   name: 'generateFlowchartPrompt',
@@ -55,3 +52,5 @@ const generateFlowchartFlow = ai.defineFlow(
     return output!;
   }
 );
+
+export const generateFlowchart = generateFlowchartFlow;

@@ -26,13 +26,9 @@ export type GenerateRefinedDocumentInput = z.infer<typeof GenerateRefinedDocumen
 
 const GenerateRefinedDocumentOutputSchema = z.object({
   markdownContent: z.string().describe('The generated document content in markdown format.'),
-  pdfContent: z.string().describe('The generated document content in PDF format (base64 encoded).'),
 });
 export type GenerateRefinedDocumentOutput = z.infer<typeof GenerateRefinedDocumentOutputSchema>;
 
-export async function generateRefinedDocument(input: GenerateRefinedDocumentInput): Promise<GenerateRefinedDocumentOutput> {
-  return generateRefinedDocumentFlow(input);
-}
 
 const refineDocumentPrompt = ai.definePrompt({
   name: 'refineDocumentPrompt',
@@ -48,8 +44,8 @@ Document Type: {{{documentType}}}
 Uploaded File Content: {{media url=uploadedFile}}
 {{/if}}
 
-Generate the document in markdown format.  Also generate the same content in PDF format encoded as base64 string.
-Ensure both markdown and PDF versions are comprehensive and well-formatted.
+Generate the document in markdown format.
+Ensure the markdown is comprehensive and well-formatted.
 `,config: {
     model: 'googleai/gemini-2.0-flash',
     safetySettings: [
@@ -84,3 +80,5 @@ const generateRefinedDocumentFlow = ai.defineFlow(
     return output!;
   }
 );
+
+export const generateRefinedDocument = generateRefinedDocumentFlow;

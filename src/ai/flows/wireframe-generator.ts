@@ -41,9 +41,6 @@ const GenerateWireframesOutputSchema = z.object({
 
 export type GenerateWireframesOutput = z.infer<typeof GenerateWireframesOutputSchema>;
 
-export async function generateWireframes(input: GenerateWireframesInput): Promise<GenerateWireframesOutput> {
-  return generateWireframesFlow(input);
-}
 
 const prompt = ai.definePrompt({
   name: 'generateWireframesPrompt',
@@ -109,3 +106,5 @@ const generateWireframesFlow = ai.defineFlow(
     };
   }
 );
+
+export const generateWireframes = generateWireframesFlow;
