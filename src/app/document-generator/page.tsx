@@ -54,10 +54,6 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
-interface jsPDFWithAutoTable extends jsPDF {
-  autoTable: (options: any) => jsPDF;
-}
-
 export default function DocumentGeneratorPage() {
   const [isPending, startTransition] = useTransition();
   const { toast } = useToast();
@@ -106,16 +102,13 @@ export default function DocumentGeneratorPage() {
   const handleDownloadPdf = () => {
     if (!result) return;
   
-    const doc = new jsPDF() as jsPDFWithAutoTable;
+    const doc = new jsPDF();
     const tokens = marked.lexer(result.markdownContent);
   
-    let y = 15;
     const margin = 15;
     const pageHeight = doc.internal.pageSize.height;
     const maxWidth = doc.internal.pageSize.width - margin * 2;
-  
-    const listStack: ('ordered' | 'unordered')[] = [];
-    let listCounters: number[] = [];
+    let y = margin;
   
     const checkPageBreak = (spaceNeeded: number) => {
       if (y + spaceNeeded > pageHeight - margin) {
@@ -124,76 +117,76 @@ export default function DocumentGeneratorPage() {
       }
     };
   
-    const processToken = (token: marked.Token) => {
-      let textLines: string[];
-      switch (token.type) {
-        case 'heading':
-          checkPageBreak(15);
-          doc.setFont('helvetica', 'bold');
-          doc.setFontSize(22 - token.depth * 2);
-          textLines = doc.splitTextToSize(token.text, maxWidth);
-          doc.text(textLines, margin, y);
-          y += textLines.length * 7;
-          break;
-  
-        case 'paragraph':
-          checkPageBreak(10);
-          doc.setFont('helvetica', 'normal');
-          doc.setFontSize(12);
-          textLines = doc.splitTextToSize(token.text, maxWidth);
-          doc.text(textLines, margin, y);
-          y += textLines.length * 6;
-          break;
-          
-        case 'list':
-          y += 2;
-          checkPageBreak(5);
-          listStack.push(token.ordered ? 'ordered' : 'unordered');
-          listCounters.push(token.start || 1);
-          token.items.forEach(processToken);
-          listStack.pop();
-          listCounters.pop();
-          y += 3;
-          break;
-  
-        case 'list_item':
-          checkPageBreak(8);
-          doc.setFont('helvetica', 'normal');
-          doc.setFontSize(12);
-          const indent = margin + (listStack.length - 1) * 10;
-          
-          let bullet;
-          if (listStack[listStack.length - 1] === 'ordered') {
-            const counterIndex = listCounters.length - 1;
-            bullet = `${listCounters[counterIndex]}.`;
-            listCounters[counterIndex]++;
-          } else {
-            bullet = '•'; // A proper bullet character
-          }
-          
-          const itemLines = doc.splitTextToSize(token.text, maxWidth - indent - 5);
-          doc.text(`${bullet}`, indent, y);
-          doc.text(itemLines, indent + 5, y);
-          y += itemLines.length * 6;
-          
-          if(token.tokens) {
-            token.tokens.forEach(processToken);
-          }
-          break;
-  
-        case 'space':
-          y += 5;
-          break;
-  
-        case 'hr':
-          checkPageBreak(10);
-          doc.line(margin, y, doc.internal.pageSize.width - margin, y);
-          y += 5;
-          break;
+    const processTokens = (tokens: marked.Token[], listContext: { type?: 'ordered' | 'unordered', depth: number, counter: number } = { depth: 0, counter: 1 }) => {
+      for (const token of tokens) {
+        let textLines: string[];
+        switch (token.type) {
+          case 'heading':
+            checkPageBreak(15);
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(22 - token.depth * 2);
+            textLines = doc.splitTextToSize(token.text, maxWidth);
+            doc.text(textLines, margin, y);
+            y += textLines.length * (doc.getLineHeight() / doc.getPointValue()) * 0.8;
+            y += 5; // spacing after heading
+            break;
+    
+          case 'paragraph':
+            checkPageBreak(10);
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(12);
+            textLines = doc.splitTextToSize(token.text, maxWidth);
+            doc.text(textLines, margin, y);
+            y += textLines.length * (doc.getLineHeight() / doc.getPointValue()) * 0.8;
+            y += 4; // spacing after paragraph
+            break;
+            
+          case 'list':
+            y += 2;
+            const newListContext = { type: token.ordered ? 'ordered' : 'unordered', depth: listContext.depth + 1, counter: token.start || 1 };
+            processTokens(token.items, newListContext);
+            y += 3;
+            break;
+    
+          case 'list_item':
+            checkPageBreak(8);
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(12);
+            const indent = margin + (listContext.depth - 1) * 8;
+            const bulletMaxWidth = maxWidth - indent - 5;
+            
+            let bullet;
+            if (listContext.type === 'ordered') {
+              bullet = `${listContext.counter++}.`;
+            } else {
+              bullet = '•'; 
+            }
+            
+            textLines = doc.splitTextToSize(token.text, bulletMaxWidth);
+            doc.text(bullet, indent, y);
+            doc.text(textLines, indent + 5, y);
+            y += textLines.length * (doc.getLineHeight() / doc.getPointValue()) * 0.8;
+
+            if (token.tokens && token.tokens.length > 0) {
+              const nestedListContext = { ...listContext, counter: 1 };
+              processTokens(token.tokens, nestedListContext);
+            }
+            break;
+    
+          case 'space':
+            y += 5;
+            break;
+    
+          case 'hr':
+            checkPageBreak(10);
+            doc.line(margin, y, doc.internal.pageSize.width - margin, y);
+            y += 5;
+            break;
+        }
       }
     };
   
-    tokens.forEach(processToken);
+    processTokens(tokens);
     doc.save(`${form.getValues("title") || "document"}.pdf`);
   };
 
@@ -365,7 +358,7 @@ export default function DocumentGeneratorPage() {
                     onClick={handleDownloadPdf}
                     disabled={!result}
                   >
-                    <Download className="mr-2" />
+                    <Download className="mr-2 h-4 w-4" />
                     Download .pdf
                   </Button>
                   <Button
@@ -373,7 +366,7 @@ export default function DocumentGeneratorPage() {
                     onClick={handleDownloadMd}
                     disabled={!result}
                   >
-                    <Download className="mr-2" />
+                    <Download className="mr-2 h-4 w-4" />
                     Download .md
                   </Button>
                 </CardFooter>
