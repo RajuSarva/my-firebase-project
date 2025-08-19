@@ -17,7 +17,7 @@ const GenerateFlowchartInputSchema = z.object({
     .string()
     .optional()
     .describe(
-      "A file, as a data URI string that must include a MIME type and use Base64 encoding. Expected format: 'data:<mimetype>;base64,<encoded_data>'."
+      "A file, as a data URI string that must include a MIME type and use Base64 encoding. Expected format: 'data:<mimetype>;base64,<encoded_data>'"
     ),
 });
 export type GenerateFlowchartInput = z.infer<typeof GenerateFlowchartInputSchema>;
@@ -42,18 +42,18 @@ const prompt = ai.definePrompt({
   Additional context from uploaded file: {{media url=uploadedFile}}
   {{/if}}
 
-  Ensure the flowchart is clear, concise, and accurately represents the process described. Use appropriate Mermaid syntax elements to define the steps, decisions, and connections in the process.
-
-  The flowchart should be returned in Mermaid syntax. Do not include any explanations or other text. ONLY return the Mermaid syntax inside a "mermaid" code block.
-  Here is an example:
+  Your response MUST contain only the Mermaid syntax for the flowchart, enclosed in a single markdown code block.
+  For example:
   \`\`\`mermaid
-  graph LR
-      A[Start] --> B{Decision}
-      B -- Yes --> C[Process 1]
-      B -- No --> D[Process 2]
-      C --> E[End]
-      D --> E
-  \`\`\``,
+  graph TD
+      A[Start] --> B{Is it Friday?};
+      B -- Yes --> C[Good!];
+      B -- No --> D[Work...];
+      C --> E[End];
+      D --> E;
+  \`\`\`
+  
+  Do not include any other text, explanations, or markdown formatting outside of the single "mermaid" code block. The output must be only the code block.`,
 });
 
 const generateFlowchartFlow = ai.defineFlow(
@@ -65,9 +65,14 @@ const generateFlowchartFlow = ai.defineFlow(
   async (input) => {
     const model = input.uploadedFile ? 'googleai/gemini-pro-vision' : 'googleai/gemini-1.5-flash-latest';
     
-    const {output} = await prompt(input, { model });
+    const llmResponse = await prompt(input, { model });
+    const output = llmResponse.output;
+
+    if (!output) {
+      throw new Error("Failed to generate flowchart.");
+    }
     
-    return output!;
+    return output;
   }
 );
 
