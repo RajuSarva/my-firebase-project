@@ -8,7 +8,7 @@ import { useState, useTransition, useRef } from "react";
 import type { GenerateRefinedDocumentOutput } from "@/ai/flows/document-generator";
 import jsPDF from "jspdf";
 import autoTable from 'jspdf-autotable';
-import { marked, Lexer, type Token } from "marked";
+import { marked, Lexer } from "marked";
 
 
 import { DashboardLayout } from "@/components/dashboard-layout";
