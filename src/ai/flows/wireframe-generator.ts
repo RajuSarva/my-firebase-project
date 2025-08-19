@@ -18,7 +18,7 @@ const GenerateWireframesInputSchema = z.object({
     .string()
     .optional()
     .describe(
-      'Optional: A text file containing hints and specific details to help generate the wireframes. Should be passed as a data URI that must include a MIME type and use Base64 encoding. Expected format: \'data:<mimetype>;base64,<encoded_data>\'.'
+      "A file, as a data URI that must include a MIME type and use Base64 encoding. Expected format: 'data:<mimetype>;base64,<encoded_data>'."
     ),
 });
 

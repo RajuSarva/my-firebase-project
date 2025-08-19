@@ -18,7 +18,7 @@ const GenerateFlowchartInputSchema = z.object({
     .string()
     .optional()
     .describe(
-      "An optional file (txt, md, pdf) content as a data URI that must include a MIME type and use Base64 encoding. Expected format: 'data:<mimetype>;base64,<encoded_data>' to provide additional context."
+      "A file, as a data URI that must include a MIME type and use Base64 encoding. Expected format: 'data:<mimetype>;base64,<encoded_data>'."
     ),
 });
 
