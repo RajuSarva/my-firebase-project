@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useForm } from "react-hook-form";
@@ -9,7 +8,6 @@ import type { GenerateRefinedDocumentOutput } from "@/ai/flows/document-generato
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import { marked } from "marked";
-
 
 import { DashboardLayout } from "@/components/dashboard-layout";
 import { Button } from "@/components/ui/button";
@@ -48,7 +46,9 @@ import { STATIC_LOGO_BASE64 } from "@/lib/logo";
 
 const formSchema = z.object({
   title: z.string().min(2, { message: "Title must be at least 2 characters." }),
-  description: z.string().min(10, { message: "Description must be at least 10 characters." }),
+  description: z
+    .string()
+    .min(10, { message: "Description must be at least 10 characters." }),
   documentType: z.enum(["BRD", "FRS", "SRS"]),
   file: z.instanceof(File).nullable(),
 });
@@ -58,8 +58,9 @@ type FormValues = z.infer<typeof formSchema>;
 export default function DocumentGeneratorPage() {
   const [isPending, startTransition] = useTransition();
   const { toast } = useToast();
-  const [result, setResult] = useState<GenerateRefinedDocumentOutput | null>(null);
-  const [htmlContent, setHtmlContent] = useState<string>('');
+  const [result, setResult] =
+    useState<GenerateRefinedDocumentOutput | null>(null);
+  const [htmlContent, setHtmlContent] = useState<string>("");
   const reportRef = useRef<HTMLDivElement>(null);
 
   const form = useForm<FormValues>({
@@ -74,7 +75,7 @@ export default function DocumentGeneratorPage() {
 
   const onSubmit = (values: FormValues) => {
     setResult(null);
-    setHtmlContent('');
+    setHtmlContent("");
     startTransition(async () => {
       const formData = new FormData();
       formData.append("title", values.title);
@@ -98,7 +99,7 @@ export default function DocumentGeneratorPage() {
       }
     });
   };
-  
+
   const handleDownloadPdf = async () => {
     const reportElement = reportRef.current;
     if (!reportElement) return;
@@ -106,16 +107,16 @@ export default function DocumentGeneratorPage() {
     const canvas = await html2canvas(reportElement, {
       scale: 2,
       useCORS: true,
-      backgroundColor: null, 
+      backgroundColor: null,
     });
-    
-    const imgData = canvas.toDataURL('image/png');
-    
-    const pdf = new jsPDF('p', 'pt', 'a4');
+
+    const imgData = canvas.toDataURL("image/png");
+
+    const pdf = new jsPDF("p", "pt", "a4");
     const pdfWidth = pdf.internal.pageSize.getWidth();
     const pdfHeight = pdf.internal.pageSize.getHeight();
     const margin = 40;
-    
+
     const imgProps = pdf.getImageProperties(imgData);
     const imgWidth = pdfWidth - margin * 2;
     const imgHeight = (imgProps.height * imgWidth) / imgProps.width;
@@ -123,26 +124,26 @@ export default function DocumentGeneratorPage() {
     let heightLeft = imgHeight;
     let position = 20;
 
-    pdf.addImage(imgData, 'PNG', margin, position, imgWidth, imgHeight);
-    heightLeft -= (pdfHeight - position - margin);
+    pdf.addImage(imgData, "PNG", margin, position, imgWidth, imgHeight);
+    heightLeft -= pdfHeight - position - margin;
 
     while (heightLeft > 0) {
       position = -heightLeft - margin;
       pdf.addPage();
-      pdf.addImage(imgData, 'PNG', margin, position, imgWidth, imgHeight);
+      pdf.addImage(imgData, "PNG", margin, position, imgWidth, imgHeight);
       heightLeft -= pdfHeight;
     }
-    
-    pdf.save(`${form.getValues('title') || 'document'}.pdf`);
+
+    pdf.save(`${form.getValues("title") || "document"}.pdf`);
   };
 
   const handleDownloadMd = () => {
     if (!result) return;
-    const blob = new Blob([result.markdownContent], { type: 'text/markdown' });
+    const blob = new Blob([result.markdownContent], { type: "text/markdown" });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
+    const a = document.createElement("a");
     a.href = url;
-    a.download = `${form.getValues('title') || 'document'}.md`;
+    a.download = `${form.getValues("title") || "document"}.md`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -180,7 +181,11 @@ export default function DocumentGeneratorPage() {
                       <FormItem>
                         <FormLabel>Title</FormLabel>
                         <FormControl>
-                          <Input placeholder="e.g., E-commerce Platform" {...field} disabled={isPending} />
+                          <Input
+                            placeholder="e.g., E-commerce Platform"
+                            {...field}
+                            disabled={isPending}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -211,11 +216,15 @@ export default function DocumentGeneratorPage() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Document Type</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value} disabled={isPending}>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                          disabled={isPending}
+                        >
                           <FormControl>
                             <SelectTrigger>
                               <SelectValue placeholder="Select a document type" />
-                            </Trigger>
+                            </SelectTrigger>
                           </FormControl>
                           <SelectContent>
                             <SelectItem value="BRD">
@@ -237,7 +246,7 @@ export default function DocumentGeneratorPage() {
                     control={form.control}
                     name="file"
                     render={({ field }) => (
-                       <FormItem>
+                      <FormItem>
                         <FormControl>
                           <FileUpload
                             value={field.value}
@@ -253,7 +262,7 @@ export default function DocumentGeneratorPage() {
                       </FormItem>
                     )}
                   />
-                  
+
                   <Button type="submit" disabled={isPending} className="w-full">
                     {isPending ? "Generating..." : "Generate Document"}
                   </Button>
@@ -261,20 +270,20 @@ export default function DocumentGeneratorPage() {
               </Form>
             </CardContent>
           </Card>
-          
+
           <div className="space-y-4">
-             {isPending && (
-                <Card>
-                  <CardHeader>
-                    <Skeleton className="h-6 w-1/2" />
-                  </CardHeader>
-                  <CardContent>
-                    <Skeleton className="h-40 w-full" />
-                  </CardContent>
-                  <CardFooter>
-                     <Skeleton className="h-10 w-32" />
-                  </CardFooter>
-                </Card>
+            {isPending && (
+              <Card>
+                <CardHeader>
+                  <Skeleton className="h-6 w-1/2" />
+                </CardHeader>
+                <CardContent>
+                  <Skeleton className="h-40 w-full" />
+                </CardContent>
+                <CardFooter>
+                  <Skeleton className="h-10 w-32" />
+                </CardFooter>
+              </Card>
             )}
 
             {result && (
@@ -283,28 +292,41 @@ export default function DocumentGeneratorPage() {
                   <CardTitle>Generated Document</CardTitle>
                 </CardHeader>
                 <CardContent>
-                   <div ref={reportRef} className="prose prose-sm dark:prose-invert max-w-none bg-muted p-4 rounded-md overflow-y-auto text-sm max-h-[500px]">
-                      <div dangerouslySetInnerHTML={{ __html: htmlContent }} />
-                    </div>
+                  <div
+                    ref={reportRef}
+                    className="prose prose-sm dark:prose-invert max-w-none bg-muted p-4 rounded-md overflow-y-auto text-sm max-h-[500px]"
+                  >
+                    <div dangerouslySetInnerHTML={{ __html: htmlContent }} />
+                  </div>
                 </CardContent>
                 <CardFooter className="flex gap-2">
-                  <Button variant="outline" onClick={handleDownloadPdf} disabled={!htmlContent}>
+                  <Button
+                    variant="outline"
+                    onClick={handleDownloadPdf}
+                    disabled={!htmlContent}
+                  >
                     <Download className="mr-2" />
                     Download .pdf
                   </Button>
-                   <Button variant="outline" onClick={handleDownloadMd} disabled={!result}>
+                  <Button
+                    variant="outline"
+                    onClick={handleDownloadMd}
+                    disabled={!result}
+                  >
                     <Download className="mr-2" />
                     Download .md
                   </Button>
                 </CardFooter>
               </Card>
             )}
-            
+
             {!isPending && !result && (
               <Card className="flex flex-col items-center justify-center min-h-[400px]">
-                  <CardContent className="text-center">
-                      <p className="text-muted-foreground">Your generated document will appear here.</p>
-                  </CardContent>
+                <CardContent className="text-center">
+                  <p className="text-muted-foreground">
+                    Your generated document will appear here.
+                  </p>
+                </CardContent>
               </Card>
             )}
           </div>
