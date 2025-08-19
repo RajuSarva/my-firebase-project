@@ -65,6 +65,8 @@ export function MermaidPreview({ chart, title }: MermaidPreviewProps) {
     const url = URL.createObjectURL(svgBlob);
     
     const img = new Image();
+    img.crossOrigin = "anonymous"; // Fix for tainted canvas error
+    
     img.onload = () => {
       const canvas = document.createElement("canvas");
       const padding = 40;
