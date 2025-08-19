@@ -4,7 +4,7 @@ import { useEffect, useId, useState } from "react";
 import mermaid from "mermaid";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Button } from "./ui/button";
-import { Download, Image as ImageIcon } from "lucide-react";
+import { Download } from "lucide-react";
 import { downloadFile } from "@/lib/utils";
 import { Skeleton } from "./ui/skeleton";
 
@@ -56,28 +56,6 @@ export function MermaidPreview({ chart }: MermaidPreviewProps) {
         setLoading(false);
     }
   }, [chart, id]);
-
-  const downloadHTML = () => {
-    if (!svg) return;
-    const htmlContent = `
-      <!DOCTYPE html>
-      <html lang="en">
-        <head>
-          <meta charset="UTF-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <title>Flowchart</title>
-          <style>
-            body { display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; background-color: #f9fafb; }
-            svg { max-width: 100%; height: auto; }
-          </style>
-        </head>
-        <body>
-          ${svg}
-        </body>
-      </html>
-    `;
-    downloadFile({ content: htmlContent, fileName: 'flowchart.html', contentType: 'text/html' });
-  };
   
   const downloadPNG = () => {
     if (!svg) return;
@@ -110,11 +88,8 @@ export function MermaidPreview({ chart }: MermaidPreviewProps) {
         <CardTitle>Generated Flowchart</CardTitle>
         {svg && (
           <div className="flex gap-2">
-            <Button variant="outline" size="sm" onClick={downloadHTML}>
-              <Download className="mr-2" /> HTML
-            </Button>
             <Button variant="outline" size="sm" onClick={downloadPNG}>
-              <ImageIcon className="mr-2" /> PNG
+              <Download className="mr-2" /> Download PNG
             </Button>
           </div>
         )}
