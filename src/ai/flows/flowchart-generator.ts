@@ -43,12 +43,14 @@ const prompt = ai.definePrompt({
   {{/if}}
 
   Your response MUST contain only the Mermaid syntax for the flowchart, enclosed in a single markdown code block.
+  The text inside the flowchart nodes (e.g., inside brackets) MUST NOT contain any special characters like parentheses, commas, or quotes. Use only alphanumeric characters and spaces.
+
   For example:
   \`\`\`mermaid
   graph TD
       A[Start] --> B{Is it Friday?};
-      B -- Yes --> C[Good!];
-      B -- No --> D[Work...];
+      B -- Yes --> C[Good];
+      B -- No --> D[Work];
       C --> E[End];
       D --> E;
   \`\`\`
