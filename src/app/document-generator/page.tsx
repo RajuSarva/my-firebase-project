@@ -7,7 +7,9 @@ import { z } from "zod";
 import { useState, useTransition, useRef } from "react";
 import type { GenerateRefinedDocumentOutput } from "@/ai/flows/document-generator";
 import jsPDF from "jspdf";
-import { marked } from "marked";
+import autoTable from 'jspdf-autotable';
+import { marked, Lexer } from "marked";
+
 
 import { DashboardLayout } from "@/components/dashboard-layout";
 import { Button } from "@/components/ui/button";
@@ -99,11 +101,10 @@ export default function DocumentGeneratorPage() {
   };
 
   const handleDownloadPdf = async () => {
-    if (!reportRef.current) return;
+    if (!result?.markdownContent) return;
   
-    const pdf = new jsPDF('p', 'pt', 'a4');
-    const pdfWidth = pdf.internal.pageSize.getWidth();
-    const pdfHeight = pdf.internal.pageSize.getHeight();
+    const doc = new jsPDF('p', 'pt', 'a4');
+    const pdfWidth = doc.internal.pageSize.getWidth();
     const margin = 40;
   
     // Load logo
@@ -114,37 +115,78 @@ export default function DocumentGeneratorPage() {
     const logoWidth = 75;
     const logoHeight = 37.5;
   
-    // Function to add header and watermark to each page
-    const addPageContent = () => {
-        // Header
-        pdf.addImage(logoImg, 'PNG', margin, 20, logoWidth, logoHeight);
-        pdf.line(margin, 20 + logoHeight + 10, pdfWidth - margin, 20 + logoHeight + 10);
-        
-        // Watermark
-        pdf.saveGraphicsState();
-        pdf.setGState(new pdf.GState({opacity: 0.1}));
-        pdf.addImage(logoImg, 'PNG', pdfWidth / 2 - 100, pdfHeight / 2 - 50, 200, 100);
-        pdf.restoreGraphicsState();
+    const addPageContent = (docInstance: jsPDF, pageNumber: number) => {
+      docInstance.setPage(pageNumber);
+      // Header
+      docInstance.addImage(logoImg, 'PNG', margin, 20, logoWidth, logoHeight);
+      docInstance.line(margin, 20 + logoHeight + 10, pdfWidth - margin, 20 + logoHeight + 10);
+      
+      // Watermark
+      docInstance.saveGraphicsState();
+      docInstance.setGState(new doc.GState({opacity: 0.1}));
+      docInstance.addImage(logoImg, 'PNG', pdfWidth / 2 - 100, doc.internal.pageSize.getHeight() / 2 - 50, 200, 100);
+      docInstance.restoreGraphicsState();
     };
   
-    addPageContent();
+    addPageContent(doc, 1);
   
-    await pdf.html(reportRef.current, {
-      x: margin,
-      y: 20 + logoHeight + 20,
-      width: pdfWidth - (margin * 2),
-      windowWidth: reportRef.current.scrollWidth,
-      autoPaging: 'text',
-      margin: [0, 0, 40, 0], // Top margin is handled by y, add bottom margin
-      callback: (doc) => {
-        const pageCount = doc.internal.getNumberOfPages();
-        for (let i = 2; i <= pageCount; i++) {
-          doc.setPage(i);
-          addPageContent();
-        }
-        doc.save(`${form.getValues('title') || 'document'}.pdf`);
+    const tokens = new Lexer().lex(result.markdownContent);
+    let y = 20 + logoHeight + 20;
+    const body: any[] = [];
+  
+    tokens.forEach(token => {
+      let text = '';
+      let styles: { fontStyle?: 'bold' | 'normal', fontSize?: number } = {};
+  
+      switch (token.type) {
+        case 'heading':
+          text = token.text;
+          if (token.depth === 1) styles = { fontStyle: 'bold', fontSize: 18 };
+          else if (token.depth === 2) styles = { fontStyle: 'bold', fontSize: 16 };
+          else styles = { fontStyle: 'bold', fontSize: 14 };
+          break;
+        case 'paragraph':
+          text = token.text;
+          styles = { fontSize: 12 };
+          break;
+        case 'list':
+            token.items.forEach(item => {
+                let itemText = `• ${item.text}\n`;
+                body.push({ content: itemText, styles: { fontSize: 12 } });
+            });
+            return; // Skip adding to body array directly
+        case 'space':
+             body.push({ content: '', styles: { fontSize: 12 } });
+             return;
+        case 'text':
+            text = token.text;
+            styles = { fontSize: 12 };
+            break;
+      }
+      
+      if(text) {
+          body.push({ content: text, styles });
       }
     });
+
+    autoTable(doc, {
+        startY: y,
+        body: body,
+        theme: 'plain',
+        styles: {
+            font: 'helvetica',
+            overflow: 'linebreak',
+            cellPadding: 2,
+        },
+        columnStyles: {
+            0: { cellWidth: pdfWidth - margin * 2 },
+        },
+        didDrawPage: (data) => {
+            addPageContent(doc, data.pageNumber);
+        }
+    });
+
+    doc.save(`${form.getValues('title') || 'document'}.pdf`);
   };
 
   return (
