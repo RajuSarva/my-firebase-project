@@ -171,8 +171,9 @@ export default function DocumentGeneratorPage() {
                         lineBuffer = '';
                     };
                     
-                    doc.text(cleanText(token.text), margin, y, { maxWidth });
-                    y += doc.splitTextToSize(cleanText(token.text), maxWidth).length * getLineHeight(12) + 4;
+                    textLines = doc.splitTextToSize(cleanText(token.text), maxWidth);
+                    doc.text(textLines, margin, y, { maxWidth });
+                    y += textLines.length * getLineHeight(12) + 4;
                     break;
                     
                 case 'list':
@@ -200,6 +201,7 @@ export default function DocumentGeneratorPage() {
                         
                         const itemContent = item.tokens.map(t => 'text' in t ? t.text : '').join(' ');
                         textLines = doc.splitTextToSize(cleanText(itemContent), bulletMaxWidth);
+                        checkPageBreak(textLines.length * getLineHeight(12));
                         
                         doc.text(bullet, indent, y);
                         doc.text(textLines, indent + 5, y);
@@ -210,8 +212,8 @@ export default function DocumentGeneratorPage() {
                         if (nestedList) {
                             y += 2;
                             processTokens([nestedList], newListContext);
+                            y -=2; // remove extra spacing after nested list
                         }
-                        y += 2; 
                     });
                     y += 3;
                     break;
