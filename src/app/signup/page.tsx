@@ -15,7 +15,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Feather } from "lucide-react"
 
-export function SignUpForm() {
+export default function SignUpForm() {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-background p-4">
        <div className="w-full max-w-md">

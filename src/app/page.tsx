@@ -1,5 +1,5 @@
-import { SignUpForm } from './signup/page';
+import SignUpPage from './signup/page';
 
 export default function App() {
-  return <SignUpForm />;
+  return <SignUpPage />;
 }
