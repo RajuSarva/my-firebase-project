@@ -138,7 +138,7 @@ export default function DocumentGeneratorPage() {
       
       // Watermark
       docInstance.saveGraphicsState();
-      docInstance.setGState(new doc.GState({opacity: 0.1}));
+      docInstance.setGState(new (doc as any).GState({opacity: 0.1}));
       docInstance.addImage(logoImg, 'PNG', pdfWidth / 2 - 100, doc.internal.pageSize.getHeight() / 2 - 50, 200, (200 * logoImg.height) / logoImg.width);
       docInstance.restoreGraphicsState();
     };
@@ -151,20 +151,25 @@ export default function DocumentGeneratorPage() {
     tokens.forEach(token => {
       if (token.type === 'heading') {
         let fontSize = 12;
+        let fontStyle : 'bold' | 'normal' = 'bold';
         if (token.depth === 1) fontSize = 18;
         if (token.depth === 2) fontSize = 16;
         if (token.depth === 3) fontSize = 14;
-        body.push({ content: token.text, styles: { fontStyle: 'bold', fontSize } });
+        body.push({ content: token.text, styles: { fontStyle: fontStyle, fontSize } });
       } else if (token.type === 'paragraph') {
         body.push({ content: token.text, styles: { fontSize: 12 } });
       } else if (token.type === 'list') {
         token.items.forEach(item => {
-          body.push({ content: `• ${item.text}`, styles: { fontSize: 12, cellPadding: {top: 2, right: 2, bottom: 2, left: 10} } });
+          let content = `• ${item.text}`;
+          if(item.tokens) {
+            content = `• ${item.tokens.map(t => t.text).join('')}`
+          }
+          body.push({ content: content, styles: { fontSize: 12, cellPadding: {top: 2, right: 2, bottom: 2, left: 10} } });
         });
       } else if (token.type === 'space') {
         body.push({ content: '', styles: { fontSize: 6 } });
       } else if (token.type === 'text') {
-        body.push({ content: token.text, styles: { fontSize: 12 } });
+         body.push({ content: token.text, styles: { fontSize: 12 } });
       }
     });
 
@@ -182,12 +187,8 @@ export default function DocumentGeneratorPage() {
         },
         didDrawPage: (data) => {
             addPageContent(doc, data.pageNumber);
-            if (data.pageNumber > 1) {
-              doc.setPage(data.pageNumber);
-              doc.setY(40);
-            }
         },
-        margin: { top: 20 + logoHeight + 20 }
+        margin: { top: 20 + logoHeight + 20, bottom: 40 }
     });
 
     doc.save(`${form.getValues('title') || 'document'}.pdf`);
@@ -353,3 +354,5 @@ export default function DocumentGeneratorPage() {
     </DashboardLayout>
   );
 }
+
+    
