@@ -119,83 +119,100 @@ export default function DocumentGeneratorPage() {
     };
 
     const cleanText = (text: string) => {
-      return text
-        .replace(/(\*\*|__)(.*?)\1/g, '$2') // Bold
-        .replace(/(\*|_)(.*?)\1/g, '$2')   // Italic
-        .replace(/`/g, '')                 // Code ticks
-        .replace(/#/g, '')                 // Hashtags
-        .trim();
+        // More robust cleaning for various markdown constructs
+        return text
+            .replace(/(\*\*|__)(.*?)\1/g, '$2') // Bold
+            .replace(/(\*|_)(.*?)\1/g, '$2')   // Italic
+            .replace(/`([^`]+)`/g, '$1')       // Inline code
+            .replace(/~~(.*?)~~/g, '$1')       // Strikethrough
+            .replace(/\[([^\]]+)\]\([^\)]+\)/g, '$1') // Links
+            .replace(/#/g, '')                 // Hashtags
+            .trim();
     };
 
-    const processTokens = (tokens: marked.Token[], listContext: { depth: number } = { depth: 0 }) => {
-        let listCounter = 1;
-    
+    const processTokens = (tokens: marked.Token[], listContext: { depth: number, isOrdered: boolean, counter: number } = { depth: 0, isOrdered: false, counter: 1 }) => {
         for (const token of tokens) {
             let textLines: string[];
-            const getLineHeight = () => doc.getFontSize() * 0.45;
+            const getLineHeight = (fontSize: number) => fontSize * 0.45;
 
             switch (token.type) {
                 case 'heading':
-                    checkPageBreak(15);
+                    const headingSize = 22 - token.depth * 2;
+                    checkPageBreak(headingSize * 0.5 + 5);
                     doc.setFont('helvetica', 'bold');
-                    doc.setFontSize(22 - token.depth * 2);
+                    doc.setFontSize(headingSize);
                     textLines = doc.splitTextToSize(cleanText(token.text), maxWidth);
                     doc.text(textLines, margin, y);
-                    y += textLines.length * getLineHeight() + 5;
+                    y += textLines.length * getLineHeight(headingSize) + 5;
                     break;
         
                 case 'paragraph':
                     checkPageBreak(10);
                     doc.setFont('helvetica', 'normal');
                     doc.setFontSize(12);
-                    textLines = doc.splitTextToSize(cleanText(token.text), maxWidth);
-                    doc.text(textLines, margin, y);
-                    y += textLines.length * getLineHeight() + 4;
+                    
+                    // Manually handle bold/italic within paragraphs
+                    let currentX = margin;
+                    let lineBuffer = '';
+                    const parts = token.text.split(/(\*\*|__|\*|_)/g);
+                    let isBold = false;
+                    let isItalic = false;
+
+                    const renderLineBuffer = () => {
+                        if (lineBuffer) {
+                            textLines = doc.splitTextToSize(lineBuffer, maxWidth - (currentX - margin));
+                            doc.text(textLines, currentX, y);
+                            y += textLines.length * getLineHeight(12);
+                            currentX = margin;
+                            if (textLines.length > 1) {
+                                currentX += doc.getStringUnitWidth(textLines[textLines.length - 1]) * 12 / doc.internal.scaleFactor;
+                            }
+                        }
+                        lineBuffer = '';
+                    };
+                    
+                    doc.text(cleanText(token.text), margin, y, { maxWidth });
+                    y += doc.splitTextToSize(cleanText(token.text), maxWidth).length * getLineHeight(12) + 4;
                     break;
                     
                 case 'list':
                     y += 2;
-                    // Reset counter for each new top-level list
-                    if (listContext.depth === 0) {
-                        listCounter = token.ordered ? (token.start || 1) : 1;
-                    }
-                    const newListContext = { depth: listContext.depth + 1 };
+                    const newListContext = { 
+                        depth: listContext.depth + 1, 
+                        isOrdered: token.ordered, 
+                        counter: token.ordered ? (token.start || 1) : 1 
+                    };
                     
                     token.items.forEach(item => {
+                        const indent = margin + (newListContext.depth - 1) * 7;
+                        const bulletMaxWidth = maxWidth - (indent - margin) - 6;
+
                         checkPageBreak(8);
                         doc.setFont('helvetica', 'normal');
                         doc.setFontSize(12);
                         
-                        const indent = margin + (newListContext.depth - 1) * 7;
-                        const bulletMaxWidth = maxWidth - indent - 6;
-
                         let bullet;
-                        if (token.ordered) {
-                            bullet = `${listCounter++}.`;
+                        if (newListContext.isOrdered) {
+                            bullet = `${newListContext.counter++}.`;
                         } else {
                             bullet = '•';
                         }
                         
-                        // Process text and potential nested lists within the list item
                         const itemContent = item.tokens.map(t => 'text' in t ? t.text : '').join(' ');
                         textLines = doc.splitTextToSize(cleanText(itemContent), bulletMaxWidth);
                         
                         doc.text(bullet, indent, y);
                         doc.text(textLines, indent + 5, y);
-                        y += textLines.length * getLineHeight();
+                        y += textLines.length * getLineHeight(12);
 
-                        // Handle nested lists
+                        // Handle nested lists recursively
                         const nestedList = item.tokens.find(t => t.type === 'list') as marked.Tokens.List | undefined;
                         if (nestedList) {
                             y += 2;
                             processTokens([nestedList], newListContext);
                         }
-                        y += 2; // Spacing after list item
+                        y += 2; 
                     });
-                     // Reset counter after processing a top-level list
-                    if (listContext.depth === 0) {
-                        listCounter = 1;
-                    }
                     y += 3;
                     break;
         
@@ -205,20 +222,22 @@ export default function DocumentGeneratorPage() {
         
                 case 'hr':
                     checkPageBreak(10);
-                    doc.line(margin, y, doc.internal.pageSize.width - margin, y);
-                    y += 5;
+                    doc.line(margin, y + 2, doc.internal.pageSize.width - margin, y + 2);
+                    y += 7;
                     break;
+                    
                 case 'table':
-                    checkPageBreak(20 * token.rows.length);
+                    checkPageBreak(20 + 10 * token.rows.length);
                     autoTable(doc, {
                         head: [token.header.map(h => cleanText(h.text))],
                         body: token.rows.map(row => row.map(cell => cleanText(cell.text))),
                         startY: y,
-                        margin: { left: margin },
+                        margin: { left: margin, right: margin },
                         styles: {
                             font: 'helvetica',
                             fontSize: 10,
                             cellPadding: 2,
+                            overflow: 'linebreak'
                         },
                         headStyles: {
                             fontStyle: 'bold',
@@ -227,6 +246,12 @@ export default function DocumentGeneratorPage() {
                         }
                     });
                     y = (doc as any).lastAutoTable.finalY + 10;
+                    break;
+                case 'strong':
+                case 'em':
+                case 'codespan':
+                case 'text':
+                    // These are handled within paragraph/list processing now.
                     break;
             }
         }

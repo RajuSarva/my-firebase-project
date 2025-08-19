@@ -45,7 +45,7 @@ Base the document on the following inputs:
 - Uploaded File Content: {{media url=uploadedFile}}
 {{/if}}
 
-Adhere strictly to the following structure based on the Document Type, ensuring every section is flushed out with substantial detail and examples.
+Adhere strictly to the following structure based on the Document Type, ensuring every section is flushed out with substantial detail and examples. All headings and subheadings MUST be bold.
 
 **If Document Type is "BRD" (Business Requirements Document):**
 Generate a complete and exhaustive BRD using the following template. The document must be extremely detailed, at least 10 pages long, and thoroughly developed. Fill in every section with rich, relevant content derived from the project's title, description, and any uploaded file.
@@ -209,27 +209,27 @@ Include placeholder for payment information if applicable.
 
 
 **If Document Type is "FRS" (Functional Requirements Specification):**
-Generate a complete and exhaustive FRS based on the provided title, description, and uploaded file. This document needs to be extremely detailed, breaking down every function into minute steps, user stories, and validation criteria. Use the following template as a strict guide.
+Generate a complete and exhaustive FRS based on the provided title, description, and uploaded file. This document needs to be extremely detailed, breaking down every function into minute steps, user stories, and validation criteria. Use the following template as a strict guide. All headings and subheadings MUST be bold.
 
-# Functional Requirement Specification - {{{title}}}
+# **Functional Requirement Specification - {{{title}}}**
 
-## Document Overview
+## **Document Overview**
 - **Document Title**: {{{title}}} - Functional Requirements Specification
 - **Version**: 1.0
 - **Date**: {{{currentDate}}}
 - **Prepared by**: Team Geega Tech
 
-## Document Control
+## **Document Control**
 | Version | Date          | Description    | Author                |
 |---------|---------------|----------------|-----------------------|
 | 1.0     | {{{currentDate}}}| Initial Draft  | Team Geega Tech|
 
-## 1. Purpose
+## **1. Purpose**
 This document defines the functional requirements for the **{{{title}}}**. It aims to provide a secure, user-friendly, and robust solution that addresses the core functionalities outlined in the project description: **{{{description}}}**. This document will guide developers, QA teams, and project managers throughout the development lifecycle.
 
-## 2. Functional Requirements
+## **2. Functional Requirements**
 
-### 2.1 User Management & Authentication
+### **2.1 User Management & Authentication**
 
 #### **Feature**: Secure Registration
 - **User Story**: As a new user, I want to register an account securely using my email and phone number, so that I can create an account and access the platform.
@@ -275,7 +275,7 @@ This document defines the functional requirements for the **{{{title}}}**. It ai
 
 ---
 
-### 2.2 Core Application Features
+### **2.2 Core Application Features**
 
 **(Generate 5-7 core features based on the project description and uploaded file. For each feature, provide the same detailed breakdown as above: Feature, User Story, Use Case, Actor, Pre-condition, Basic Flow, Post-Condition, and Validation.)**
 
@@ -295,12 +295,12 @@ This document defines the functional requirements for the **{{{title}}}**. It ai
 
 ---
 
-## 3. Administrative Panels
+## **3. Administrative Panels**
 
 **(If the description or file implies an admin role, generate detailed features for each type of admin: Hospital, Doctor, Lab, and Super Admin, covering all their functionalities like management of beds, services, profiles, appointments, reports, users, settings, etc.)**
 
 ---
-## 4. System Architecture
+## **4. System Architecture**
 - **Technology Stack**:
     - **Frontend**: Html5/CSS3/Javascript
     - **Application**: React Native
@@ -308,13 +308,13 @@ This document defines the functional requirements for the **{{{title}}}**. It ai
     - **Database**: MySQL
     - **APIs & Integrations**: SMS, Map, Social Login, firebase notification
 
-## 5. Intended Audience & Usage
+## **5. Intended Audience & Usage**
 - **Developers**: To implement system functionalities.
 - **QA Team**: To validate features against specifications.
 - **Project Manager & Business Analysts**: To ensure business alignment.
 - **Stakeholders**: To review and approve system capabilities.
 
-## 6. Client Acknowledgment and Approval
+## **6. Client Acknowledgment and Approval**
 By signing below, the client acknowledges and approves the contents of this document, including the features, requirements, and specifications outlined. This approval signifies that all details are correct and satisfactory.
 Client Name: ____________________________
 Signature: ______________________________
@@ -322,37 +322,66 @@ Date: _________________________________
 
 
 **If Document Type is "SRS" (Software Requirements Specification):**
-Generate a complete SRS based on the IEEE 830 standard with exhaustive detail in every section, deriving details from the title, description, and uploaded file:
-1.  **Introduction**:
-    *   1.1. Purpose
-    *   1.2. Document Conventions
-    *   1.3. Intended Audience
-    *   1.4. Product Scope
-    *   1.5. References
-2.  **Overall Description**:
-    *   2.1. Product Perspective
-    *   2.2. Product Functions (Summary of major functions.)
-    *   2.3. User Classes and Characteristics
-    *   2.4. Operating Environment
-    *   2.5. Design and Implementation Constraints
-3.  **System Features**:
-    *   3.1. System Feature 1 (e.g., User Profile Management)
-        *   3.1.1. Description and Priority
-        *   3.1.2. Stimulus/Response Sequences
-        *   3.1.3. Functional Requirements (Provide a list of detailed functional requirements related to this feature, similar to the FRS format but summarized.)
-    *   3.2. System Feature 2 (e.g., Inventory Management)
-        *   ... (and so on for all features)
-4.  **External Interface Requirements**:
-    *   4.1. User Interfaces (Screens, mockups, GUI requirements)
-    *   4.2. Hardware Interfaces
-    *   4.3. Software Interfaces (APIs, database)
-    *   4.4. Communications Interfaces (Protocols, security)
-5.  **Non-functional Requirements**:
-    *   5.1. Performance Requirements
-    *   5.2. Safety Requirements
-    *   5.3. Security Requirements
-    *   5.4. Software Quality Attributes (Reliability, maintainability, portability)
-6.  **Other Requirements** (e.g., Data, Legal, etc.)
+Generate a complete SRS based on the IEEE 830 standard with exhaustive detail in every section, deriving details from the title, description, and uploaded file. All headings and subheadings MUST be bold.
+# **Software Requirements Specification for {{{title}}}**
+## **1. Introduction**
+### **1.1. Purpose**
+(Generate a detailed purpose statement for the SRS based on the project title and description.)
+### **1.2. Document Conventions**
+(Describe the conventions used in this document, e.g., formatting, terminology.)
+### **1.3. Intended Audience**
+(List and describe the intended audience for this SRS, e.g., developers, project managers, QA teams.)
+### **1.4. Product Scope**
+(Provide a detailed description of the product's scope, its boundaries, and major capabilities.)
+### **1.5. References**
+(List any other documents referenced in this SRS.)
+
+## **2. Overall Description**
+### **2.1. Product Perspective**
+(Describe the product's relationship to other products or systems.)
+### **2.2. Product Functions**
+(Provide a summary of the major functions the product will perform, generated from the description.)
+### **2.3. User Classes and Characteristics**
+(Identify the different classes of users and describe their characteristics.)
+### **2.4. Operating Environment**
+(Describe the environment in which the software will operate, including hardware, operating systems, and other software.)
+### **2.5. Design and Implementation Constraints**
+(List any constraints on the design or implementation, such as language, libraries, or regulatory constraints.)
+
+## **3. System Features**
+(Generate detailed descriptions for at least 5-7 key system features.)
+### **3.1. System Feature 1 (e.g., User Profile Management)**
+#### **3.1.1. Description and Priority**
+(Provide a detailed description of the feature and its priority.)
+#### **3.1.2. Stimulus/Response Sequences**
+(Detail the sequences of user actions and system responses.)
+#### **3.1.3. Functional Requirements**
+(Provide a detailed, itemized list of the functional requirements for this feature.)
+### **3.2. System Feature 2**
+... (and so on for all features)
+
+## **4. External Interface Requirements**
+### **4.1. User Interfaces**
+(Describe the user interface requirements, including screen layouts, GUI standards, and interaction design.)
+### **4.2. Hardware Interfaces**
+(Describe any hardware interfaces the software will have.)
+### **4.3. Software Interfaces**
+(Describe any software interfaces, like APIs to other systems or database connections.)
+### **4.4. Communications Interfaces**
+(Describe any communications interfaces, such as network protocols or security requirements.)
+
+## **5. Non-functional Requirements**
+### **5.1. Performance Requirements**
+(Detail the performance requirements, such as response times, throughput, and capacity.)
+### **5.2. Safety Requirements**
+(Detail any safety requirements for the system.)
+### **5.3. Security Requirements**
+(Detail the security requirements, including access control, data encryption, and user authentication.)
+### **5.4. Software Quality Attributes**
+(Detail the desired software quality attributes, such as reliability, availability, maintainability, and portability.)
+
+## **6. Other Requirements**
+(Detail any other requirements not covered elsewhere, such as legal, regulatory, or data requirements.)
 
 Ensure the generated markdown is extremely comprehensive, detailed, well-formatted, and adheres to the requested length. The content must be of the highest professional standard, ready for a real-world project.
 `,
@@ -405,5 +434,3 @@ export async function generateRefinedDocument(input: Omit<GenerateRefinedDocumen
         currentDate,
     });
 }
-
-    
