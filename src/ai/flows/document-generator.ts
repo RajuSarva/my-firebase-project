@@ -48,87 +48,164 @@ Base the document on the following inputs:
 Adhere strictly to the following structure based on the Document Type, ensuring every section is flushed out with substantial detail and examples.
 
 **If Document Type is "BRD" (Business Requirements Document):**
-Generate a complete BRD using the following template. Be extremely detailed and comprehensive, adapting the content logically from the project title, description, and uploaded file.
+Generate a complete and exhaustive BRD using the following template. The document must be extremely detailed, at least 10 pages long, and thoroughly developed. Fill in every section with rich, relevant content derived from the project's title, description, and any uploaded file.
 
-# Business Requirements Document (BRD) - {{{title}}}
+# {{{title}}}: Business Requirement Document
 
-## 1. Introduction
-This document outlines the business requirements for the development of the {{{title}}}. The application aims to {{{description}}}.
+## 1. Author and Change Control
 
-## 2. Project Goals and Objectives
-*   **Goal**: To develop a user-friendly and efficient application, {{{title}}}, that connects drivers with empty seats and passengers heading in the same direction, facilitating shared rides and reducing traffic congestion and carbon emissions.
-*   **Objectives**:
-    *   Increase the utilization of car capacity.
-    *   Reduce traffic congestion in urban areas.
-    *   Lower individual transportation costs.
-    *   Minimize environmental impact through reduced emissions.
-    *   Provide a convenient and reliable ride-sharing platform.
+| Approver | Name | Date Approved | Role | Signature | Version |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| | [Project Sponsor Name] | {{{currentDate}}} | Stakeholder | | 1.0 |
 
-## 3. Target Audience
-*   **Drivers**: Individuals who own cars and are willing to share their rides with others, offsetting travel costs.
-*   **Passengers**: Individuals seeking a convenient and affordable alternative to public transportation or personal vehicles.
+**Change Control**
+| Version | Date | Author | Description of Changes |
+| :--- | :--- | :--- | :--- |
+| 1.0 | {{{currentDate}}} | Project Team | Initial Draft |
 
-## 4. Scope
-*   **Inclusions**:
-    *   User registration and profile management (both driver and passenger).
-    *   Ride posting and searching functionality.
-    *   Real-time ride matching based on location and destination.
-    *   In-app communication between drivers and passengers.
-    *   Secure payment gateway integration.
-    *   Rating and review system for drivers and passengers.
-    *   Route optimization and navigation.
-    *   Trip history tracking.
-    *   Support for multiple platforms (iOS and Android).
-*   **Exclusions**:
-    *   Ride insurance provided directly by the application.
-    *   Direct driver employment or management.
-    *   Integration with public transportation schedules.
+## 2. Executive Summary
+**Overview**
+This section provides a high-level summary of the project. Based on the project description, {{{description}}}, generate a detailed overview of the proposed system, its purpose, the problem it solves, and the value it will bring to the business.
 
-## 5. Functional Requirements
-*   **User Registration and Authentication**: Users should be able to register with their email, phone number, or social media accounts. Two-factor authentication for enhanced security.
-*   **Profile Management**: Users should be able to create and manage their profiles, including personal information, profile picture, and vehicle details (for drivers).
-*   **Ride Posting (Drivers)**: Drivers should be able to post their planned trips, specifying origin, destination, date, time, available seats, and price per seat.
-*   **Ride Searching (Passengers)**: Passengers should be able to search for available rides based on their origin, destination, and preferred travel dates/times.
-*   **Real-time Matching**: The application should provide real-time matching of drivers and passengers based on their specified criteria.
-*   **In-app Communication**: Drivers and passengers should be able to communicate with each other through in-app messaging or calling features.
-*   **Payment Integration**: Secure payment gateway integration for processing ride payments.
-*   **Rating and Review System**: Users should be able to rate and review each other after completing a trip.
-*   **Route Optimization and Navigation**: Integration with a mapping service to provide optimized routes and real-time navigation for drivers.
-*   **Trip History**: Users should be able to access a history of their past trips, including details like date, time, cost, and other relevant information.
+**Department Summary**
+Describe the core components of the project and which departments or user groups they will affect. For example, break it down into a User App, Vendor Panel, Admin Panel, etc., based on the project's nature.
 
-## 6. Non-Functional Requirements
-*   **Performance**: The application should be responsive and perform efficiently under high user load.
-*   **Security**: User data should be protected through robust security measures.
-*   **Scalability**: The application architecture should be scalable to accommodate future growth in user base and features.
-*   **Usability**: The application should be user-friendly and intuitive to navigate.
-*   **Reliability**: The application should be reliable and available with minimal downtime.
-*   **Accessibility**: The application should adhere to accessibility guidelines for users with disabilities.
+## 3. Glossary
+Define all key terms, acronyms, and jargon associated with this project. Generate at least 8-10 relevant terms based on the project description.
+| Term | Definition |
+| :--- | :--- |
+| *(Generate Term 1)* | *(Generate Definition 1)* |
+| *(Generate Term 2)* | *(Generate Definition 2)* |
+| ... | ... |
 
-## 7. Technical Requirements
-*   **Platform**: iOS and Android mobile applications.
-*   **Technology Stack**: (To be determined based on further analysis, but may include technologies such as React Native, Node.js, MongoDB, etc.)
-*   **API Integrations**: Mapping API (e.g., Google Maps, Mapbox), Payment Gateway API (e.g., Stripe, PayPal).
+## 4. Business Goals
+Based on the project description, generate a detailed list of business goals, categorized into sections like 'Growth and Development'. Each goal should be specific, measurable, achievable, relevant, and time-bound (SMART), if possible.
+**Growth and Development:**
+1. **(Generate Goal 1)**: (Elaborate on the goal)
+2. **(Generate Goal 2)**: (Elaborate on the goal)
+3. **(Generate Goal 3)**: (Elaborate on the goal)
+4. ...
 
-## 8. Open Issues/Risks
-*   **Competition**: Existing ride-sharing platforms.
-*   **User Adoption**: Attracting a critical mass of users.
-*   **Security Concerns**: Protecting user data and preventing fraud.
-*   **Regulatory Compliance**: Adhering to local transportation regulations.
+## 5. Project Overview and Objectives
+**Overview:**
+Provide a detailed narrative of the project. Describe the system's vision, what it will do, who will use it, and how it fits into the overall business strategy. This should be an expansion of the executive summary.
 
-## 9. Future Enhancements (Roadmap)
-*   Integration with public transportation schedules.
-*   Carpool scheduling for recurring trips.
-*   Enhanced safety features (e.g., emergency contact sharing).
-*   Gamification to encourage carpooling.
+**Objectives:**
+List the specific, measurable outcomes the project is expected to achieve. These should be more granular than the business goals.
+1. **(Generate Objective 1)**: (Elaborate on the objective)
+2. **(Generate Objective 2)**: (Elaborate on the objective)
+3. **(Generate Objective 3)**: (Elaborate on the objective)
+4. ...
 
-## 10. Approval
-_________________________
-(Project Sponsor)
+## 6. Project Scope
+**In Scope:**
+List all the features, functionalities, and deliverables that are included in this project. Be very specific. Use bullet points and sub-points to structure the list.
+1. **(Generate Main Feature Area 1, e.g., User App):**
+    - (Sub-feature 1.1)
+    - (Sub-feature 1.2)
+2. **(Generate Main Feature Area 2, e.g., Admin Panel):**
+    - (Sub-feature 2.1)
+    - (Sub-feature 2.2)
 
-_________________________
-({{{currentDate}}})
+**Out of Scope:**
+Clearly define what will **not** be included in the project to manage expectations.
+1. **(Generate Out of Scope Item 1):**
+2. **(Generate Out of Scope Item 2):**
+3. ...
 
-This BRD serves as the foundation for the development of the {{{title}}}. It will be reviewed and updated as needed throughout the project lifecycle.
+## 7. Success Criteria
+Define the metrics that will be used to measure the success of the project.
+**Metrics for Success:**
+1. **(Generate Metric 1, e.g., User Acquisition):**
+    - Target: (Define a specific target)
+2. **(Generate Metric 2, e.g., Engagement Volume):**
+    - Target: (Define a specific target)
+3. **(Generate Metric 3, e.g., System Performance):**
+    - Target: (Define a specific target)
+
+## 8. Current State
+Describe the current process or system that is in place before this project is implemented. Explain the pain points and inefficiencies of the current state.
+**Current Situation:**
+- (Describe current process/system)
+- (Describe current challenges)
+
+## 9. Target State
+Describe the desired future state after the project is successfully implemented. Explain how the new system will improve upon the current state.
+**Future State:**
+- (Describe the fully functional new platform)
+- (Describe the robust new processes)
+
+## 10. RAID (Risks, Assumptions, Issues, Dependencies)
+**Risks**
+Identify potential risks that could negatively impact the project's success.
+1. **(Generate Risk 1):** (Mitigation strategy)
+2. **(Generate Risk 2):** (Mitigation strategy)
+
+**Assumptions**
+List all assumptions being made at the start of the project.
+1. **(Generate Assumption 1)**
+2. **(Generate Assumption 2)**
+
+**Issues**
+List any known issues or problems that need to be addressed.
+1. **(Generate Issue 1)**
+2. **(Generate Issue 2)**
+
+**Dependencies**
+List all external factors or other projects that this project depends on.
+1. **(Generate Dependency 1)**
+2. **(Generate Dependency 2)**
+
+## 11. Major Requirements
+This is the core of the BRD. Generate an extremely detailed list of high-level requirements for each major component of the system.
+**High-Level Requirements**
+**1. (Generate Component 1, e.g., Admin Panel)**
+    **1.1 (Generate Feature Group 1.1, e.g., User Management)**
+    - (Detail requirement 1.1.1)
+    - (Detail requirement 1.1.2)
+    **1.2 (Generate Feature Group 1.2, e.g., Content Management)**
+    - (Detail requirement 1.2.1)
+    - (Detail requirement 1.2.2)
+
+**2. (Generate Component 2, e.g., User Panel)**
+    **2.1 (Generate Feature Group 2.1, e.g., Authentication)**
+    - (Detail requirement 2.1.1)
+    - (Detail requirement 2.1.2)
+
+## 12. Business Rules and Acceptance Criteria
+**Business Rules**
+List the specific rules and policies that the system must adhere to.
+1. **(Generate Business Rule 1)**
+2. **(Generate Business Rule 2)**
+3. ...
+
+**Acceptance Criteria**
+For each major requirement, define the criteria that will be used to determine if it has been successfully implemented.
+1. **(For Requirement 1):**
+    - (Criterion 1.1)
+    - (Criterion 1.2)
+2. **(For Requirement 2):**
+    - (Criterion 2.1)
+    - (Criterion 2.2)
+
+## 13. Reference Documents
+List any other relevant documents.
+- (e.g., Project Proposal, Market Analysis, etc.)
+
+## 14. Support
+Describe the post-launch support plan.
+
+## 15. Pointers to be noted
+Include any important notes regarding project execution, costing, or timelines.
+
+## 16. Deliverables
+List the tangible outputs of the project.
+1. Fully functional platform with all specified panels.
+2. Comprehensive documentation.
+3. ...
+
+## 17. Payment Details
+Include placeholder for payment information if applicable.
 
 
 **If Document Type is "FRS" (Functional Requirements Specification):**
