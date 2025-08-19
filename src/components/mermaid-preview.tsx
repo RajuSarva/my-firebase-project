@@ -70,15 +70,12 @@ export function MermaidPreview({ chart, title }: MermaidPreviewProps) {
         const ctx = canvas.getContext("2d");
         if (!ctx) return;
 
-        // Get SVG dimensions
-        const parser = new DOMParser();
-        const svgDoc = parser.parseFromString(svg, "image/svg+xml");
-        const svgElement = svgDoc.documentElement;
-        const svgWidth = parseFloat(svgElement.getAttribute('width') || '0');
-        const svgHeight = parseFloat(svgElement.getAttribute('height') || '0');
+        // Use the natural dimensions of the loaded image.
+        const svgWidth = img.naturalWidth;
+        const svgHeight = img.naturalHeight;
         
         if (svgWidth === 0 || svgHeight === 0) {
-          console.error("Could not determine SVG dimensions.");
+          console.error("Could not determine SVG dimensions from image.");
           return;
         }
 
