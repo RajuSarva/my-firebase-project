@@ -35,4 +35,7 @@ export function downloadFile({
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
+  if (!isBase64) {
+    URL.revokeObjectURL(a.href);
+  }
 }
