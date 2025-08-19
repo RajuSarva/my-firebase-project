@@ -147,31 +147,41 @@ export default function DocumentGeneratorPage() {
   
     const tokens = new Lexer().lex(result.markdownContent);
     const body: any[] = [];
-  
-    tokens.forEach(token => {
-      if (token.type === 'heading') {
-        let fontSize = 12;
-        let fontStyle : 'bold' | 'normal' = 'bold';
-        if (token.depth === 1) fontSize = 18;
-        if (token.depth === 2) fontSize = 16;
-        if (token.depth === 3) fontSize = 14;
-        body.push({ content: token.text, styles: { fontStyle: fontStyle, fontSize } });
-      } else if (token.type === 'paragraph') {
-        body.push({ content: token.text, styles: { fontSize: 12 } });
-      } else if (token.type === 'list') {
-        token.items.forEach(item => {
-          let content = `• ${item.text}`;
-          if(item.tokens) {
-            content = `• ${item.tokens.map(t => t.text).join('')}`
-          }
-          body.push({ content: content, styles: { fontSize: 12, cellPadding: {top: 2, right: 2, bottom: 2, left: 10} } });
-        });
-      } else if (token.type === 'space') {
-        body.push({ content: '', styles: { fontSize: 6 } });
-      } else if (token.type === 'text') {
-         body.push({ content: token.text, styles: { fontSize: 12 } });
-      }
-    });
+
+    const processTokens = (tokens: marked.Token[], depth = 0) => {
+      tokens.forEach(token => {
+        if (token.type === 'heading') {
+          let fontSize = 12;
+          let fontStyle: 'bold' | 'normal' = 'bold';
+          if (token.depth === 1) fontSize = 18;
+          if (token.depth === 2) fontSize = 16;
+          if (token.depth === 3) fontSize = 14;
+          body.push({ content: token.text, styles: { fontStyle, fontSize } });
+        } else if (token.type === 'paragraph') {
+          body.push({ content: token.text, styles: { fontSize: 12 } });
+        } else if (token.type === 'list') {
+          token.items.forEach(item => {
+            const bullet = '•';
+            const itemText = item.tokens.map(t => 'text' in t ? t.text : '').join('');
+            const content = `${bullet} ${itemText}`;
+            body.push({ content, styles: { fontSize: 12, cellPadding: { left: 10 + depth * 15 } } });
+            
+            if (item.tokens.some(t => t.type === 'list')) {
+                const nestedList = item.tokens.find(t => t.type === 'list') as marked.Tokens.List;
+                if(nestedList) {
+                   processTokens(nestedList.items, depth + 1);
+                }
+            }
+          });
+        } else if (token.type === 'space') {
+          body.push({ content: '', styles: { fontSize: 6 } });
+        } else if (token.type === 'text' && token.text.trim()) {
+           body.push({ content: token.text, styles: { fontSize: 12 } });
+        }
+      });
+    }
+
+    processTokens(tokens);
 
     autoTable(doc, {
         startY: 20 + logoHeight + 20,
@@ -354,5 +364,3 @@ export default function DocumentGeneratorPage() {
     </DashboardLayout>
   );
 }
-
-    
