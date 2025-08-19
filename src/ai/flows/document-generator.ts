@@ -17,9 +17,7 @@ const GenerateRefinedDocumentInputSchema = z.object({
   uploadedFile: z
     .string()
     .optional()
-    .describe(
-      "A file, as a data URI that must include a MIME type and use Base64 encoding. Expected format: 'data:<mimetype>;base64,<encoded_data>'."
-    ),
+    .describe("A file, as a data URI string."),
 });
 export type GenerateRefinedDocumentInput = z.infer<typeof GenerateRefinedDocumentInputSchema>;
 
@@ -45,7 +43,8 @@ Uploaded File Content: {{media url=uploadedFile}}
 
 Generate the document in markdown format.
 Ensure the markdown is comprehensive and well-formatted.
-`,config: {
+`,
+  config: {
     model: 'googleai/gemini-2.0-flash',
     safetySettings: [
       {

@@ -17,9 +17,7 @@ const GenerateFlowchartInputSchema = z.object({
   uploadedFile: z
     .string()
     .optional()
-    .describe(
-      "A file, as a data URI that must include a MIME type and use Base64 encoding. Expected format: 'data:<mimetype>;base64,<encoded_data>'."
-    ),
+    .describe("A file, as a data URI string."),
 });
 
 export type GenerateFlowchartInput = z.infer<typeof GenerateFlowchartInputSchema>;
