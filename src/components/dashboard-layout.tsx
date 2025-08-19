@@ -55,18 +55,15 @@ export function DashboardLayout({ children }: { children: ReactNode }) {
           <SidebarMenu>
             {menuItems.map((item) => (
               <SidebarMenuItem key={item.href}>
-                <Link href={item.href} passHref legacyBehavior>
-                  <SidebarMenuButton
-                    asChild
-                    isActive={pathname === item.href}
-                    tooltip={item.label}
-                  >
-                    <a>
-                      <item.icon />
-                      <span>{item.label}</span>
-                    </a>
-                  </SidebarMenuButton>
-                </Link>
+                <SidebarMenuButton
+                  as={Link}
+                  href={item.href}
+                  isActive={pathname === item.href}
+                  tooltip={item.label}
+                >
+                  <item.icon />
+                  <span>{item.label}</span>
+                </SidebarMenuButton>
               </SidebarMenuItem>
             ))}
           </SidebarMenu>
@@ -74,14 +71,14 @@ export function DashboardLayout({ children }: { children: ReactNode }) {
         <SidebarFooter>
           <SidebarMenu>
              <SidebarMenuItem>
-                <Link href="/home" passHref legacyBehavior>
-                  <SidebarMenuButton asChild tooltip="Back to Home">
-                    <a>
-                      <Home />
-                      <span>Home</span>
-                    </a>
-                  </SidebarMenuButton>
-                </Link>
+                <SidebarMenuButton
+                  as={Link}
+                  href="/home"
+                  tooltip="Back to Home"
+                >
+                    <Home />
+                    <span>Home</span>
+                </SidebarMenuButton>
               </SidebarMenuItem>
           </SidebarMenu>
         </SidebarFooter>
