@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useEffect, useId, useState } from "react";
+import { useEffect, useId, useState, useRef } from "react";
 import mermaid from "mermaid";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Button } from "./ui/button";
@@ -32,6 +32,7 @@ export function MermaidPreview({ chart, title }: MermaidPreviewProps) {
   const id = useId();
   const [svg, setSvg] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const svgRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setLoading(true);
@@ -60,7 +61,13 @@ export function MermaidPreview({ chart, title }: MermaidPreviewProps) {
   }, [chart, id]);
   
   const downloadPNG = () => {
-    if (!svg) return;
+    if (!svg || !svgRef.current) return;
+    
+    const svgElement = svgRef.current.querySelector('svg');
+    if (!svgElement) {
+        console.error("Could not find SVG element to measure.");
+        return;
+    }
 
     const img = new Image();
     const svgDataUri = "data:image/svg+xml;base64," + btoa(unescape(encodeURIComponent(svg)));
@@ -70,18 +77,17 @@ export function MermaidPreview({ chart, title }: MermaidPreviewProps) {
         const ctx = canvas.getContext("2d");
         if (!ctx) return;
 
-        // Use the natural dimensions of the loaded image.
-        const svgWidth = img.naturalWidth;
-        const svgHeight = img.naturalHeight;
+        // Get dimensions from the rendered SVG for accuracy
+        const { width: svgWidth, height: svgHeight } = svgElement.getBoundingClientRect();
         
         if (svgWidth === 0 || svgHeight === 0) {
-          console.error("Could not determine SVG dimensions from image.");
+          console.error("Could not determine SVG dimensions from rendered element.");
           return;
         }
 
         const scale = 2; // For higher resolution
-        const padding = 40 * scale;
-        const headerHeight = 80 * scale;
+        const padding = 20 * scale;
+        const headerHeight = 60 * scale;
 
         canvas.width = svgWidth * scale + padding * 2;
         canvas.height = svgHeight * scale + padding * 2 + headerHeight;
@@ -100,12 +106,12 @@ export function MermaidPreview({ chart, title }: MermaidPreviewProps) {
         ctx.fillStyle = '#333';
         ctx.textAlign = 'center';
         
-        ctx.font = `bold ${20 * scale}px Arial`;
+        ctx.font = `bold ${16 * scale}px Arial`;
         ctx.fillText(title, canvas.width / 2, padding + (10 * scale));
 
-        ctx.font = `${14 * scale}px Arial`;
-        ctx.fillText(`Prepared by Team Geega Tech`, canvas.width / 2, padding + (35 * scale));
-        ctx.fillText(`Date: ${currentDate}`, canvas.width / 2, padding + (55 * scale));
+        ctx.font = `${12 * scale}px Arial`;
+        ctx.fillText(`Prepared by Team Geega Tech`, canvas.width / 2, padding + (28 * scale));
+        ctx.fillText(`Date: ${currentDate}`, canvas.width / 2, padding + (44 * scale));
 
         // Draw Diagram
         const imageX = padding;
@@ -137,7 +143,7 @@ export function MermaidPreview({ chart, title }: MermaidPreviewProps) {
       <CardContent className="min-h-[200px] flex items-center justify-center bg-card rounded-b-lg p-4 overflow-auto">
         {loading && <Skeleton className="w-full h-[300px]" />}
         {!loading && svg && (
-          <div dangerouslySetInnerHTML={{ __html: svg }} />
+          <div ref={svgRef} dangerouslySetInnerHTML={{ __html: svg }} />
         )}
         {!loading && !svg && (
           <p className="text-muted-foreground">Your generated flowchart will appear here.</p>
