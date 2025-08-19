@@ -35,10 +35,12 @@ import { useToast } from "@/hooks/use-toast";
 import { Download, FileText } from "lucide-react";
 import Image from "next/image";
 import { downloadFile } from "@/lib/utils";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 const formSchema = z.object({
   title: z.string().min(2, { message: "Title must be at least 2 characters." }),
   description: z.string().min(10, { message: "Description must be at least 10 characters." }),
+  wireframeStyle: z.enum(['Sketchy', 'Clean', 'High-Fidelity']),
   file: z.instanceof(File).nullable(),
 });
 
@@ -54,6 +56,7 @@ export default function WireframeGeneratorPage() {
     defaultValues: {
       title: "",
       description: "",
+      wireframeStyle: "Clean",
       file: null,
     },
   });
@@ -64,6 +67,7 @@ export default function WireframeGeneratorPage() {
       const formData = new FormData();
       formData.append("title", values.title);
       formData.append("description", values.description);
+      formData.append("wireframeStyle", values.wireframeStyle);
       if (values.file) {
         formData.append("file", values.file);
       }
@@ -172,6 +176,49 @@ export default function WireframeGeneratorPage() {
                             {...field}
                             disabled={isPending}
                           />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                   <FormField
+                    control={form.control}
+                    name="wireframeStyle"
+                    render={({ field }) => (
+                      <FormItem className="space-y-3">
+                        <FormLabel>Wireframe Style</FormLabel>
+                        <FormControl>
+                          <RadioGroup
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}
+                            className="flex flex-col space-y-1"
+                            disabled={isPending}
+                          >
+                            <FormItem className="flex items-center space-x-3 space-y-0">
+                              <FormControl>
+                                <RadioGroupItem value="Clean" />
+                              </FormControl>
+                              <FormLabel className="font-normal">
+                                Clean & Modern (Figma-style)
+                              </FormLabel>
+                            </FormItem>
+                            <FormItem className="flex items-center space-x-3 space-y-0">
+                              <FormControl>
+                                <RadioGroupItem value="Sketchy" />
+                              </FormControl>
+                              <FormLabel className="font-normal">
+                                Sketchy
+                              </FormLabel>
+                            </FormItem>
+                            <FormItem className="flex items-center space-x-3 space-y-0">
+                              <FormControl>
+                                <RadioGroupItem value="High-Fidelity" />
+                              </FormControl>
+                              <FormLabel className="font-normal">
+                                High-Fidelity
+                              </FormLabel>
+                            </FormItem>
+                          </RadioGroup>
                         </FormControl>
                         <FormMessage />
                       </FormItem>

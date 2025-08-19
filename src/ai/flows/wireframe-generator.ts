@@ -15,6 +15,7 @@ import {z} from 'genkit';
 const GenerateWireframesInputSchema = z.object({
   title: z.string().describe('The title of the wireframes to generate.'),
   description: z.string().describe('The detailed description of the wireframes, including functionality and purpose.'),
+  wireframeStyle: z.enum(['Sketchy', 'Clean', 'High-Fidelity']).describe('The visual style of the wireframes.'),
   uploadedFile: z
     .string()
     .optional()
@@ -66,6 +67,20 @@ For each identified screen, generate a clear name (e.g., "Onboarding Screen") an
 `,
 });
 
+const getStylePrompt = (style: GenerateWireframesInput['wireframeStyle'], description: string) => {
+    const basePrompt = `All text labels or annotations MUST be in English. The output must look like a professional, early-stage design mockup. The wireframe should be based on this description: ${description}`;
+
+    switch (style) {
+        case 'Sketchy':
+            return `Generate a sketchy, hand-drawn, black and white, low-fidelity UI wireframe for a mobile app screen. Use rough lines and basic shapes to create a brainstorm-style feel. ${basePrompt}`;
+        case 'High-Fidelity':
+            return `Generate a high-fidelity, colorful, and detailed UI mockup for a mobile app screen. Use a modern color palette, include icons, and use realistic-looking placeholder images and refined UI components. This should look like a final design proposal. ${basePrompt}`;
+        case 'Clean':
+        default:
+            return `Generate a clean, black and white, low-fidelity UI wireframe for a mobile app screen, in the style of a modern Figma design. The wireframe MUST be schematic and professional, using standard UI components like rectangles for image placeholders, buttons with English labels (e.g., "Sign Up", "Learn More"), and squiggly or dummy lorem ipsum lines for text blocks. Do NOT include any color, detailed graphics, or realistic photos. ${basePrompt}`;
+    }
+}
+
 const generateWireframesFlow = ai.defineFlow(
   {
     name: 'generateWireframesFlow',
@@ -82,14 +97,12 @@ const generateWireframesFlow = ai.defineFlow(
     if (!textOutputs || textOutputs.length === 0) {
       throw new Error("Failed to generate wireframe text descriptions.");
     }
-
-    const wireframeImagePrompt = (description: string) => `Generate a clean, black and white, low-fidelity UI wireframe for a mobile app screen, in the style of a modern Figma design. The wireframe MUST be schematic and professional, using standard UI components like rectangles for image placeholders, buttons with English labels (e.g., "Sign Up", "Learn More"), and squiggly or dummy lorem ipsum lines for text blocks. All text labels or annotations MUST be in English. Do NOT include any color, detailed graphics, or realistic photos. The output must look like a professional, early-stage design mockup created in a tool like Figma. The wireframe should be based on this description: ${description}`;
-
+    
     // Generate all images in parallel.
     const imageGenerationPromises = textOutputs.map(async (wireframe) => {
       const imageResponse = await ai.generate({
         model: 'googleai/gemini-2.0-flash-preview-image-generation',
-        prompt: wireframeImagePrompt(wireframe.description),
+        prompt: getStylePrompt(input.wireframeStyle, wireframe.description),
         config: {
           responseModalities: ['TEXT', 'IMAGE'],
         },

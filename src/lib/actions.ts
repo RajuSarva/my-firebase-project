@@ -1,3 +1,4 @@
+
 "use server";
 
 import { generateRefinedDocument } from "@/ai/flows/document-generator";
@@ -74,6 +75,7 @@ export async function handleFlowchartGeneration(formData: FormData) {
 const wireframeSchema = z.object({
   title: z.string().min(1, "Title is required."),
   description: z.string().min(1, "Description is required."),
+  wireframeStyle: z.enum(['Sketchy', 'Clean', 'High-Fidelity']),
   file: fileSchema,
 });
 export async function handleWireframeGeneration(formData: FormData) {
@@ -89,6 +91,7 @@ export async function handleWireframeGeneration(formData: FormData) {
     const result = await generateWireframes({
       title: parsed.title,
       description: parsed.description,
+      wireframeStyle: parsed.wireframeStyle,
       uploadedFile,
     });
 
@@ -99,5 +102,3 @@ export async function handleWireframeGeneration(formData: FormData) {
     return { success: false, error: `Failed to generate wireframes. ${errorMessage}` };
   }
 }
-
-    
