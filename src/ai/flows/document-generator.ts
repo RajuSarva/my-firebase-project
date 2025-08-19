@@ -51,6 +51,7 @@ Uploaded File Content: {{media url=uploadedFile}}
 Generate the document in markdown format.  Also generate the same content in PDF format encoded as base64 string.
 Ensure both markdown and PDF versions are comprehensive and well-formatted.
 `,config: {
+    model: 'googleai/gemini-2.0-flash',
     safetySettings: [
       {
         category: 'HARM_CATEGORY_DANGEROUS_CONTENT',

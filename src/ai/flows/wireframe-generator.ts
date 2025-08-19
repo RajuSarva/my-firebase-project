@@ -69,6 +69,9 @@ Uploaded File Content: {{media url=uploadedFile}}
 
 First, generate descriptive text for both wireframes, detailing the layout, key elements, and functionality of each screen.
 `,
+  config: {
+    model: 'googleai/gemini-2.0-flash',
+  }
 });
 
 const generateWireframesFlow = ai.defineFlow(
