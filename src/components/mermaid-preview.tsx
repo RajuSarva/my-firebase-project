@@ -61,52 +61,71 @@ export function MermaidPreview({ chart, title }: MermaidPreviewProps) {
   
   const downloadPNG = () => {
     if (!svg) return;
-    
+
     const img = new Image();
-    
-    // Use a data URI to avoid tainting the canvas
     const svgDataUri = "data:image/svg+xml;base64," + btoa(unescape(encodeURIComponent(svg)));
 
     img.onload = () => {
-      const canvas = document.createElement("canvas");
-      const padding = 40;
-      const headerHeight = 80; // Space for title, prepared by, and date
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+        if (!ctx) return;
 
-      canvas.width = Math.max(img.width, 600) + padding * 2;
-      canvas.height = img.height + padding * 2 + headerHeight;
+        // Get SVG dimensions
+        const parser = new DOMParser();
+        const svgDoc = parser.parseFromString(svg, "image/svg+xml");
+        const svgElement = svgDoc.documentElement;
+        const svgWidth = parseFloat(svgElement.getAttribute('width') || '0');
+        const svgHeight = parseFloat(svgElement.getAttribute('height') || '0');
+        
+        if (svgWidth === 0 || svgHeight === 0) {
+          console.error("Could not determine SVG dimensions.");
+          return;
+        }
 
-      const ctx = canvas.getContext("2d");
-      if(ctx) {
+        const scale = 2; // For higher resolution
+        const padding = 40 * scale;
+        const headerHeight = 80 * scale;
+
+        canvas.width = svgWidth * scale + padding * 2;
+        canvas.height = svgHeight * scale + padding * 2 + headerHeight;
+
         // White background
         ctx.fillStyle = 'white';
-        ctx.fillRect(0,0, canvas.width, canvas.height);
-        
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
         // Header Text
         const currentDate = new Date().toLocaleDateString('en-US', {
             year: 'numeric',
             month: 'long',
             day: 'numeric',
         });
-
+        
         ctx.fillStyle = '#333';
-        ctx.font = 'bold 20px Arial';
         ctx.textAlign = 'center';
-        ctx.fillText(title, canvas.width / 2, padding + 10);
+        
+        ctx.font = `bold ${20 * scale}px Arial`;
+        ctx.fillText(title, canvas.width / 2, padding + (10 * scale));
 
-        ctx.font = '14px Arial';
-        ctx.fillText(`Prepared by Team Geega Tech`, canvas.width / 2, padding + 35);
-        ctx.fillText(`Date: ${currentDate}`, canvas.width / 2, padding + 55);
+        ctx.font = `${14 * scale}px Arial`;
+        ctx.fillText(`Prepared by Team Geega Tech`, canvas.width / 2, padding + (35 * scale));
+        ctx.fillText(`Date: ${currentDate}`, canvas.width / 2, padding + (55 * scale));
 
         // Draw Diagram
-        const imageX = (canvas.width - img.width) / 2;
-        ctx.drawImage(img, imageX, padding + headerHeight);
+        const imageX = padding;
+        const imageY = padding + headerHeight;
+        ctx.drawImage(img, imageX, imageY, svgWidth * scale, svgHeight * scale);
 
         const pngUrl = canvas.toDataURL("image/png");
         downloadFile({ content: pngUrl, fileName: `${title || 'flowchart'}.png`, contentType: 'image/png' });
-      }
     };
+
+    img.onerror = (error) => {
+        console.error("Image load error:", error);
+    };
+
     img.src = svgDataUri;
-  };
+};
+
 
   return (
     <Card>
