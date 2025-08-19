@@ -48,8 +48,6 @@ Base the document on the following inputs:
 Adhere strictly to the following structure based on the Document Type, ensuring every section is flushed out with substantial detail and examples. All headings and subheadings MUST be bold.
 
 **If Document Type is "BRD" (Business Requirements Document):**
-Generate a complete and exhaustive BRD using the following template. The document must be extremely detailed, at least 10 pages long, and thoroughly developed. Fill in every section with rich, relevant content derived from the project's title, description, and any uploaded file.
-
 # Lead Generation App: Business Requirement Document
 ## 1. Author and Change Control
 | Approver | Name | Date Approved | Role | Signature | Version |
@@ -207,8 +205,6 @@ Include placeholder for payment information if applicable.
 
 
 **If Document Type is "FRS" (Functional Requirements Specification):**
-Generate a complete and exhaustive FRS based on the provided title, description, and uploaded file. This document needs to be extremely detailed and at least 10 pages long, breaking down every function into minute steps, user stories, and validation criteria. Use the following template as a strict guide. All headings and subheadings MUST be bold.
-
 # **Functional Requirement Specification - {{{title}}}**
 
 ## **Document Overview**
@@ -322,7 +318,6 @@ Date: _________________________________
 
 
 **If Document Type is "SRS" (Software Requirements Specification):**
-Generate a complete SRS based on the IEEE 830 standard with exhaustive detail in every section, deriving details from the title, description, and uploaded file. All headings and subheadings MUST be bold.
 # **Software Requirements Specification for {{{title}}}**
 ## **1. Introduction**
 ### **1.1. Purpose**
@@ -434,3 +429,5 @@ export async function generateRefinedDocument(input: Omit<GenerateRefinedDocumen
         currentDate,
     });
 }
+
+    
