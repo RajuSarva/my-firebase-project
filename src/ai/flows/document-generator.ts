@@ -73,7 +73,7 @@ const generateRefinedDocumentFlow = ai.defineFlow(
     outputSchema: GenerateRefinedDocumentOutputSchema,
   },
   async input => {
-    const model = input.uploadedFile ? 'googleai/gemini-pro-vision' : 'googleai/gemini-pro';
+    const model = input.uploadedFile ? 'googleai/gemini-pro-vision' : 'googleai/gemini-1.5-flash-latest';
     const {output} = await refineDocumentPrompt(input, { model });
     return output!;
   }

@@ -73,7 +73,7 @@ const generateWireframesFlow = ai.defineFlow(
     outputSchema: GenerateWireframesOutputSchema,
   },
   async input => {
-    const model = input.uploadedFile ? 'googleai/gemini-pro-vision' : 'googleai/gemini-pro';
+    const model = input.uploadedFile ? 'googleai/gemini-pro-vision' : 'googleai/gemini-1.5-flash-latest';
     const {output} = await prompt(input, { model });
 
     // Generate images for the wireframes in parallel with text generation to improve perceived performance
