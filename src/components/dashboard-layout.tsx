@@ -55,8 +55,9 @@ export function DashboardLayout({ children }: { children: ReactNode }) {
           <SidebarMenu>
             {menuItems.map((item) => (
               <SidebarMenuItem key={item.href}>
-                <Link href={item.href} legacyBehavior passHref>
+                <Link href={item.href} passHref>
                   <SidebarMenuButton
+                    asChild
                     isActive={pathname === item.href}
                     tooltip={item.label}
                   >
@@ -71,8 +72,8 @@ export function DashboardLayout({ children }: { children: ReactNode }) {
         <SidebarFooter>
           <SidebarMenu>
              <SidebarMenuItem>
-                <Link href="/home" legacyBehavior passHref>
-                  <SidebarMenuButton tooltip="Back to Home">
+                <Link href="/home" passHref>
+                  <SidebarMenuButton asChild tooltip="Back to Home">
                     <Home />
                     <span>Home</span>
                   </SidebarMenuButton>
