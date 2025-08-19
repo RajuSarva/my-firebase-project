@@ -43,6 +43,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { handleDocumentGeneration } from "@/lib/actions";
 import { useToast } from "@/hooks/use-toast";
 import { Download } from "lucide-react";
+import { STATIC_LOGO_BASE64 } from "@/lib/logo";
 
 const formSchema = z.object({
   title: z.string().min(2, { message: "Title must be at least 2 characters." }),
@@ -108,18 +109,53 @@ export default function DocumentGeneratorPage() {
     
     const margin = 15;
     const pageHeight = doc.internal.pageSize.height;
-    const maxWidth = doc.internal.pageSize.width - margin * 2;
+    const pageWidth = doc.internal.pageSize.width;
     let y = margin;
   
+    const addHeader = (pageNumber: number) => {
+        doc.addImage(STATIC_LOGO_BASE64, 'PNG', margin, 5, 20, 20);
+        doc.setFontSize(8);
+        doc.setTextColor(150);
+        doc.text(`Page ${pageNumber}`, pageWidth - margin, 10, { align: 'right' });
+        doc.setDrawColor(200);
+        doc.line(margin, 28, pageWidth - margin, 28);
+        y = 35; // Reset y position after header
+    };
+
+    const addFooter = () => {
+        const pageCount = (doc as any).internal.getNumberOfPages();
+        for (let i = 1; i <= pageCount; i++) {
+            doc.setPage(i);
+            doc.setDrawColor(200);
+            doc.line(margin, pageHeight - 18, pageWidth - margin, pageHeight - 18);
+            doc.text(`© Geega Technologies`, margin, pageHeight - 10);
+            doc.text(`Generated on: ${new Date().toLocaleDateString()}`, pageWidth - margin, pageHeight - 10, { align: 'right' });
+        }
+    };
+    
+    const addWatermark = () => {
+      const pageCount = (doc as any).internal.getNumberOfPages();
+      for (let i = 1; i <= pageCount; i++) {
+        doc.setPage(i);
+        doc.saveGraphicsState();
+        doc.setGState(new (doc as any).GState({ opacity: 0.05 }));
+        doc.addImage(STATIC_LOGO_BASE64, 'PNG', pageWidth/2 - 50, pageHeight/2 - 50, 100, 100);
+        doc.restoreGraphicsState();
+      }
+    }
+
+    let currentPage = 1;
+    addHeader(currentPage);
+
     const checkPageBreak = (spaceNeeded: number) => {
-      if (y + spaceNeeded > pageHeight - margin) {
+      if (y + spaceNeeded > pageHeight - 25) { // 25 for footer margin
         doc.addPage();
-        y = margin;
+        currentPage++;
+        addHeader(currentPage);
       }
     };
 
     const cleanText = (text: string) => {
-        // More robust cleaning for various markdown constructs
         return text
             .replace(/(\*\*|__)(.*?)\1/g, '$2') // Bold
             .replace(/(\*|_)(.*?)\1/g, '$2')   // Italic
@@ -138,42 +174,23 @@ export default function DocumentGeneratorPage() {
             switch (token.type) {
                 case 'heading':
                     const headingSize = 22 - token.depth * 2;
-                    checkPageBreak(headingSize * 0.5 + 5);
+                    const headingLineHeight = getLineHeight(headingSize);
+                    textLines = doc.splitTextToSize(cleanText(token.text), pageWidth - margin * 2);
+                    checkPageBreak(textLines.length * headingLineHeight + 5);
                     doc.setFont('helvetica', 'bold');
                     doc.setFontSize(headingSize);
-                    textLines = doc.splitTextToSize(cleanText(token.text), maxWidth);
                     doc.text(textLines, margin, y);
-                    y += textLines.length * getLineHeight(headingSize) + 5;
+                    y += textLines.length * headingLineHeight + 5;
                     break;
         
                 case 'paragraph':
-                    checkPageBreak(10);
+                    const paraLineHeight = getLineHeight(12);
+                    textLines = doc.splitTextToSize(cleanText(token.text), pageWidth - margin * 2);
+                    checkPageBreak(textLines.length * paraLineHeight + 4);
                     doc.setFont('helvetica', 'normal');
                     doc.setFontSize(12);
-                    
-                    // Manually handle bold/italic within paragraphs
-                    let currentX = margin;
-                    let lineBuffer = '';
-                    const parts = token.text.split(/(\*\*|__|\*|_)/g);
-                    let isBold = false;
-                    let isItalic = false;
-
-                    const renderLineBuffer = () => {
-                        if (lineBuffer) {
-                            textLines = doc.splitTextToSize(lineBuffer, maxWidth - (currentX - margin));
-                            doc.text(textLines, currentX, y);
-                            y += textLines.length * getLineHeight(12);
-                            currentX = margin;
-                            if (textLines.length > 1) {
-                                currentX += doc.getStringUnitWidth(textLines[textLines.length - 1]) * 12 / doc.internal.scaleFactor;
-                            }
-                        }
-                        lineBuffer = '';
-                    };
-                    
-                    textLines = doc.splitTextToSize(cleanText(token.text), maxWidth);
-                    doc.text(textLines, margin, y, { maxWidth });
-                    y += textLines.length * getLineHeight(12) + 4;
+                    doc.text(textLines, margin, y, { maxWidth: pageWidth - margin * 2 });
+                    y += textLines.length * paraLineHeight + 4;
                     break;
                     
                 case 'list':
@@ -186,9 +203,14 @@ export default function DocumentGeneratorPage() {
                     
                     token.items.forEach(item => {
                         const indent = margin + (newListContext.depth - 1) * 7;
-                        const bulletMaxWidth = maxWidth - (indent - margin) - 6;
+                        const bulletMaxWidth = pageWidth - indent - margin - 6;
+                        const itemLineHeight = getLineHeight(12);
 
-                        checkPageBreak(8);
+                        const itemContent = item.tokens.map(t => 'text' in t ? cleanText(t.text) : '').join(' ');
+                        textLines = doc.splitTextToSize(itemContent, bulletMaxWidth);
+                        
+                        checkPageBreak((textLines.length * itemLineHeight) + 2);
+                        
                         doc.setFont('helvetica', 'normal');
                         doc.setFontSize(12);
                         
@@ -199,20 +221,15 @@ export default function DocumentGeneratorPage() {
                             bullet = '•';
                         }
                         
-                        const itemContent = item.tokens.map(t => 'text' in t ? t.text : '').join(' ');
-                        textLines = doc.splitTextToSize(cleanText(itemContent), bulletMaxWidth);
-                        checkPageBreak(textLines.length * getLineHeight(12));
-                        
                         doc.text(bullet, indent, y);
                         doc.text(textLines, indent + 5, y);
-                        y += textLines.length * getLineHeight(12);
+                        y += textLines.length * itemLineHeight;
 
-                        // Handle nested lists recursively
                         const nestedList = item.tokens.find(t => t.type === 'list') as marked.Tokens.List | undefined;
                         if (nestedList) {
                             y += 2;
                             processTokens([nestedList], newListContext);
-                            y -=2; // remove extra spacing after nested list
+                            y -= 2;
                         }
                     });
                     y += 3;
@@ -224,15 +241,17 @@ export default function DocumentGeneratorPage() {
         
                 case 'hr':
                     checkPageBreak(10);
-                    doc.line(margin, y + 2, doc.internal.pageSize.width - margin, y + 2);
+                    doc.line(margin, y + 2, pageWidth - margin, y + 2);
                     y += 7;
                     break;
                     
                 case 'table':
-                    checkPageBreak(20 + 10 * token.rows.length);
+                    const tableHeader = [token.header.map(h => cleanText(h.text))];
+                    const tableBody = token.rows.map(row => row.map(cell => cleanText(cell.text)));
+                    
                     autoTable(doc, {
-                        head: [token.header.map(h => cleanText(h.text))],
-                        body: token.rows.map(row => row.map(cell => cleanText(cell.text))),
+                        head: tableHeader,
+                        body: tableBody,
                         startY: y,
                         margin: { left: margin, right: margin },
                         styles: {
@@ -245,21 +264,30 @@ export default function DocumentGeneratorPage() {
                             fontStyle: 'bold',
                             fillColor: [230, 230, 230],
                             textColor: [20, 20, 20]
+                        },
+                        didDrawPage: (data) => {
+                          if (data.pageNumber !== currentPage) {
+                            currentPage = data.pageNumber;
+                            addHeader(currentPage);
+                          }
+                          y = data.cursor?.y ?? margin;
                         }
                     });
                     y = (doc as any).lastAutoTable.finalY + 10;
                     break;
+                
                 case 'strong':
                 case 'em':
                 case 'codespan':
                 case 'text':
-                    // These are handled within paragraph/list processing now.
                     break;
             }
         }
     };
   
     processTokens(tokens);
+    addFooter();
+    addWatermark();
     doc.save(`${form.getValues("title") || "document"}.pdf`);
   };
 
