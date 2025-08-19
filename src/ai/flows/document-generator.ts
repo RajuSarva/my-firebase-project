@@ -38,7 +38,8 @@ Description: {{{description}}}
 Document Type: {{{documentType}}}
 
 {{#if uploadedFile}}
-Uploaded File Content: {{media url=uploadedFile}}
+Uploaded File Content:
+{{media url=uploadedFile}}
 {{/if}}
 
 Generate the document in markdown format.
@@ -72,10 +73,22 @@ const generateRefinedDocumentFlow = ai.defineFlow(
     inputSchema: GenerateRefinedDocumentInputSchema,
     outputSchema: GenerateRefinedDocumentOutputSchema,
   },
-  async input => {
+  async (input) => {
     const model = input.uploadedFile ? 'googleai/gemini-pro-vision' : 'googleai/gemini-1.5-flash-latest';
-    const {output} = await refineDocumentPrompt(input, { model });
-    return output!;
+    
+    const llmResponse = await ai.generate({
+      prompt: {
+        text: refineDocumentPrompt.prompt,
+        input: input,
+      },
+      model: model,
+      output: {
+        schema: refineDocumentPrompt.output.schema,
+      },
+      config: refineDocumentPrompt.config,
+    });
+    
+    return llmResponse.output()!;
   }
 );
 

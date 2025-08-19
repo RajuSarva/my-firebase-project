@@ -42,10 +42,22 @@ const generateFlowchartFlow = ai.defineFlow(
     inputSchema: GenerateFlowchartInputSchema,
     outputSchema: GenerateFlowchartOutputSchema,
   },
-  async input => {
+  async (input) => {
     const model = input.uploadedFile ? 'googleai/gemini-pro-vision' : 'googleai/gemini-1.5-flash-latest';
-    const {output} = await prompt(input, { model });
-    return output!;
+    
+    const llmResponse = await ai.generate({
+        prompt: {
+            text: prompt.prompt,
+            input: input,
+        },
+        model: model,
+        output: {
+            schema: prompt.output.schema,
+        },
+        config: prompt.config,
+    });
+    
+    return llmResponse.output()!;
   }
 );
 
