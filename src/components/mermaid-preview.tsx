@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useEffect, useId, useState } from "react";
@@ -10,6 +11,7 @@ import { Skeleton } from "./ui/skeleton";
 
 interface MermaidPreviewProps {
   chart: string;
+  title: string;
 }
 
 mermaid.initialize({
@@ -26,7 +28,7 @@ mermaid.initialize({
   }
 });
 
-export function MermaidPreview({ chart }: MermaidPreviewProps) {
+export function MermaidPreview({ chart, title }: MermaidPreviewProps) {
   const id = useId();
   const [svg, setSvg] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -66,16 +68,39 @@ export function MermaidPreview({ chart }: MermaidPreviewProps) {
     img.onload = () => {
       const canvas = document.createElement("canvas");
       const padding = 40;
-      canvas.width = img.width + padding * 2;
-      canvas.height = img.height + padding * 2;
+      const headerHeight = 80; // Space for title, prepared by, and date
+
+      canvas.width = Math.max(img.width, 600) + padding * 2;
+      canvas.height = img.height + padding * 2 + headerHeight;
 
       const ctx = canvas.getContext("2d");
       if(ctx) {
+        // White background
         ctx.fillStyle = 'white';
         ctx.fillRect(0,0, canvas.width, canvas.height);
-        ctx.drawImage(img, padding, padding);
+        
+        // Header Text
+        const currentDate = new Date().toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+        });
+
+        ctx.fillStyle = '#333';
+        ctx.font = 'bold 20px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText(title, canvas.width / 2, padding + 10);
+
+        ctx.font = '14px Arial';
+        ctx.fillText(`Prepared by Team Geega Tech`, canvas.width / 2, padding + 35);
+        ctx.fillText(`Date: ${currentDate}`, canvas.width / 2, padding + 55);
+
+        // Draw Diagram
+        const imageX = (canvas.width - img.width) / 2;
+        ctx.drawImage(img, imageX, padding + headerHeight);
+
         const pngUrl = canvas.toDataURL("image/png");
-        downloadFile({ content: pngUrl, fileName: 'flowchart.png', contentType: 'image/png' });
+        downloadFile({ content: pngUrl, fileName: `${title || 'flowchart'}.png`, contentType: 'image/png' });
         URL.revokeObjectURL(url);
       }
     };
@@ -85,13 +110,11 @@ export function MermaidPreview({ chart }: MermaidPreviewProps) {
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle>Generated Flowchart</CardTitle>
+        <CardTitle>{title || "Generated Flowchart"}</CardTitle>
         {svg && (
-          <div className="flex gap-2">
             <Button variant="outline" size="sm" onClick={downloadPNG}>
-              <Download className="mr-2" /> Download PNG
+              <Download className="mr-2 h-4 w-4" /> Download PNG
             </Button>
-          </div>
         )}
       </CardHeader>
       <CardContent className="min-h-[200px] flex items-center justify-center bg-card rounded-b-lg p-4 overflow-auto">

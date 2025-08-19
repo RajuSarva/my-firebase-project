@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useForm } from "react-hook-form";
@@ -44,6 +45,7 @@ export default function FlowchartGeneratorPage() {
   const [isPending, startTransition] = useTransition();
   const { toast } = useToast();
   const [result, setResult] = useState<GenerateFlowchartOutput | null>(null);
+  const [chartTitle, setChartTitle] = useState<string>("");
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -56,6 +58,7 @@ export default function FlowchartGeneratorPage() {
 
   const onSubmit = (values: FormValues) => {
     setResult(null);
+    setChartTitle(values.title);
     startTransition(async () => {
       const formData = new FormData();
       formData.append("title", values.title);
@@ -178,7 +181,7 @@ export default function FlowchartGeneratorPage() {
             )}
 
             {!isPending && (
-              <MermaidPreview chart={result?.mermaidSyntax ?? ''} />
+              <MermaidPreview title={chartTitle} chart={result?.mermaidSyntax ?? ''} />
             )}
           </div>
         </div>
