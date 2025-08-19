@@ -31,10 +31,10 @@ const services = [
 
 export default function HomePage() {
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen p-4 md:p-8">
+    <div className="flex flex-col items-center justify-center min-h-screen p-4 md:p-8 bg-background text-foreground">
       <div className="text-center mb-12">
-        <h1 className="text-4xl md:text-5xl font-bold font-headline tracking-tight text-foreground">
-          Welcome to ArtifactForge
+        <h1 className="text-4xl md:text-5xl font-bold font-headline tracking-tight">
+          Welcome to GT-DOC AI
         </h1>
         <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto">
           Your AI-powered assistant for creating essential project artifacts.
@@ -45,7 +45,7 @@ export default function HomePage() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 w-full max-w-6xl">
         {services.map((service) => (
           <Link href={service.href} key={service.title} className="block group">
-            <Card className="h-full hover:border-primary transition-all duration-300 hover:shadow-lg transform hover:-translate-y-1">
+            <Card className="h-full bg-secondary border-primary/20 hover:border-primary transition-all duration-300 hover:shadow-lg hover:shadow-primary/20 transform hover:-translate-y-1">
               <CardHeader className="flex flex-row items-center gap-4">
                 <service.icon className="w-8 h-8 text-primary" />
                 <CardTitle className="font-headline">{service.title}</CardTitle>

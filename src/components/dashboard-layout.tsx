@@ -48,7 +48,7 @@ export function DashboardLayout({ children }: { children: ReactNode }) {
               <SidebarTrigger />
             </Button>
             <Feather className="w-6 h-6 text-primary" />
-            <h2 className="text-lg font-semibold font-headline">ArtifactForge</h2>
+            <h2 className="text-lg font-semibold font-headline">GT-DOC AI</h2>
           </div>
         </SidebarHeader>
         <SidebarContent>
@@ -58,7 +58,7 @@ export function DashboardLayout({ children }: { children: ReactNode }) {
                 <SidebarMenuButton
                   as={Link}
                   href={item.href}
-                  isActive={pathname === item.href}
+                  isActive={pathname.startsWith(item.href)}
                   tooltip={item.label}
                 >
                   <item.icon />
