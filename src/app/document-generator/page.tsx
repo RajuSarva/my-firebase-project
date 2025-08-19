@@ -44,6 +44,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { handleDocumentGeneration } from "@/lib/actions";
 import { useToast } from "@/hooks/use-toast";
 import { Download } from "lucide-react";
+import { STATIC_LOGO_BASE64 } from "@/lib/logo";
 
 const formSchema = z.object({
   title: z.string().min(2, { message: "Title must be at least 2 characters." }),
@@ -53,8 +54,6 @@ const formSchema = z.object({
 });
 
 type FormValues = z.infer<typeof formSchema>;
-
-const STATIC_LOGO_URL = '/logo.png';
 
 export default function DocumentGeneratorPage() {
   const [isPending, startTransition] = useTransition();
@@ -107,28 +106,15 @@ export default function DocumentGeneratorPage() {
     const pdfWidth = doc.internal.pageSize.getWidth();
     const margin = 40;
   
-    // Load logo
+    // Load logo from base64 string
     const logoImg = new Image();
-    logoImg.crossOrigin = "anonymous";
-    logoImg.src = STATIC_LOGO_URL;
+    logoImg.src = STATIC_LOGO_BASE64;
     
-    try {
-      await new Promise((resolve, reject) => {
-        logoImg.onload = resolve;
-        logoImg.onerror = reject;
-      });
-    } catch (error) {
-        console.error("Error loading logo:", error);
-        toast({
-          variant: "destructive",
-          title: "Logo Error",
-          description: "Could not load the logo. Make sure 'logo.png' is in the 'public' folder.",
-        });
-        return;
-    }
-    
+    // We don't need to wait for onload for base64 images, but we'll keep the structure in case.
     const logoWidth = 75;
-    const logoHeight = (logoImg.height * logoWidth) / logoImg.width;
+    const img = new Image();
+    img.src = STATIC_LOGO_BASE64;
+    const logoHeight = (img.height * logoWidth) / img.width;
   
     const addPageContent = (docInstance: jsPDF, pageNumber: number) => {
       docInstance.setPage(pageNumber);
@@ -139,7 +125,7 @@ export default function DocumentGeneratorPage() {
       // Watermark
       docInstance.saveGraphicsState();
       docInstance.setGState(new (doc as any).GState({opacity: 0.1}));
-      docInstance.addImage(logoImg, 'PNG', pdfWidth / 2 - 100, doc.internal.pageSize.getHeight() / 2 - 50, 200, (200 * logoImg.height) / logoImg.width);
+      docInstance.addImage(logoImg, 'PNG', pdfWidth / 2 - 100, doc.internal.pageSize.getHeight() / 2 - 50, 200, (200 * img.height) / img.width);
       docInstance.restoreGraphicsState();
     };
   
@@ -179,7 +165,7 @@ export default function DocumentGeneratorPage() {
            body.push({ content: token.text, styles: { fontSize: 12 } });
         }
       });
-    }
+    };
 
     processTokens(tokens);
 
@@ -270,7 +256,7 @@ export default function DocumentGeneratorPage() {
                           <FormControl>
                             <SelectTrigger>
                               <SelectValue placeholder="Select a document type" />
-                            </SelectTrigger>
+                            </Trigger>
                           </FormControl>
                           <SelectContent>
                             <SelectItem value="BRD">
