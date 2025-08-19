@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useForm } from "react-hook-form";
@@ -6,6 +7,7 @@ import { z } from "zod";
 import { useState, useTransition, useRef } from "react";
 import type { GenerateRefinedDocumentOutput } from "@/ai/flows/document-generator";
 import jsPDF from "jspdf";
+import autoTable from 'jspdf-autotable';
 import { marked } from "marked";
 
 import { DashboardLayout } from "@/components/dashboard-layout";
@@ -103,7 +105,7 @@ export default function DocumentGeneratorPage() {
   
     const doc = new jsPDF();
     const tokens = marked.lexer(result.markdownContent);
-  
+    
     const margin = 15;
     const pageHeight = doc.internal.pageSize.height;
     const maxWidth = doc.internal.pageSize.width - margin * 2;
@@ -115,14 +117,22 @@ export default function DocumentGeneratorPage() {
         y = margin;
       }
     };
-  
-    const processTokens = (tokens: marked.Token[], listContext: { type?: 'ordered' | 'unordered', depth: number, counter: number } = { depth: 0, counter: 1 }) => {
+
+    const cleanText = (text: string) => {
+      return text
+        .replace(/(\*\*|__)(.*?)\1/g, '$2') // Bold
+        .replace(/(\*|_)(.*?)\1/g, '$2')   // Italic
+        .replace(/`/g, '')                 // Code ticks
+        .replace(/#/g, '')                 // Hashtags
+        .trim();
+    };
+
+    const processTokens = (tokens: marked.Token[], listContext: { depth: number } = { depth: 0 }) => {
+        let listCounter = 1;
+    
         for (const token of tokens) {
             let textLines: string[];
-            const getLineHeight = () => doc.getFontSize() * 0.3527777778; // Conversion from points to mm
-            
-            // Clean text from markdown syntax
-            const cleanText = (text: string) => text.replace(/(\*\*|__)(.*?)\1/g, '$2').replace(/(\*|_)(.*?)\1/g, '$2').trim();
+            const getLineHeight = () => doc.getFontSize() * 0.45;
 
             switch (token.type) {
                 case 'heading':
@@ -145,56 +155,48 @@ export default function DocumentGeneratorPage() {
                     
                 case 'list':
                     y += 2;
-                    const newListContext = { type: token.ordered ? 'ordered' : 'unordered', depth: listContext.depth + 1, counter: token.start || 1 };
-                    processTokens(token.items, newListContext);
-                    y += 3;
-                    break;
-        
-                case 'list_item':
-                    checkPageBreak(8);
-                    doc.setFont('helvetica', 'normal');
-                    doc.setFontSize(12);
-                    const indent = margin + (listContext.depth - 1) * 7;
-                    const bulletMaxWidth = maxWidth - indent - 6;
-                    
-                    let bullet;
-                    if (listContext.type === 'ordered') {
-                        bullet = `${newListContext.counter++}.`;
-                    } else {
-                        bullet = '•'; 
+                    // Reset counter for each new top-level list
+                    if (listContext.depth === 0) {
+                        listCounter = token.ordered ? (token.start || 1) : 1;
                     }
+                    const newListContext = { depth: listContext.depth + 1 };
                     
-                    const processListItemTokens = (itemTokens: marked.Token[]) => {
-                        if (!itemTokens || itemTokens.length === 0) return;
+                    token.items.forEach(item => {
+                        checkPageBreak(8);
+                        doc.setFont('helvetica', 'normal');
+                        doc.setFontSize(12);
                         
-                        let currentY = y;
-                        let lineCount = 0;
+                        const indent = margin + (newListContext.depth - 1) * 7;
+                        const bulletMaxWidth = maxWidth - indent - 6;
 
-                        itemTokens.forEach(itemToken => {
-                            if (itemToken.type === 'text') {
-                                textLines = doc.splitTextToSize(cleanText(itemToken.text), bulletMaxWidth);
-                                if (lineCount === 0) { // First line with bullet
-                                    doc.text(bullet, indent, currentY);
-                                    doc.text(textLines, indent + 5, currentY);
-                                } else { // Subsequent lines without bullet
-                                    doc.text(textLines, indent + 5, currentY);
-                                }
-                                const heightOfLines = textLines.length * getLineHeight();
-                                currentY += heightOfLines;
-                                lineCount += textLines.length;
-                            } else if (itemToken.type === 'list') {
-                                // Handle nested lists
-                                const nestedListContext = { ...listContext, depth: listContext.depth + 1, counter: 1 };
-                                y = currentY; // update y before recursive call
-                                processTokens([itemToken], nestedListContext);
-                                currentY = y; // update currentY after recursive call
-                            }
-                        });
-                        y = currentY;
+                        let bullet;
+                        if (token.ordered) {
+                            bullet = `${listCounter++}.`;
+                        } else {
+                            bullet = '•';
+                        }
+                        
+                        // Process text and potential nested lists within the list item
+                        const itemContent = item.tokens.map(t => 'text' in t ? t.text : '').join(' ');
+                        textLines = doc.splitTextToSize(cleanText(itemContent), bulletMaxWidth);
+                        
+                        doc.text(bullet, indent, y);
+                        doc.text(textLines, indent + 5, y);
+                        y += textLines.length * getLineHeight();
+
+                        // Handle nested lists
+                        const nestedList = item.tokens.find(t => t.type === 'list') as marked.Tokens.List | undefined;
+                        if (nestedList) {
+                            y += 2;
+                            processTokens([nestedList], newListContext);
+                        }
+                        y += 2; // Spacing after list item
+                    });
+                     // Reset counter after processing a top-level list
+                    if (listContext.depth === 0) {
+                        listCounter = 1;
                     }
-
-                    processListItemTokens(token.tokens);
-                    y += 2; // Spacing after list item
+                    y += 3;
                     break;
         
                 case 'space':
@@ -208,7 +210,7 @@ export default function DocumentGeneratorPage() {
                     break;
                 case 'table':
                     checkPageBreak(20 * token.rows.length);
-                    (doc as any).autoTable({
+                    autoTable(doc, {
                         head: [token.header.map(h => cleanText(h.text))],
                         body: token.rows.map(row => row.map(cell => cleanText(cell.text))),
                         startY: y,
@@ -216,10 +218,12 @@ export default function DocumentGeneratorPage() {
                         styles: {
                             font: 'helvetica',
                             fontSize: 10,
+                            cellPadding: 2,
                         },
                         headStyles: {
                             fontStyle: 'bold',
-                            fillColor: [230, 230, 230]
+                            fillColor: [230, 230, 230],
+                            textColor: [20, 20, 20]
                         }
                     });
                     y = (doc as any).lastAutoTable.finalY + 10;
@@ -231,6 +235,7 @@ export default function DocumentGeneratorPage() {
     processTokens(tokens);
     doc.save(`${form.getValues("title") || "document"}.pdf`);
   };
+
 
   const handleDownloadMd = () => {
     if (!result) return;
