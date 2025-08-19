@@ -18,7 +18,7 @@ const GenerateWireframesInputSchema = z.object({
     .string()
     .optional()
     .describe(
-      'Optional: A text file containing hints and specific details to help generate the wireframes. Should be passed as a data URI that must include a MIME type and use Base64 encoding. Expected format: \'data:<mimetype>;base64,<encoded_data>\'.' 
+      'Optional: A text file containing hints and specific details to help generate the wireframes. Should be passed as a data URI that must include a MIME type and use Base64 encoding. Expected format: \'data:<mimetype>;base64,<encoded_data>\'.'
     ),
 });
 
@@ -30,12 +30,12 @@ const GenerateWireframesOutputSchema = z.object({
   homepageWireframeImage: z
     .string()
     .describe(
-      'A visual representation of the homepage wireframe as a data URI that must include a MIME type and use Base64 encoding. Expected format: \'data:<mimetype>;base64,<encoded_data>\'.' 
+      'A visual representation of the homepage wireframe as a data URI that must include a MIME type and use Base64 encoding. Expected format: \'data:<mimetype>;base64,<encoded_data>\'.'
     ),
   featureScreenWireframeImage: z
     .string()
     .describe(
-      'A visual representation of the key feature screen wireframe as a data URI that must include a MIME type and use Base64 encoding. Expected format: \'data:<mimetype>;base64,<encoded_data>\'.' 
+      'A visual representation of the key feature screen wireframe as a data URI that must include a MIME type and use Base64 encoding. Expected format: \'data:<mimetype>;base64,<encoded_data>\'.'
     ),
 });
 
