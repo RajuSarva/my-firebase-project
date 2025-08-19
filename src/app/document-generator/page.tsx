@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useForm } from "react-hook-form";
@@ -6,7 +7,7 @@ import { z } from "zod";
 import { useState, useTransition, useRef } from "react";
 import type { GenerateRefinedDocumentOutput } from "@/ai/flows/document-generator";
 import jsPDF from "jspdf";
-import html2canvas from "html2canvas";
+import { marked } from "marked";
 
 import { DashboardLayout } from "@/components/dashboard-layout";
 import { Button } from "@/components/ui/button";
@@ -40,26 +41,25 @@ import { FileUpload } from "@/components/file-upload";
 import { Skeleton } from "@/components/ui/skeleton";
 import { handleDocumentGeneration } from "@/lib/actions";
 import { useToast } from "@/hooks/use-toast";
-import { Download, FileImage } from "lucide-react";
-import { fileToBase64 } from "@/lib/utils";
+import { Download } from "lucide-react";
 
 const formSchema = z.object({
   title: z.string().min(2, { message: "Title must be at least 2 characters." }),
   description: z.string().min(10, { message: "Description must be at least 10 characters." }),
   documentType: z.enum(["BRD", "FRS", "SRS"]),
   file: z.instanceof(File).nullable(),
-  logo: z.instanceof(File).nullable(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
+
+const STATIC_LOGO_URL = 'https://placehold.co/150x75.png';
 
 export default function DocumentGeneratorPage() {
   const [isPending, startTransition] = useTransition();
   const { toast } = useToast();
   const [result, setResult] = useState<GenerateRefinedDocumentOutput | null>(null);
-  const [logoBase64, setLogoBase64] = useState<string | null>(null);
+  const [htmlContent, setHtmlContent] = useState<string>('');
   const reportRef = useRef<HTMLDivElement>(null);
-
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -68,23 +68,12 @@ export default function DocumentGeneratorPage() {
       description: "",
       documentType: "BRD",
       file: null,
-      logo: null,
     },
   });
 
-  const handleLogoChange = async (file: File | null) => {
-      if (file) {
-        const base64 = await fileToBase64(file);
-        setLogoBase64(base64);
-        form.setValue("logo", file);
-      } else {
-        setLogoBase64(null);
-        form.setValue("logo", null);
-      }
-    };
-
   const onSubmit = (values: FormValues) => {
     setResult(null);
+    setHtmlContent('');
     startTransition(async () => {
       const formData = new FormData();
       formData.append("title", values.title);
@@ -97,6 +86,8 @@ export default function DocumentGeneratorPage() {
       const response = await handleDocumentGeneration(formData);
       if (response.success && response.data) {
         setResult(response.data);
+        const html = await marked(response.data.markdownContent);
+        setHtmlContent(html);
       } else {
         toast({
           variant: "destructive",
@@ -108,47 +99,52 @@ export default function DocumentGeneratorPage() {
   };
 
   const handleDownloadPdf = async () => {
-    const input = reportRef.current;
-    if (!input) return;
-
-    // Temporarily make all content visible for capturing
-    const report = input.cloneNode(true) as HTMLElement;
-    document.body.appendChild(report);
-
-    const canvas = await html2canvas(report, {
-        scale: 2,
-        useCORS: true,
-    });
-    
-    document.body.removeChild(report);
-
-    const imgData = canvas.toDataURL('image/png');
-    const pdf = new jsPDF('p', 'mm', 'a4');
+    if (!reportRef.current) return;
+  
+    const pdf = new jsPDF('p', 'pt', 'a4');
     const pdfWidth = pdf.internal.pageSize.getWidth();
     const pdfHeight = pdf.internal.pageSize.getHeight();
-    const canvasWidth = canvas.width;
-    const canvasHeight = canvas.height;
-    const ratio = canvasWidth / canvasHeight;
-    const width = pdfWidth;
-    const height = width / ratio;
-
-    let position = 0;
-    let heightLeft = height;
-
-    if (logoBase64) {
-        pdf.addImage(logoBase64, 'PNG', 15, 10, 30, 15);
-    }
-    pdf.addImage(imgData, 'PNG', 0, position + (logoBase64 ? 30: 15), width, height);
-    heightLeft -= pdfHeight;
-
-    while (heightLeft > 0) {
-        position = heightLeft - height;
-        pdf.addPage();
-        pdf.addImage(imgData, 'PNG', 0, position, width, height);
-        heightLeft -= pdfHeight;
-    }
-
-    pdf.save("document.pdf");
+    const margin = 40;
+  
+    // Load logo
+    const logoImg = new Image();
+    logoImg.crossOrigin = "anonymous";
+    logoImg.src = STATIC_LOGO_URL;
+    await new Promise(resolve => logoImg.onload = resolve);
+    const logoWidth = 75;
+    const logoHeight = 37.5;
+  
+    // Function to add header and watermark to each page
+    const addPageContent = () => {
+        // Header
+        pdf.addImage(logoImg, 'PNG', margin, 20, logoWidth, logoHeight);
+        pdf.line(margin, 20 + logoHeight + 10, pdfWidth - margin, 20 + logoHeight + 10);
+        
+        // Watermark
+        pdf.saveGraphicsState();
+        pdf.setGState(new pdf.GState({opacity: 0.1}));
+        pdf.addImage(logoImg, 'PNG', pdfWidth / 2 - 100, pdfHeight / 2 - 50, 200, 100);
+        pdf.restoreGraphicsState();
+    };
+  
+    addPageContent();
+  
+    await pdf.html(reportRef.current, {
+      x: margin,
+      y: 20 + logoHeight + 20,
+      width: pdfWidth - (margin * 2),
+      windowWidth: reportRef.current.scrollWidth,
+      autoPaging: 'text',
+      margin: [0, 0, 40, 0], // Top margin is handled by y, add bottom margin
+      callback: (doc) => {
+        const pageCount = doc.internal.getNumberOfPages();
+        for (let i = 2; i <= pageCount; i++) {
+          doc.setPage(i);
+          addPageContent();
+        }
+        doc.save(`${form.getValues('title') || 'document'}.pdf`);
+      }
+    });
   };
 
   return (
@@ -255,29 +251,7 @@ export default function DocumentGeneratorPage() {
                       </FormItem>
                     )}
                   />
-                  <FormField
-                    control={form.control}
-                    name="logo"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Company Logo</FormLabel>
-                        <FormControl>
-                          <FileUpload
-                            value={field.value}
-                            onChange={handleLogoChange}
-                            accept="image/png, image/jpeg"
-                            disabled={isPending}
-                            buttonIcon={FileImage}
-                            buttonText="Upload Logo"
-                          />
-                        </FormControl>
-                        <FormDescription>
-                          Optional: Upload a logo for the PDF header.
-                        </FormDescription>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                  
                   <Button type="submit" disabled={isPending} className="w-full">
                     {isPending ? "Generating..." : "Generate Document"}
                   </Button>
@@ -307,12 +281,12 @@ export default function DocumentGeneratorPage() {
                   <CardTitle>Generated Document</CardTitle>
                 </CardHeader>
                 <CardContent>
-                   <div ref={reportRef} className="prose prose-sm dark:prose-invert max-w-none bg-muted p-4 rounded-md overflow-x-auto text-sm max-h-[400px]">
-                      <pre className="whitespace-pre-wrap font-sans">{result.markdownContent}</pre>
+                   <div className="prose prose-sm dark:prose-invert max-w-none bg-muted p-4 rounded-md overflow-y-auto text-sm max-h-[500px]">
+                      <div ref={reportRef} dangerouslySetInnerHTML={{ __html: htmlContent }} />
                     </div>
                 </CardContent>
                 <CardFooter className="flex gap-2">
-                  <Button variant="outline" onClick={handleDownloadPdf}>
+                  <Button variant="outline" onClick={handleDownloadPdf} disabled={!htmlContent}>
                     <Download className="mr-2" />
                     Download .pdf
                   </Button>
@@ -333,3 +307,5 @@ export default function DocumentGeneratorPage() {
     </DashboardLayout>
   );
 }
+
+    

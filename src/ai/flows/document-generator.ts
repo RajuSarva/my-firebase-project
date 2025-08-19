@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview A document refinement AI agent.
@@ -31,7 +32,7 @@ const refineDocumentPrompt = ai.definePrompt({
   name: 'refineDocumentPrompt',
   input: {schema: GenerateRefinedDocumentInputSchema},
   output: {schema: GenerateRefinedDocumentOutputSchema},
-  prompt: `You are a world-class expert in software development and project management documentation. Your task is to generate a comprehensive, detailed, and lengthy document of the specified type. The document must be well-structured, professionally formatted in Markdown, and at least 1500 words long.
+  prompt: `You are a world-class expert in software development and project management documentation. Your task is to generate an exceptionally comprehensive, extremely detailed, and very lengthy document of the specified type. The document must be well-structured, professionally formatted in Markdown, and exceed 2000 words.
 
 Base the document on the following inputs:
 - Document Title: {{{title}}}
@@ -41,65 +42,81 @@ Base the document on the following inputs:
 - Additional Context from Uploaded File: {{media url=uploadedFile}}
 {{/if}}
 
-Adhere strictly to the following structure based on the Document Type:
+Adhere strictly to the following structure based on the Document Type, ensuring every section is flushed out with substantial detail and examples.
 
 **If Document Type is "BRD" (Business Requirements Document):**
-Generate a complete BRD with the following sections:
+Generate a complete BRD with the following sections, making sure each subsection is elaborate:
 1.  **Introduction**:
-    *   1.1. Purpose
-    *   1.2. Scope
-    *   1.3. Business Objectives
-    *   1.4. Stakeholders
+    *   1.1. Purpose (Clearly state the business problem and the document's objective.)
+    *   1.2. Scope (Detail what is in and out of scope for the project.)
+    *   1.3. Business Objectives (List specific, measurable, achievable, relevant, and time-bound (SMART) goals.)
+    *   1.4. Stakeholders (List all key stakeholders and their roles/responsibilities.)
 2.  **Business Process Overview**:
-    *   2.1. Current Process (As-Is)
-    *   2.2. Proposed Process (To-Be)
-    *   2.3. Use Case Diagram
+    *   2.1. Current Process (As-Is) (Provide a detailed narrative and diagram of the existing workflow.)
+    *   2.2. Proposed Process (To-Be) (Provide a detailed narrative and diagram of the new, improved workflow.)
+    *   2.3. Use Case Diagram (A comprehensive diagram showing actor interactions with the system.)
 3.  **Functional Requirements**:
-    *   3.1. High-Level Features (List and describe each in detail)
-    *   3.2. User Stories (Provide at least 10 detailed user stories)
+    *   3.1. High-Level Features (List and describe each major feature in exhaustive detail.)
+    *   3.2. User Stories (Provide at least 15-20 detailed user stories with acceptance criteria for each.)
 4.  **Non-Functional Requirements**:
-    *   4.1. Performance
-    *   4.2. Security
-    *   4.3. Usability
-    *   4.4. Scalability
-    *   4.5. Compliance
+    *   4.1. Performance (e.g., response times, concurrent users.)
+    *   4.2. Security (e.g., data encryption, access control.)
+    *   4.3. Usability (e.g., accessibility standards, user interface guidelines.)
+    *   4.4. Scalability (e.g., expected growth in users/data.)
+    *   4.5. Compliance (e.g., GDPR, HIPAA.)
 5.  **Assumptions and Constraints**:
     *   5.1. Business Assumptions
     *   5.2. Technical Constraints
 6.  **Success Metrics**:
-    *   6.1. Key Performance Indicators (KPIs)
-7.  **Glossary**
+    *   6.1. Key Performance Indicators (KPIs) (Define how success will be measured.)
+7.  **Glossary** (Define all key terms used in the document.)
 
 **If Document Type is "FRS" (Functional Requirements Specification):**
-Generate a complete FRS with the following sections:
+Generate a complete and exhaustive FRS. This document needs to be extremely detailed, breaking down every function into minute steps.
 1.  **Introduction**:
-    *   1.1. Purpose
-    *   1.2. Scope
-    *   1.3. System Overview
+    *   1.1. Purpose (What is this document for?)
+    *   1.2. Scope (What system/features does this document cover?)
+    *   1.3. System Overview (High-level description of the system and its architecture.)
     *   1.4. Definitions, Acronyms, and Abbreviations
 2.  **Overall Description**:
-    *   2.1. Product Perspective
-    *   2.2. User Characteristics
+    *   2.1. Product Perspective (How does this product fit with other products?)
+    *   2.2. User Characteristics (Describe the different types of users.)
     *   2.3. Assumptions and Dependencies
-3.  **Specific Requirements**:
-    *   3.1. Functional Requirement 1 (e.g., User Authentication)
-        *   3.1.1. Description
-        *   3.1.2. Inputs
-        *   3.1.3. Processing Steps
-        *   3.1.4. Outputs
-        *   3.1.5. Acceptance Criteria
-    *   3.2. Functional Requirement 2 (e.g., Data Management)
-        *   ... (continue for all core features)
+3.  **Specific Requirements (The Core of the FRS)**:
+    *   For EVERY single feature, provide a detailed breakdown. For example, for a "User Login" feature:
+    *   **FR-LOGIN-001: User Authentication via Email**
+        *   **Description:** The system shall allow registered users to log in using their email and password.
+        *   **Trigger:** User navigates to the login page and submits credentials.
+        *   **Pre-conditions:** User must have a registered and verified account.
+        *   **Inputs:**
+            *   Email Address (string, format: user@example.com)
+            *   Password (string, min 8 chars, 1 uppercase, 1 number)
+        *   **Processing Steps (Functional Flow):**
+            1.  System validates email format. If invalid, display error "Invalid email format."
+            2.  System validates password meets complexity rules. If invalid, display error "Invalid password format."
+            3.  System checks if email exists in the user database. If not, display error "User not found."
+            4.  System retrieves the hashed password for the user.
+            5.  System compares the submitted password with the stored hash.
+            6.  If they match, create a user session and redirect to the dashboard.
+            7.  If they do not match, increment the failed login attempt counter. If counter > 5, lock account for 15 minutes and display error "Invalid credentials. Account locked." Otherwise, display "Invalid credentials."
+        *   **Outputs:**
+            *   Successful login redirects to the user dashboard.
+            *   Specific error messages are displayed on failure.
+        *   **Post-conditions:** User is authenticated and has a valid session token.
+        *   **Acceptance Criteria:**
+            *   Given a valid email and password, when I click "Login", then I should be redirected to my dashboard.
+            *   Given an invalid email, when I click "Login", then I should see the "Invalid email format" error.
+            *   (Add criteria for every possible scenario).
+    *   **(Repeat this entire detailed structure for every conceivable function of the application described)**
 4.  **Interface Requirements**:
-    *   4.1. User Interfaces (UI)
+    *   4.1. User Interfaces (UI) (Describe UI elements, layouts, and navigation flows.)
     *   4.2. Hardware Interfaces
-    *   4.3. Software Interfaces
+    *   4.3. Software Interfaces (APIs, other systems.)
 5.  **Use Cases**:
-    *   5.1. Use Case 1 (Detailed steps, preconditions, postconditions)
-    *   5.2. Use Case 2 (and so on)
+    *   Provide at least 5 detailed Use Cases (e.g., "Register New Account", "Search for Product", "Complete Purchase") with actors, preconditions, main flow, and alternative flows.
 
 **If Document Type is "SRS" (Software Requirements Specification):**
-Generate a complete SRS based on the IEEE 830 standard with the following sections:
+Generate a complete SRS based on the IEEE 830 standard with exhaustive detail in every section:
 1.  **Introduction**:
     *   1.1. Purpose
     *   1.2. Document Conventions
@@ -108,30 +125,30 @@ Generate a complete SRS based on the IEEE 830 standard with the following sectio
     *   1.5. References
 2.  **Overall Description**:
     *   2.1. Product Perspective
-    *   2.2. Product Functions
+    *   2.2. Product Functions (Summary of major functions.)
     *   2.3. User Classes and Characteristics
     *   2.4. Operating Environment
     *   2.5. Design and Implementation Constraints
 3.  **System Features**:
-    *   3.1. System Feature 1
+    *   3.1. System Feature 1 (e.g., User Profile Management)
         *   3.1.1. Description and Priority
         *   3.1.2. Stimulus/Response Sequences
-        *   3.1.3. Functional Requirements
-    *   3.2. System Feature 2
+        *   3.1.3. Functional Requirements (Provide a list of detailed functional requirements related to this feature, similar to the FRS format but summarized.)
+    *   3.2. System Feature 2 (e.g., Inventory Management)
         *   ... (and so on for all features)
 4.  **External Interface Requirements**:
-    *   4.1. User Interfaces
+    *   4.1. User Interfaces (Screens, mockups, GUI requirements)
     *   4.2. Hardware Interfaces
-    *   4.3. Software Interfaces
-    *   4.4. Communications Interfaces
+    *   4.3. Software Interfaces (APIs, database)
+    *   4.4. Communications Interfaces (Protocols, security)
 5.  **Non-functional Requirements**:
     *   5.1. Performance Requirements
     *   5.2. Safety Requirements
     *   5.3. Security Requirements
-    *   5.4. Software Quality Attributes
+    *   5.4. Software Quality Attributes (Reliability, maintainability, portability)
 6.  **Other Requirements** (e.g., Data, Legal, etc.)
 
-Ensure the generated markdown is comprehensive, detailed, well-formatted, and adheres to the requested length. The content must be professional and ready for a real-world project.
+Ensure the generated markdown is extremely comprehensive, detailed, well-formatted, and adheres to the requested length. The content must be of the highest professional standard, ready for a real-world project.
 `,
   config: {
     safetySettings: [
@@ -171,3 +188,5 @@ const generateRefinedDocumentFlow = ai.defineFlow(
 );
 
 export const generateRefinedDocument = generateRefinedDocumentFlow;
+
+    
