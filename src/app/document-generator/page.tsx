@@ -120,15 +120,16 @@ export default function DocumentGeneratorPage() {
     const processTokens = (tokens: marked.Token[], listContext: { type?: 'ordered' | 'unordered', depth: number, counter: number } = { depth: 0, counter: 1 }) => {
       for (const token of tokens) {
         let textLines: string[];
+        const getLineHeight = () => doc.getFontSize() * 0.35; // A simple approximation for line height
+        
         switch (token.type) {
           case 'heading':
             checkPageBreak(15);
             doc.setFont('helvetica', 'bold');
             doc.setFontSize(22 - token.depth * 2);
-            textLines = doc.splitTextToSize(token.text, maxWidth);
+            textLines = doc.splitTextToSize(token.text.replace(/#/g, '').trim(), maxWidth);
             doc.text(textLines, margin, y);
-            y += textLines.length * (doc.getLineHeight() / doc.getPointValue()) * 0.8;
-            y += 5; // spacing after heading
+            y += textLines.length * getLineHeight() + 5;
             break;
     
           case 'paragraph':
@@ -137,8 +138,7 @@ export default function DocumentGeneratorPage() {
             doc.setFontSize(12);
             textLines = doc.splitTextToSize(token.text, maxWidth);
             doc.text(textLines, margin, y);
-            y += textLines.length * (doc.getLineHeight() / doc.getPointValue()) * 0.8;
-            y += 4; // spacing after paragraph
+            y += textLines.length * getLineHeight() + 4;
             break;
             
           case 'list':
@@ -162,15 +162,27 @@ export default function DocumentGeneratorPage() {
               bullet = '•'; 
             }
             
-            textLines = doc.splitTextToSize(token.text, bulletMaxWidth);
-            doc.text(bullet, indent, y);
-            doc.text(textLines, indent + 5, y);
-            y += textLines.length * (doc.getLineHeight() / doc.getPointValue()) * 0.8;
+            // Recursively process tokens within the list item
+            const processListItemTokens = (itemTokens: marked.Token[]) => {
+              if (!itemTokens || itemTokens.length === 0) return;
+              
+              const textToken = itemTokens.find(t => t.type === 'text') as marked.Tokens.Text;
+              
+              if (textToken) {
+                 textLines = doc.splitTextToSize(textToken.text, bulletMaxWidth);
+                 doc.text(bullet, indent, y);
+                 doc.text(textLines, indent + 5, y);
+                 y += textLines.length * getLineHeight();
+              }
 
-            if (token.tokens && token.tokens.length > 0) {
-              const nestedListContext = { ...listContext, counter: 1 };
-              processTokens(token.tokens, nestedListContext);
+              const nestedList = itemTokens.find(t => t.type === 'list') as marked.Tokens.List;
+              if (nestedList) {
+                  const nestedListContext = { ...listContext, counter: 1 };
+                  processTokens([nestedList], nestedListContext);
+              }
             }
+
+            processListItemTokens(token.tokens);
             break;
     
           case 'space':
