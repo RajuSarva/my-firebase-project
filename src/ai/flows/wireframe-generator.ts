@@ -84,7 +84,7 @@ const generateWireframesFlow = ai.defineFlow(
       throw new Error("Failed to generate wireframe text descriptions.");
     }
 
-    const wireframeImagePrompt = (description: string) => `Generate a clean, black and white, low-fidelity UI wireframe for a mobile app screen, in the style of a modern Figma design. The wireframe should be schematic and professional, using standard UI components like rectangles for image placeholders, buttons with English labels (e.g., "Sign Up", "Learn More"), and squiggly or dummy lorem ipsum lines for text blocks. All text labels or annotations must be in English. Do not include any color, detailed graphics, or realistic photos. The output must look like a professional, early-stage design mockup created in a tool like Figma. The wireframe should be based on this description: ${description}`;
+    const wireframeImagePrompt = (description: string) => `Generate a clean, black and white, low-fidelity UI wireframe for a mobile app screen, in the style of a modern Figma design. The wireframe MUST be schematic and professional, using standard UI components like rectangles for image placeholders, buttons with English labels (e.g., "Sign Up", "Learn More"), and squiggly or dummy lorem ipsum lines for text blocks. All text labels or annotations MUST be in English. Do NOT include any color, detailed graphics, or realistic photos. The output must look like a professional, early-stage design mockup created in a tool like Figma. The wireframe should be based on this description: ${description}`;
 
     // Generate images for the wireframes in parallel with text generation to improve perceived performance
     const [homepageWireframeImage, featureScreenWireframeImage] = await Promise.all([
