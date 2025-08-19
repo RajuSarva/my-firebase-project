@@ -64,9 +64,6 @@ Uploaded File Content: {{media url=uploadedFile}}
 
 First, generate descriptive text for both wireframes, detailing the layout, key elements, and functionality of each screen.
 `,
-  config: {
-    model: 'googleai/gemini-2.0-flash',
-  }
 });
 
 const generateWireframesFlow = ai.defineFlow(
@@ -76,7 +73,8 @@ const generateWireframesFlow = ai.defineFlow(
     outputSchema: GenerateWireframesOutputSchema,
   },
   async input => {
-    const {output} = await prompt(input);
+    const model = input.uploadedFile ? 'googleai/gemini-pro-vision' : 'googleai/gemini-pro';
+    const {output} = await prompt(input, { model });
 
     // Generate images for the wireframes in parallel with text generation to improve perceived performance
     const [homepageWireframeImage, featureScreenWireframeImage] = await Promise.all([

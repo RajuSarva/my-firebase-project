@@ -45,7 +45,6 @@ Generate the document in markdown format.
 Ensure the markdown is comprehensive and well-formatted.
 `,
   config: {
-    model: 'googleai/gemini-2.0-flash',
     safetySettings: [
       {
         category: 'HARM_CATEGORY_DANGEROUS_CONTENT',
@@ -74,7 +73,8 @@ const generateRefinedDocumentFlow = ai.defineFlow(
     outputSchema: GenerateRefinedDocumentOutputSchema,
   },
   async input => {
-    const {output} = await refineDocumentPrompt(input);
+    const model = input.uploadedFile ? 'googleai/gemini-pro-vision' : 'googleai/gemini-pro';
+    const {output} = await refineDocumentPrompt(input, { model });
     return output!;
   }
 );
