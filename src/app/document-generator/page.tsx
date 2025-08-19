@@ -6,7 +6,6 @@ import { z } from "zod";
 import { useState, useTransition, useRef } from "react";
 import type { GenerateRefinedDocumentOutput } from "@/ai/flows/document-generator";
 import jsPDF from "jspdf";
-import "jspdf-autotable";
 import { marked } from "marked";
 
 import { DashboardLayout } from "@/components/dashboard-layout";
@@ -118,84 +117,115 @@ export default function DocumentGeneratorPage() {
     };
   
     const processTokens = (tokens: marked.Token[], listContext: { type?: 'ordered' | 'unordered', depth: number, counter: number } = { depth: 0, counter: 1 }) => {
-      for (const token of tokens) {
-        let textLines: string[];
-        const getLineHeight = () => doc.getFontSize() * 0.35; // A simple approximation for line height
+        for (const token of tokens) {
+            let textLines: string[];
+            const getLineHeight = () => doc.getFontSize() * 0.3527777778; // Conversion from points to mm
+            
+            // Clean text from markdown syntax
+            const cleanText = (text: string) => text.replace(/(\*\*|__)(.*?)\1/g, '$2').replace(/(\*|_)(.*?)\1/g, '$2').trim();
+
+            switch (token.type) {
+                case 'heading':
+                    checkPageBreak(15);
+                    doc.setFont('helvetica', 'bold');
+                    doc.setFontSize(22 - token.depth * 2);
+                    textLines = doc.splitTextToSize(cleanText(token.text), maxWidth);
+                    doc.text(textLines, margin, y);
+                    y += textLines.length * getLineHeight() + 5;
+                    break;
         
-        switch (token.type) {
-          case 'heading':
-            checkPageBreak(15);
-            doc.setFont('helvetica', 'bold');
-            doc.setFontSize(22 - token.depth * 2);
-            textLines = doc.splitTextToSize(token.text.replace(/#/g, '').trim(), maxWidth);
-            doc.text(textLines, margin, y);
-            y += textLines.length * getLineHeight() + 5;
-            break;
-    
-          case 'paragraph':
-            checkPageBreak(10);
-            doc.setFont('helvetica', 'normal');
-            doc.setFontSize(12);
-            textLines = doc.splitTextToSize(token.text, maxWidth);
-            doc.text(textLines, margin, y);
-            y += textLines.length * getLineHeight() + 4;
-            break;
-            
-          case 'list':
-            y += 2;
-            const newListContext = { type: token.ordered ? 'ordered' : 'unordered', depth: listContext.depth + 1, counter: token.start || 1 };
-            processTokens(token.items, newListContext);
-            y += 3;
-            break;
-    
-          case 'list_item':
-            checkPageBreak(8);
-            doc.setFont('helvetica', 'normal');
-            doc.setFontSize(12);
-            const indent = margin + (listContext.depth - 1) * 8;
-            const bulletMaxWidth = maxWidth - indent - 5;
-            
-            let bullet;
-            if (listContext.type === 'ordered') {
-              bullet = `${listContext.counter++}.`;
-            } else {
-              bullet = '•'; 
-            }
-            
-            // Recursively process tokens within the list item
-            const processListItemTokens = (itemTokens: marked.Token[]) => {
-              if (!itemTokens || itemTokens.length === 0) return;
-              
-              const textToken = itemTokens.find(t => t.type === 'text') as marked.Tokens.Text;
-              
-              if (textToken) {
-                 textLines = doc.splitTextToSize(textToken.text, bulletMaxWidth);
-                 doc.text(bullet, indent, y);
-                 doc.text(textLines, indent + 5, y);
-                 y += textLines.length * getLineHeight();
-              }
+                case 'paragraph':
+                    checkPageBreak(10);
+                    doc.setFont('helvetica', 'normal');
+                    doc.setFontSize(12);
+                    textLines = doc.splitTextToSize(cleanText(token.text), maxWidth);
+                    doc.text(textLines, margin, y);
+                    y += textLines.length * getLineHeight() + 4;
+                    break;
+                    
+                case 'list':
+                    y += 2;
+                    const newListContext = { type: token.ordered ? 'ordered' : 'unordered', depth: listContext.depth + 1, counter: token.start || 1 };
+                    processTokens(token.items, newListContext);
+                    y += 3;
+                    break;
+        
+                case 'list_item':
+                    checkPageBreak(8);
+                    doc.setFont('helvetica', 'normal');
+                    doc.setFontSize(12);
+                    const indent = margin + (listContext.depth - 1) * 7;
+                    const bulletMaxWidth = maxWidth - indent - 6;
+                    
+                    let bullet;
+                    if (listContext.type === 'ordered') {
+                        bullet = `${newListContext.counter++}.`;
+                    } else {
+                        bullet = '•'; 
+                    }
+                    
+                    const processListItemTokens = (itemTokens: marked.Token[]) => {
+                        if (!itemTokens || itemTokens.length === 0) return;
+                        
+                        let currentY = y;
+                        let lineCount = 0;
 
-              const nestedList = itemTokens.find(t => t.type === 'list') as marked.Tokens.List;
-              if (nestedList) {
-                  const nestedListContext = { ...listContext, counter: 1 };
-                  processTokens([nestedList], nestedListContext);
-              }
-            }
+                        itemTokens.forEach(itemToken => {
+                            if (itemToken.type === 'text') {
+                                textLines = doc.splitTextToSize(cleanText(itemToken.text), bulletMaxWidth);
+                                if (lineCount === 0) { // First line with bullet
+                                    doc.text(bullet, indent, currentY);
+                                    doc.text(textLines, indent + 5, currentY);
+                                } else { // Subsequent lines without bullet
+                                    doc.text(textLines, indent + 5, currentY);
+                                }
+                                const heightOfLines = textLines.length * getLineHeight();
+                                currentY += heightOfLines;
+                                lineCount += textLines.length;
+                            } else if (itemToken.type === 'list') {
+                                // Handle nested lists
+                                const nestedListContext = { ...listContext, depth: listContext.depth + 1, counter: 1 };
+                                y = currentY; // update y before recursive call
+                                processTokens([itemToken], nestedListContext);
+                                currentY = y; // update currentY after recursive call
+                            }
+                        });
+                        y = currentY;
+                    }
 
-            processListItemTokens(token.tokens);
-            break;
-    
-          case 'space':
-            y += 5;
-            break;
-    
-          case 'hr':
-            checkPageBreak(10);
-            doc.line(margin, y, doc.internal.pageSize.width - margin, y);
-            y += 5;
-            break;
+                    processListItemTokens(token.tokens);
+                    y += 2; // Spacing after list item
+                    break;
+        
+                case 'space':
+                    y += 5;
+                    break;
+        
+                case 'hr':
+                    checkPageBreak(10);
+                    doc.line(margin, y, doc.internal.pageSize.width - margin, y);
+                    y += 5;
+                    break;
+                case 'table':
+                    checkPageBreak(20 * token.rows.length);
+                    (doc as any).autoTable({
+                        head: [token.header.map(h => cleanText(h.text))],
+                        body: token.rows.map(row => row.map(cell => cleanText(cell.text))),
+                        startY: y,
+                        margin: { left: margin },
+                        styles: {
+                            font: 'helvetica',
+                            fontSize: 10,
+                        },
+                        headStyles: {
+                            fontStyle: 'bold',
+                            fillColor: [230, 230, 230]
+                        }
+                    });
+                    y = (doc as any).lastAutoTable.finalY + 10;
+                    break;
+            }
         }
-      }
     };
   
     processTokens(tokens);
