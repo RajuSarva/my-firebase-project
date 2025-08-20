@@ -71,7 +71,7 @@ export const GenerateWireframesOutputSchema = z.object({
             "A visual representation of the wireframe as a data URI that must include a MIME type and use Base64 encoding. Expected format: 'data:<mimetype>;base64,<encoded_data>'."
           ),
       })
-    ),
+    ).min(6).max(8),
 });
 export type GenerateWireframesOutput = z.infer<typeof GenerateWireframesOutputSchema>;
 
