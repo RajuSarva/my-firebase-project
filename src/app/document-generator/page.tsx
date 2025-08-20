@@ -43,7 +43,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { handleDocumentGeneration } from "@/lib/actions";
 import { useToast } from "@/hooks/use-toast";
 import { Download } from "lucide-react";
-import { STATIC_LOGO_BASE64 } from "@/lib/logo";
 
 const formSchema = z.object({
   title: z.string().min(2, { message: "Title must be at least 2 characters." }),
@@ -113,7 +112,13 @@ export default function DocumentGeneratorPage() {
     let y = margin;
   
     const addHeader = (pageNumber: number) => {
-        doc.addImage(STATIC_LOGO_BASE64, 'PNG', margin, 5, 20, 20);
+        // Placeholder for Logo
+        doc.setDrawColor(150);
+        doc.rect(margin, 5, 30, 15); // A box for the logo
+        doc.setTextColor(150);
+        doc.setFontSize(8);
+        doc.text('LOGO', margin + 15, 13, { align: 'center' });
+
         doc.setFontSize(8);
         doc.setTextColor(150);
         doc.text(`Page ${pageNumber}`, pageWidth - margin, 10, { align: 'right' });
@@ -139,7 +144,12 @@ export default function DocumentGeneratorPage() {
         doc.setPage(i);
         doc.saveGraphicsState();
         doc.setGState(new (doc as any).GState({ opacity: 0.05 }));
-        doc.addImage(STATIC_LOGO_BASE64, 'PNG', pageWidth/2 - 50, pageHeight/2 - 50, 100, 100);
+        doc.setFontSize(80);
+        doc.setTextColor(0);
+        doc.text("COMPANY LOGO", pageWidth / 2, pageHeight / 2, {
+          align: "center",
+          angle: -45,
+        });
         doc.restoreGraphicsState();
       }
     }
@@ -300,7 +310,7 @@ export default function DocumentGeneratorPage() {
     a.href = url;
     a.download = `${form.getValues("title") || "document"}.md`;
     document.body.appendChild(a);
-    a.click();
+a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
   };
