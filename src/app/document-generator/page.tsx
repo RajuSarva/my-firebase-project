@@ -142,19 +142,6 @@ export default function DocumentGeneratorPage() {
         doc.line(margin, 28, pageWidth - margin, 28);
         y = 35; // Reset y position after header
     };
-
-    const addFooter = () => {
-        const pageCount = (doc as any).internal.getNumberOfPages();
-        for (let i = 1; i <= pageCount; i++) {
-            doc.setPage(i);
-            doc.setDrawColor(200);
-            doc.line(margin, pageHeight - 18, pageWidth - margin, pageHeight - 18);
-            doc.setTextColor(0, 0, 255); // Blue color
-            doc.text(`© Geega Technologies`, margin, pageHeight - 10);
-            doc.setTextColor(0); // Black color
-            doc.text(`Generated on: ${new Date().toLocaleDateString()}`, pageWidth - margin, pageHeight - 10, { align: 'right' });
-        }
-    };
     
     const addWatermark = () => {
       const pageCount = (doc as any).internal.getNumberOfPages();
@@ -322,7 +309,6 @@ export default function DocumentGeneratorPage() {
     };
   
     processTokens(tokens);
-    addFooter();
     addWatermark();
     doc.save(`${form.getValues("title") || "document"}.pdf`);
   };
