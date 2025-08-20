@@ -96,16 +96,6 @@ export default function DocumentGeneratorPage() {
     });
   };
 
-  const loadImage = (src: string): Promise<HTMLImageElement> => {
-    return new Promise((resolve, reject) => {
-      const img = new Image();
-      img.crossOrigin = "anonymous";
-      img.onload = () => resolve(img);
-      img.onerror = (err) => reject(err);
-      img.src = src;
-    });
-  };
-
   const handleDownloadPdf = async () => {
     if (!editedContent) return;
   
@@ -117,23 +107,12 @@ export default function DocumentGeneratorPage() {
     const pageWidth = doc.internal.pageSize.width;
     let y = margin;
   
-    let logoImage: HTMLImageElement | null = null;
-    try {
-      logoImage = await loadImage('/logo.png');
-    } catch (error) {
-      console.error("Could not load logo.png, using placeholder.", error);
-    }
-
     const addHeader = (pageNumber: number) => {
-        if (logoImage) {
-            doc.addImage(logoImage, 'PNG', pageWidth / 2 - 15, 5, 30, 15);
-        } else {
-            doc.setDrawColor(150);
-            doc.rect(pageWidth / 2 - 15, 5, 30, 15); // Centered box for the logo
-            doc.setTextColor(150);
-            doc.setFontSize(8);
-            doc.text('LOGO', pageWidth / 2, 13, { align: 'center' });
-        }
+        doc.setDrawColor(150);
+        doc.rect(pageWidth / 2 - 15, 5, 30, 15); // Centered box for the logo
+        doc.setTextColor(150);
+        doc.setFontSize(8);
+        doc.text('LOGO', pageWidth / 2, 13, { align: 'center' });
 
         doc.setFontSize(8);
         doc.setTextColor(0); // Black color
@@ -149,16 +128,12 @@ export default function DocumentGeneratorPage() {
         doc.setPage(i);
         doc.saveGraphicsState();
         doc.setGState(new (doc as any).GState({ opacity: 0.05 }));
-        if (logoImage) {
-            doc.addImage(logoImage, 'PNG', pageWidth / 2 - 50, pageHeight / 2 - 50, 100, 100);
-        } else {
-            doc.setFontSize(80);
-            doc.setTextColor(0);
-            doc.text("COMPANY LOGO", pageWidth / 2, pageHeight / 2, {
-              align: "center",
-              angle: 0, // Straight watermark
-            });
-        }
+        doc.setFontSize(80);
+        doc.setTextColor(0);
+        doc.text("COMPANY LOGO", pageWidth / 2, pageHeight / 2, {
+          align: "center",
+          angle: 0, // Straight watermark
+        });
         doc.restoreGraphicsState();
       }
     }
