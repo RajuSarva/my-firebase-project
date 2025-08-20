@@ -16,13 +16,13 @@ const prompt = ai.definePrompt({
   name: 'generateWireframesPrompt',
   input: {schema: GenerateWireframesInputSchema},
   output: {schema: z.object({
-      wireframes: z.array(WireframeSchema).min(4).max(5).describe('An array of 4 to 5 key screen wireframe descriptions.')
+      wireframes: z.array(WireframeSchema).min(6).max(8).describe('An array of 6 to 8 key screen wireframe descriptions.')
   })},
   prompt: `You are an expert UI/UX designer specializing in generating wireframes for web and mobile applications.
 
-Your task is to generate detailed textual descriptions for 4 to 5 key screens for an application. You must identify the most important screens based on the provided information.
+Your task is to generate detailed textual descriptions for 6 to 8 key screens for an application. You must identify the most important screens based on the provided information.
 
-Use the following information to generate the wireframe descriptions. If an FRS or other document is uploaded, it should be the **primary source of information** for identifying the screens and their required elements.
+Use the following information to generate the wireframe descriptions. When a document is uploaded, it is the **primary source of truth**. You must derive the screens and their elements from this document to generate a comprehensive set of wireframes.
 
 Title: {{{title}}}
 Description: {{{description}}}
@@ -97,5 +97,3 @@ const generateWireframesFlow = ai.defineFlow(
 export async function generateWireframes(input: GenerateWireframesInput): Promise<GenerateWireframesOutput> {
     return await generateWireframesFlow(input);
 }
-
-    
