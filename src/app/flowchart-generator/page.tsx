@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useState, useTransition } from "react";
-import type { GenerateFlowchartOutput } from "@/ai/flows/flowchart-generator";
+import type { GenerateFlowchartOutput } from "@/ai/types";
 
 import { DashboardLayout } from "@/components/dashboard-layout";
 import { Button } from "@/components/ui/button";
@@ -207,3 +207,5 @@ export default function FlowchartGeneratorPage() {
     </DashboardLayout>
   );
 }
+
+    

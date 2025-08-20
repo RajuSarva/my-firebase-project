@@ -5,43 +5,12 @@
  * @fileOverview Generates multiple, figma-style wireframes based on a title, description, and optional file input.
  *
  * - generateWireframes - A function that generates wireframes.
- * - GenerateWireframesInput - The input type for the generateWireframes function.
- * - GenerateWireframesOutput - The return type for the generateWireframes function.
  */
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
+import { GenerateWireframesInputSchema, GenerateWireframesOutputSchema, type GenerateWireframesInput, type GenerateWireframesOutput, WireframeSchema } from '@/ai/types';
 
-const GenerateWireframesInputSchema = z.object({
-  title: z.string().describe('The title of the wireframes to generate.'),
-  description: z.string().describe('The detailed description of the wireframes, including functionality and purpose.'),
-  wireframeStyle: z.enum(['Sketchy', 'Clean', 'High-Fidelity']).describe('The visual style of the wireframes.'),
-  uploadedFile: z
-    .string()
-    .optional()
-    .describe("A file, as a data URI string that must include a MIME type and use Base64 encoding. Expected format: 'data:<mimetype>;base64,<encoded_data>'."),
-});
-
-export type GenerateWireframesInput = z.infer<typeof GenerateWireframesInputSchema>;
-
-const WireframeSchema = z.object({
-  screenName: z.string().describe('The name of the screen (e.g., "Homepage", "Login Screen", "User Profile").'),
-  description: z.string().describe('A detailed textual description of the wireframe layout, elements, and functionality for this screen.'),
-});
-
-const GenerateWireframesOutputSchema = z.object({
-  wireframes: z.array(
-    WireframeSchema.extend({
-      image: z
-        .string()
-        .describe(
-          "A visual representation of the wireframe as a data URI that must include a MIME type and use Base64 encoding. Expected format: 'data:<mimetype>;base64,<encoded_data>'."
-        ),
-    })
-  ),
-});
-
-export type GenerateWireframesOutput = z.infer<typeof GenerateWireframesOutputSchema>;
 
 const prompt = ai.definePrompt({
   name: 'generateWireframesPrompt',
@@ -128,3 +97,5 @@ const generateWireframesFlow = ai.defineFlow(
 export async function generateWireframes(input: GenerateWireframesInput): Promise<GenerateWireframesOutput> {
     return await generateWireframesFlow(input);
 }
+
+    

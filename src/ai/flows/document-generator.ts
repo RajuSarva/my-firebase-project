@@ -4,28 +4,11 @@
  * @fileOverview A document refinement AI agent.
  *
  * - generateRefinedDocument - A function that handles the document refinement process.
- * - GenerateRefinedDocumentInput - The input type for the generateRefinedDocument function.
- * - GenerateRefinedDocumentOutput - The return type for the generateRefinedDocument function.
  */
 
 import {ai} from '@/ai/genkit';
+import { GenerateRefinedDocumentInputSchema, GenerateRefinedDocumentOutputSchema, type GenerateRefinedDocumentInput, type GenerateRefinedDocumentOutput } from '@/ai/types';
 import {z} from 'genkit';
-
-export const GenerateRefinedDocumentInputSchema = z.object({
-  title: z.string().describe('The title of the document.'),
-  description: z.string().optional().describe('The description of the document.'),
-  documentType: z.enum(['BRD', 'FRS', 'SRS']).describe('The type of the document to generate.'),
-  uploadedFile: z
-    .string()
-    .optional()
-    .describe("A file, as a data URI string that must include a MIME type and use Base64 encoding. Expected format: 'data:<mimetype>;base64,<encoded_data>'."),
-});
-export type GenerateRefinedDocumentInput = z.infer<typeof GenerateRefinedDocumentInputSchema>;
-
-export const GenerateRefinedDocumentOutputSchema = z.object({
-  markdownContent: z.string().describe('The generated document content in markdown format.'),
-});
-export type GenerateRefinedDocumentOutput = z.infer<typeof GenerateRefinedDocumentOutputSchema>;
 
 
 const refineDocumentPrompt = ai.definePrompt({
@@ -470,3 +453,5 @@ const generateRefinedDocumentFlow = ai.defineFlow(
 export async function generateRefinedDocument(input: GenerateRefinedDocumentInput): Promise<GenerateRefinedDocumentOutput> {
     return await generateRefinedDocumentFlow(input);
 }
+
+    

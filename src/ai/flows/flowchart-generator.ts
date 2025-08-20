@@ -4,29 +4,10 @@
  * @fileOverview Generates a flowchart in Mermaid syntax from a description and an optional file.
  *
  * - generateFlowchart - A function that handles the flowchart generation process.
- * - GenerateFlowchartInput - The input type for the generateFlowchart function.
- * - GenerateFlowchartOutput - The return type for the generateFlowchart function.
  */
 
 import {ai} from '@/ai/genkit';
-import {z} from 'genkit';
-
-const GenerateFlowchartInputSchema = z.object({
-  title: z.string().describe('The title of the flowchart.'),
-  description: z.string().describe('The description of the process for the flowchart.'),
-  uploadedFile: z
-    .string()
-    .optional()
-    .describe(
-      "A file, as a data URI string that must include a MIME type and use Base64 encoding. Expected format: 'data:<mimetype>;base64,<encoded_data>'"
-    ),
-});
-export type GenerateFlowchartInput = z.infer<typeof GenerateFlowchartInputSchema>;
-
-const GenerateFlowchartOutputSchema = z.object({
-  mermaidSyntax: z.string().describe('The flowchart in Mermaid syntax.'),
-});
-export type GenerateFlowchartOutput = z.infer<typeof GenerateFlowchartOutputSchema>;
+import { GenerateFlowchartInputSchema, GenerateFlowchartOutputSchema, type GenerateFlowchartInput, type GenerateFlowchartOutput } from '@/ai/types';
 
 
 const prompt = ai.definePrompt({
@@ -82,3 +63,5 @@ const generateFlowchartFlow = ai.defineFlow(
 export async function generateFlowchart(input: GenerateFlowchartInput): Promise<GenerateFlowchartOutput> {
     return await generateFlowchartFlow(input);
 }
+
+    

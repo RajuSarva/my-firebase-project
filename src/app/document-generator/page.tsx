@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useState, useTransition, useRef, useEffect } from "react";
-import type { GenerateRefinedDocumentOutput } from "@/ai/flows/document-generator";
+import type { GenerateRefinedDocumentOutput } from "@/ai/types";
 import jsPDF from "jspdf";
 import autoTable from 'jspdf-autotable';
 import { marked } from "marked";
@@ -512,3 +512,5 @@ export default function DocumentGeneratorPage() {
     </DashboardLayout>
   );
 }
+
+    

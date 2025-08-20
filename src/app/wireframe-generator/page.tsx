@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useState, useTransition } from "react";
-import type { GenerateWireframesOutput } from "@/ai/flows/wireframe-generator";
+import type { GenerateWireframesOutput } from "@/ai/types";
 
 import { DashboardLayout } from "@/components/dashboard-layout";
 import { Button } from "@/components/ui/button";
@@ -274,3 +274,5 @@ export default function WireframeGeneratorPage() {
     </DashboardLayout>
   );
 }
+
+    
