@@ -43,7 +43,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { handleDocumentGeneration } from "@/lib/actions";
 import { useToast } from "@/hooks/use-toast";
 import { Download } from "lucide-react";
-import { STATIC_LOGO_BASE64 } from "@/lib/logo";
 
 const formSchema = z.object({
   title: z.string().min(2, { message: "Title must be at least 2 characters." }),
@@ -101,7 +100,17 @@ export default function DocumentGeneratorPage() {
     });
   };
 
-  const handleDownloadPdf = () => {
+  const loadImage = (src: string): Promise<HTMLImageElement> => {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.crossOrigin = "anonymous";
+      img.onload = () => resolve(img);
+      img.onerror = (err) => reject(err);
+      img.src = src;
+    });
+  };
+
+  const handleDownloadPdf = async () => {
     if (!result) return;
   
     const doc = new jsPDF();
@@ -112,18 +121,23 @@ export default function DocumentGeneratorPage() {
     const pageWidth = doc.internal.pageSize.width;
     let y = margin;
   
+    let logoImage: HTMLImageElement | null = null;
+    try {
+      logoImage = await loadImage('/logo.png');
+    } catch (error) {
+      console.error("Could not load logo.png, using placeholder.", error);
+    }
+
     const addHeader = (pageNumber: number) => {
-        try {
-            doc.addImage(STATIC_LOGO_BASE64, 'PNG', pageWidth / 2 - 15, 5, 30, 15);
-        } catch (error) {
-            console.error("Error adding header image, using placeholder. Is the Base64 in src/lib/logo.ts correct?", error);
+        if (logoImage) {
+            doc.addImage(logoImage, 'PNG', pageWidth / 2 - 15, 5, 30, 15);
+        } else {
             doc.setDrawColor(150);
             doc.rect(pageWidth / 2 - 15, 5, 30, 15); // Centered box for the logo
             doc.setTextColor(150);
             doc.setFontSize(8);
             doc.text('LOGO', pageWidth / 2, 13, { align: 'center' });
         }
-
 
         doc.setFontSize(8);
         doc.setTextColor(0); // Black color
@@ -152,10 +166,9 @@ export default function DocumentGeneratorPage() {
         doc.setPage(i);
         doc.saveGraphicsState();
         doc.setGState(new (doc as any).GState({ opacity: 0.05 }));
-         try {
-            doc.addImage(STATIC_LOGO_BASE64, 'PNG', pageWidth / 2 - 50, pageHeight / 2 - 50, 100, 100);
-        } catch (error) {
-            console.error("Error adding watermark image, using placeholder. Is the Base64 in src/lib/logo.ts correct?", error);
+        if (logoImage) {
+            doc.addImage(logoImage, 'PNG', pageWidth / 2 - 50, pageHeight / 2 - 50, 100, 100);
+        } else {
             doc.setFontSize(80);
             doc.setTextColor(0);
             doc.text("COMPANY LOGO", pageWidth / 2, pageHeight / 2, {
