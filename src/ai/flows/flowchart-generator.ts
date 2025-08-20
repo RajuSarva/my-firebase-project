@@ -23,15 +23,18 @@ const prompt = ai.definePrompt({
   Additional context from uploaded file: {{media url=uploadedFile}}
   {{/if}}
 
-  Your response MUST be a valid JSON object with a single key "mermaidSyntax" containing the Mermaid syntax for the flowchart.
+  Your response MUST be only the Mermaid syntax for the flowchart.
   The text inside the flowchart nodes (e.g., inside brackets) MUST NOT contain any special characters like parentheses, commas, or quotes. Use only alphanumeric characters and spaces.
 
   For example:
-  {
-    "mermaidSyntax": "graph TD\\n    A[Start] --> B{Is it Friday?};\\n    B -- Yes --> C[Good];\\n    B -- No --> D[Work];\\n    C --> E[End];\\n    D --> E;"
-  }
+  graph TD
+    A[Start] --> B{Is it Friday?};
+    B -- Yes --> C[Good];
+    B -- No --> D[Work];
+    C --> E[End];
+    D --> E;
   
-  Do not include any other text, explanations, or markdown formatting. The output must be only the JSON object.`,
+  Do not include any other text, explanations, or markdown formatting like \`\`\`mermaid. The output must be only the raw Mermaid syntax.`,
 });
 
 const generateFlowchartFlow = ai.defineFlow(
@@ -44,22 +47,13 @@ const generateFlowchartFlow = ai.defineFlow(
     const model = input.uploadedFile ? 'googleai/gemini-1.5-pro-latest' : 'googleai/gemini-1.5-flash-latest';
     
     const llmResponse = await prompt(input, { model });
-    const jsonString = llmResponse.text();
+    const mermaidSyntax = llmResponse.text();
 
-    if (!jsonString) {
+    if (!mermaidSyntax || !mermaidSyntax.trim()) {
       throw new Error("Failed to generate flowchart: AI returned an empty response.");
     }
     
-    try {
-      const parsedOutput = JSON.parse(jsonString);
-      if (typeof parsedOutput.mermaidSyntax !== 'string' || !parsedOutput.mermaidSyntax.trim()) {
-        throw new Error("Invalid or empty mermaidSyntax in AI response.");
-      }
-      return { mermaidSyntax: parsedOutput.mermaidSyntax };
-    } catch(e) {
-      console.error("Failed to parse AI response as JSON:", e);
-      throw new Error("Failed to generate flowchart: AI returned invalid JSON.");
-    }
+    return { mermaidSyntax };
   }
 );
 
