@@ -43,6 +43,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { handleDocumentGeneration } from "@/lib/actions";
 import { useToast } from "@/hooks/use-toast";
 import { Download } from "lucide-react";
+import { STATIC_LOGO_BASE64 } from "@/lib/logo";
 
 const formSchema = z.object({
   title: z.string().min(2, { message: "Title must be at least 2 characters." }),
@@ -112,12 +113,17 @@ export default function DocumentGeneratorPage() {
     let y = margin;
   
     const addHeader = (pageNumber: number) => {
-        // Placeholder for Logo
-        doc.setDrawColor(150);
-        doc.rect(pageWidth / 2 - 15, 5, 30, 15); // Centered box for the logo
-        doc.setTextColor(150);
-        doc.setFontSize(8);
-        doc.text('LOGO', pageWidth / 2, 13, { align: 'center' });
+        try {
+            doc.addImage(STATIC_LOGO_BASE64, 'PNG', pageWidth / 2 - 15, 5, 30, 15);
+        } catch (error) {
+            console.error("Error adding header image, using placeholder. Is the Base64 in src/lib/logo.ts correct?", error);
+            doc.setDrawColor(150);
+            doc.rect(pageWidth / 2 - 15, 5, 30, 15); // Centered box for the logo
+            doc.setTextColor(150);
+            doc.setFontSize(8);
+            doc.text('LOGO', pageWidth / 2, 13, { align: 'center' });
+        }
+
 
         doc.setFontSize(8);
         doc.setTextColor(0); // Black color
@@ -145,12 +151,17 @@ export default function DocumentGeneratorPage() {
         doc.setPage(i);
         doc.saveGraphicsState();
         doc.setGState(new (doc as any).GState({ opacity: 0.05 }));
-        doc.setFontSize(80);
-        doc.setTextColor(0);
-        doc.text("COMPANY LOGO", pageWidth / 2, pageHeight / 2, {
-          align: "center",
-          angle: 0, // Straight watermark
-        });
+         try {
+            doc.addImage(STATIC_LOGO_BASE64, 'PNG', pageWidth / 2 - 50, pageHeight / 2 - 50, 100, 100);
+        } catch (error) {
+            console.error("Error adding watermark image, using placeholder. Is the Base64 in src/lib/logo.ts correct?", error);
+            doc.setFontSize(80);
+            doc.setTextColor(0);
+            doc.text("COMPANY LOGO", pageWidth / 2, pageHeight / 2, {
+              align: "center",
+              angle: 0, // Straight watermark
+            });
+        }
         doc.restoreGraphicsState();
       }
     }
