@@ -37,7 +37,7 @@ export async function handleDocumentGeneration(formData: FormData) {
   } catch (error) {
     console.error(error);
     const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
-    return { success: false, error: `Failed to generate document. ${errorMessage}` };
+    return { success: false, error: `Failed to generate document: ${errorMessage}` };
   }
 }
 
@@ -67,7 +67,7 @@ export async function handleFlowchartGeneration(formData: FormData) {
   } catch (error) {
     console.error(error);
     const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
-    return { success: false, error: `Failed to generate flowchart. ${errorMessage}` };
+    return { success: false, error: `Failed to generate flowchart: ${errorMessage}` };
   }
 }
 
@@ -99,6 +99,6 @@ export async function handleWireframeGeneration(formData: FormData) {
   } catch (error) {
     console.error(error);
     const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
-    return { success: false, error: `Failed to generate wireframes. ${errorMessage}` };
+    return { success: false, error: `Failed to generate wireframes: ${errorMessage}` };
   }
 }
