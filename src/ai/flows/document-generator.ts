@@ -15,7 +15,6 @@ const GenerateRefinedDocumentInputSchema = z.object({
   title: z.string().describe('The title of the document.'),
   description: z.string().optional().describe('The description of the document.'),
   documentType: z.enum(['BRD', 'FRS', 'SRS']).describe('The type of the document to generate.'),
-  currentDate: z.string().describe('The current date for the document.'),
   uploadedFile: z
     .string()
     .optional()
@@ -31,7 +30,7 @@ export type GenerateRefinedDocumentOutput = z.infer<typeof GenerateRefinedDocume
 
 const refineDocumentPrompt = ai.definePrompt({
   name: 'refineDocumentPrompt',
-  input: {schema: GenerateRefinedDocumentInputSchema},
+  input: {schema: GenerateRefinedDocumentInputSchema.extend({ currentDate: z.string() })},
   output: {schema: GenerateRefinedDocumentOutputSchema},
   prompt: `You are a world-class expert in software development and project management documentation. Your task is to generate an exceptionally comprehensive, extremely detailed, and very lengthy document of the specified type. The document must be well-structured, professionally formatted in Markdown, and result in a document that would span at least 10-15 pages when converted to a standard PDF.
 
@@ -440,16 +439,25 @@ Ensure the generated markdown is extremely comprehensive, detailed, well-formatt
   }
 });
 
-const generateRefinedDocumentFlow = ai.defineFlow(
+export const generateRefinedDocument = ai.defineFlow(
   {
     name: 'generateRefinedDocumentFlow',
     inputSchema: GenerateRefinedDocumentInputSchema,
     outputSchema: GenerateRefinedDocumentOutputSchema,
   },
   async (input) => {
+    const currentDate = new Date().toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+    });
+
     const model = input.uploadedFile ? 'googleai/gemini-1.5-pro-latest' : 'googleai/gemini-1.5-flash-latest';
     
-    const llmResponse = await refineDocumentPrompt(input, { model });
+    const llmResponse = await refineDocumentPrompt(
+        { ...input, currentDate },
+        { model }
+    );
     const output = llmResponse.output;
 
     if (!output) {
@@ -460,15 +468,4 @@ const generateRefinedDocumentFlow = ai.defineFlow(
   }
 );
 
-export async function generateRefinedDocument(input: Omit<GenerateRefinedDocumentInput, 'currentDate'>): Promise<GenerateRefinedDocumentOutput> {
-    const currentDate = new Date().toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-    });
-
-    return generateRefinedDocumentFlow({
-        ...input,
-        currentDate,
-    });
-}
+    
