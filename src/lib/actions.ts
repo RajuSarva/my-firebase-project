@@ -22,7 +22,7 @@ export async function handleDocumentGeneration(formData: FormData) {
   try {
     const data: { [key: string]: any } = Object.fromEntries(formData);
     
-    // Ensure description is present for parsing, even if empty.
+    // Explicitly handle the case where description is not on the form.
     if (!formData.has("description")) {
         data.description = undefined;
     }
@@ -111,4 +111,3 @@ export async function handleWireframeGeneration(formData: FormData) {
     return { success: false, error: `Failed to generate wireframes: ${errorMessage}` };
   }
 }
-
