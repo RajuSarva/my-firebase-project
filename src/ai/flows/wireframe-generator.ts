@@ -68,16 +68,16 @@ For each identified screen, generate a clear name (e.g., "Onboarding Screen") an
 });
 
 const getStylePrompt = (style: GenerateWireframesInput['wireframeStyle'], description: string) => {
-    const basePrompt = `All text labels or annotations MUST be in English. The output must look like a professional, early-stage design mockup. The wireframe should be based on this description: ${description}`;
+    const basePrompt = `Generate a UI wireframe for a mobile app screen. All text labels must be in English. This wireframe is based on the following description: ${description}`;
 
     switch (style) {
         case 'Sketchy':
-            return `Generate a sketchy, hand-drawn, black and white, low-fidelity UI wireframe for a mobile app screen. Use rough lines and basic shapes to create a brainstorm-style feel. ${basePrompt}`;
+            return `Style: sketchy, hand-drawn, black and white, low-fidelity, with rough lines and basic shapes. ${basePrompt}`;
         case 'High-Fidelity':
-            return `Generate a high-fidelity, colorful, and detailed UI mockup for a mobile app screen. Use a modern color palette, include icons, and use realistic-looking placeholder images and refined UI components. This should look like a final design proposal. ${basePrompt}`;
+            return `Style: high-fidelity, colorful, modern, and detailed. Include icons, refined UI components, and realistic placeholder images. ${basePrompt}`;
         case 'Clean':
         default:
-            return `Generate a clean, black and white, low-fidelity UI wireframe for a mobile app screen, in the style of a modern Figma design. The wireframe MUST be schematic and professional, using standard UI components like rectangles for image placeholders, buttons with English labels (e.g., "Sign Up", "Learn More"), and squiggly or dummy lorem ipsum lines for text blocks. Do NOT include any color, detailed graphics, or realistic photos. ${basePrompt}`;
+            return `Style: clean, modern, black and white, low-fidelity, Figma-style. Use standard UI components like rectangles for image placeholders, buttons with English labels (e.g., "Sign Up"), and squiggly lines for text. Do NOT include color or detailed graphics. ${basePrompt}`;
     }
 }
 
