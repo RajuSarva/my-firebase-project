@@ -20,7 +20,13 @@ const docSchema = z.object({
 
 export async function handleDocumentGeneration(formData: FormData) {
   try {
-    const data = Object.fromEntries(formData);
+    const data: { [key: string]: any } = Object.fromEntries(formData);
+    
+    // Ensure description is present for parsing, even if empty.
+    if (!formData.has("description")) {
+        data.description = undefined;
+    }
+
     const parsed = docSchema.parse(data);
 
     let uploadedFile: string | undefined = undefined;
@@ -105,3 +111,4 @@ export async function handleWireframeGeneration(formData: FormData) {
     return { success: false, error: `Failed to generate wireframes: ${errorMessage}` };
   }
 }
+
