@@ -76,13 +76,14 @@ const generateWireframesFlow = ai.defineFlow(
           responseModalities: ['TEXT', 'IMAGE'],
         },
       });
+
       const imageUrl = imageResponse.media?.url;
       if (!imageUrl) {
         throw new Error(`Failed to generate image for screen: ${wireframe.screenName}`);
       }
       return {
         ...wireframe,
-        image: imageUrl,
+        image: imageUrl, // The media object is not serializable. Extract the URL string.
       };
     });
 
