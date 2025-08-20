@@ -13,7 +13,7 @@ import {z} from 'genkit';
 
 const GenerateRefinedDocumentInputSchema = z.object({
   title: z.string().describe('The title of the document.'),
-  description: z.string().describe('The description of the document.'),
+  description: z.string().optional().describe('The description of the document.'),
   documentType: z.enum(['BRD', 'FRS', 'SRS']).describe('The type of the document to generate.'),
   currentDate: z.string().describe('The current date for the document.'),
   uploadedFile: z
@@ -37,7 +37,9 @@ const refineDocumentPrompt = ai.definePrompt({
 
 Base the document on the following inputs:
 - Document Title: {{{title}}}
+{{#if description}}
 - Project Description: {{{description}}}
+{{/if}}
 - Document Type: {{{documentType}}}
 - Current Date: {{{currentDate}}}
 {{#if uploadedFile}}
@@ -48,7 +50,7 @@ Base the document on the following inputs:
 Adhere strictly to the following structure based on the Document Type, ensuring every section is flushed out with substantial detail and examples. All headings and subheadings MUST be bold.
 
 **If Document Type is "BRD" (Business Requirements Document):**
-# **Lead Generation App: Business Requirement Document**
+# **{{{title}}}: Business Requirement Document**
 ## **1. Author and Change Control**
 | Approver | Name | Date Approved | Role | Signature | Version |
 | :--- | :--- | :--- | :--- | :--- | :--- |
@@ -61,7 +63,7 @@ Adhere strictly to the following structure based on the Document Type, ensuring 
 
 ## **2. Executive Summary**
 ### **Overview**
-This section provides a high-level summary of the project. Based on the project description, {{{description}}}, generate a detailed overview of the proposed system, its purpose, the problem it solves, and the value it will bring to the business.
+This section provides a high-level summary of the project. Based on the project title and description (if provided), generate a detailed overview of the proposed system, its purpose, the problem it solves, and the value it will bring to the business.
 
 ### **Department Summary**
 Describe the core components of the project and which departments or user groups they will affect. For example, break it down into a User App, Vendor Panel, Admin Panel, etc., based on the project's nature.
@@ -221,72 +223,104 @@ Include placeholder for payment information if applicable.
 |---------|---------------|----------------|-----------------------|
 | 1.0     | {{{currentDate}}}| Initial Draft  | Team Geega Tech|
 
-## **1. Purpose**
-This document defines the functional requirements for the **{{{title}}}**. It aims to provide a secure, user-friendly, and robust solution that addresses the core functionalities outlined in the project description: **{{{description}}}**. This document will guide developers, QA teams, and project managers throughout the development lifecycle.
+## **1. Introduction**
+### **1.1 Purpose**
+This document outlines the Functional Requirements for the **{{{title}}}**. Its purpose is to provide a detailed description of the system's intended behavior, functionalities, and user interactions. This FRS will serve as the primary guide for the development and testing teams to ensure the final product meets all specified requirements.
 
-## **2. Functional Requirements**
+### **1.2 Scope**
+(Based on the title and description, generate a detailed paragraph describing the scope of the project. What are the boundaries of the system? What are the key deliverables?)
 
-### **2.1 User Management & Authentication**
+### **1.3 Definitions, Acronyms, and Abbreviations**
+(Generate a list of 10-15 relevant definitions for terms and acronyms that will be used throughout the document.)
+- **FRS**: Functional Requirements Specification
+- **UI**: User Interface
+- ...
 
-#### **Feature**: Secure Registration
-- **User Story**: As a new user, I want to register an account securely using my email and phone number, so that I can create an account and access the platform.
-- **Use Case**: User Registration
-- **Actor**: New User
+### **1.4 References**
+(List any reference documents, such as the Business Requirements Document (BRD), market analyses, or user studies.)
+- **BRD**: {{{title}}} Business Requirements Document
+- ...
+
+### **1.5 Overview**
+(Provide a brief overview of the rest of the FRS document, describing what each section contains.)
+
+## **2. Overall Description**
+### **2.1 Product Perspective**
+(Describe the product's context and origin. Is it a new system, a replacement, or an enhancement? How does it fit with other systems or business processes?)
+
+### **2.2 User Characteristics**
+(Describe the different types of users who will interact with the system, e.g., 'End User', 'Administrator', 'Vendor'. Detail their technical expertise and responsibilities.)
+
+### **2.3 General Constraints**
+(List any general constraints that will limit the developers' options, such as regulatory policies, hardware limitations, or mandated technologies.)
+
+### **2.4 Assumptions and Dependencies**
+(List any assumptions that, if incorrect, could impact the project. Also, list any dependencies on external factors or third-party components.)
+
+## **3. System Features and Requirements**
+**(This is the core of the FRS. Generate at least 15-20 core features based on the project title, description, and/or uploaded file. For each feature, provide the same extremely detailed breakdown as the examples below. Ensure the "Basic Flow" section contains a comprehensive, step-by-step description of user actions and system responses. The "Validation" section must contain multiple, specific validation rules.)**
+
+### **3.1 User Management & Authentication**
+
+#### **Feature 3.1.1**: Secure User Registration
+- **User Story**: As a new user, I want to register for an account securely so that I can access the platform's features.
+- **Use Case ID**: UC-001
+- **Actor**: Unregistered User
+- **Priority**: High
 - **Pre-conditions**:
-    1. The user has a valid email address.
-    2. The user has a valid Phone Number.
+    1. User has access to the application via a web browser or mobile device.
+    2. User has a valid, unique email address.
 - **Basic Flow**:
-    1. The user opens the app and selects "Register."
-    2. The user selects the registration method: Manual or Social Media.
-    3. If manual registration: User enters Full name, Email, Phone number, Date of Birth (DOB), Blood group, Gender (Male, Female, Other). The user clicks the "Continue" button.
-    4. The system sends a verification email and SMS with OTP.
-    5. User lands on the OTP verification page.
-    6. The user enters OTP and clicks the "Verify" button.
-    7. Users can request to resend OTP if needed.
-    8. The system verifies OTP and creates a user account.
+    1. User navigates to the application and selects the "Sign Up" or "Register" option.
+    2. The system displays a registration form requesting First Name, Last Name, Email Address, and Password.
+    3. User fills in the required fields.
+    4. User clicks the "Create Account" button.
+    5. The system validates the input data (see Validation Rules below).
+    6. The system creates a new user account with a 'Pending Verification' status.
+    7. The system sends a verification email with a unique link to the user's email address.
+    8. The system displays a message informing the user to check their email to verify their account.
 - **Post-Condition**:
-    1. A user account is created and can be used to log in.
-    2. If the email or phone number is already registered, the user is notified.
-- **Validation**:
-    1. Email address should be in a valid format (e.g., example@example.com).
-    2. Email address should be unique and not already registered.
-    3. Phone number should be 10 digits long and unique.
-    4. OTP should be 4 digits long and valid for a specified timeframe.
-    5. Full name should not exceed 100 characters.
+    1. A new user account is created in the system.
+    2. The user is able to log in after verifying their email.
+- **Validation Rules**:
+    1. First Name and Last Name must not be empty and contain only alphabetic characters.
+    2. Email address must be in a valid format (e.g., user@example.com) and must be unique.
+    3. Password must be at least 8 characters long, including at least one uppercase letter, one lowercase letter, one number, and one special character.
+    4. If validation fails, the system displays specific error messages for each invalid field.
 
-#### **Feature**: Secure Login
-- **User Story**: Once registered, users can log in using their registered credentials.
-- **Use Case**: User Login
-- **Actor**: Registered users
-- **Pre-condition**: User has a registered account.
+#### **Feature 3.1.2**: Secure User Login
+- **User Story**: As a registered user, I want to log in to my account so that I can access my profile and use the application.
+- **Use Case ID**: UC-002
+- **Actor**: Registered User
+- **Priority**: High
+- **Pre-condition**: User has a registered and verified account.
 - **Basic Flow**:
-    1. User opens the app and selects "Sign In."
-    2. User enters their registered mobile number.
-    3. System sends OTP to the user's mobile number.
-    4. User enters OTP and selects "Verify".
-    5. System authenticates the user's credentials.
-    6. Users are granted access to the platform.
+    1. User navigates to the application and selects the "Login" or "Sign In" option.
+    2. The system displays a login form requesting Email Address and Password.
+    3. User enters their credentials and clicks "Login".
+    4. The system authenticates the credentials against the user database.
+    5. Upon successful authentication, the user is redirected to their dashboard or the main application page.
 - **Post-Condition**:
-    1. User is logged in and can access the platform.
-    2. If credentials are incorrect, the user is notified.
+    1. User is logged in and a session is created.
+    2. If authentication fails, an "Invalid credentials" error message is displayed.
+- **Validation Rules**:
+    1. Email and Password fields cannot be empty.
 
 ---
 
-### **2.2 Core Application Features**
-
-**(Generate at least 15-20 core features based on the project description and uploaded file. For each feature, provide the same extremely detailed breakdown as the examples above. Ensure the "Basic Flow" section contains a comprehensive, step-by-step description of user actions and system responses. The "Validation" section must contain multiple, specific validation rules.)**
-
-#### **Feature**: [Core Feature 1 from Description/File]
+### **3.2 [Generate Core Feature Area 2]**
+#### **Feature 3.2.1**: [Generate Feature Name]
 - **User Story**: As a [user type], I want to [perform a core action], so that I can [achieve a primary goal].
-- **Use Case**: [Name of Use Case]
+- **Use Case ID**: UC-003
 - **Actor**: [User Type]
+- **Priority**: [High/Medium/Low]
 - **Pre-condition**: [e.g., User is logged in, User has necessary permissions]
 - **Basic Flow**:
     1. [Extremely detailed, step-by-step description of the user's interaction with the feature. Add many steps.]
     2. [System response to each user action.]
     3. ...
 - **Post-Condition**: [The state of the system after the flow is completed successfully.]
-- **Validation**:
+- **Validation Rules**:
     1. [Detailed validation rule for input data 1.]
     2. [Detailed validation rule for input data 2.]
     3. [Detailed error handling for invalid actions.]
@@ -294,24 +328,25 @@ This document defines the functional requirements for the **{{{title}}}**. It ai
 
 ---
 
-## **3. Administrative Panels**
+## **4. External Interface Requirements**
+### **4.1 User Interfaces**
+(Describe the overall look and feel of the UI. Mention any branding, layout, or accessibility (WCAG) requirements.)
+### **4.2 Software Interfaces**
+(Describe any interactions with other software components, such as third-party APIs for payments, maps, or social media login.)
+### **4.3 Hardware Interfaces**
+(Describe any hardware the system needs to interact with, e.g., printers, scanners.)
+### **4.4 Communications Interfaces**
+(Describe any communication protocols that will be used, e.g., REST, SOAP, and any security measures like HTTPS/SSL.)
 
-**(If the description or file implies an admin role, generate detailed features for each type of admin: Hospital, Doctor, Lab, and Super Admin, covering all their functionalities like management of beds, services, profiles, appointments, reports, users, settings, etc.)**
-
----
-## **4. System Architecture**
-- **Technology Stack**:
-    - **Frontend**: Html5/CSS3/Javascript
-    - **Application**: React Native
-    - **Backend**: Laravel
-    - **Database**: MySQL
-    - **APIs & Integrations**: SMS, Map, Social Login, firebase notification
-
-## **5. Intended Audience & Usage**
-- **Developers**: To implement system functionalities.
-- **QA Team**: To validate features against specifications.
-- **Project Manager & Business Analysts**: To ensure business alignment.
-- **Stakeholders**: To review and approve system capabilities.
+## **5. Non-Functional Requirements**
+### **5.1 Performance**
+(Specify performance requirements, e.g., "Page load time should be under 3 seconds", "API responses should be under 500ms for 95% of requests".)
+### **5.2 Security**
+(Detail security requirements, such as data encryption at rest and in transit, protection against SQL injection and XSS, and role-based access control.)
+### **5.3 Reliability**
+(Define reliability requirements, e.g., "The system shall have 99.9% uptime".)
+### **5.4 Maintainability**
+(Describe requirements for maintainability, such as coding standards, logging, and documentation.)
 
 ## **6. Client Acknowledgment and Approval**
 By signing below, the client acknowledges and approves the contents of this document, including the features, requirements, and specifications outlined. This approval signifies that all details are correct and satisfactory.
@@ -432,5 +467,3 @@ export async function generateRefinedDocument(input: Omit<GenerateRefinedDocumen
         currentDate,
     });
 }
-
-    

@@ -12,7 +12,7 @@ const fileSchema = z.any().optional();
 // Document Generator Action
 const docSchema = z.object({
   title: z.string().min(1, "Title is required."),
-  description: z.string().min(1, "Description is required."),
+  description: z.string().optional(),
   documentType: z.enum(["BRD", "FRS", "SRS"]),
   file: fileSchema,
 });

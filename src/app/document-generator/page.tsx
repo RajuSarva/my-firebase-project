@@ -4,7 +4,7 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useState, useTransition, useRef } from "react";
+import { useState, useTransition, useRef, useEffect } from "react";
 import type { GenerateRefinedDocumentOutput } from "@/ai/flows/document-generator";
 import jsPDF from "jspdf";
 import autoTable from 'jspdf-autotable';
@@ -48,7 +48,7 @@ const formSchema = z.object({
   title: z.string().min(2, { message: "Title must be at least 2 characters." }),
   description: z
     .string()
-    .min(10, { message: "Description must be at least 10 characters." }),
+    .optional(),
   documentType: z.enum(["BRD", "FRS", "SRS"]),
   file: z.instanceof(File).nullable(),
 });
@@ -58,10 +58,7 @@ type FormValues = z.infer<typeof formSchema>;
 export default function DocumentGeneratorPage() {
   const [isPending, startTransition] = useTransition();
   const { toast } = useToast();
-  const [result, setResult] =
-    useState<GenerateRefinedDocumentOutput | null>(null);
-  const [htmlContent, setHtmlContent] = useState<string>("");
-  const reportRef = useRef<HTMLDivElement>(null);
+  const [editedContent, setEditedContent] = useState<string>("");
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -74,12 +71,13 @@ export default function DocumentGeneratorPage() {
   });
 
   const onSubmit = (values: FormValues) => {
-    setResult(null);
-    setHtmlContent("");
+    setEditedContent("");
     startTransition(async () => {
       const formData = new FormData();
       formData.append("title", values.title);
-      formData.append("description", values.description);
+      if(values.description) {
+        formData.append("description", values.description);
+      }
       formData.append("documentType", values.documentType);
       if (values.file) {
         formData.append("file", values.file);
@@ -87,9 +85,7 @@ export default function DocumentGeneratorPage() {
 
       const response = await handleDocumentGeneration(formData);
       if (response.success && response.data) {
-        setResult(response.data);
-        const html = await marked(response.data.markdownContent);
-        setHtmlContent(html);
+        setEditedContent(response.data.markdownContent);
       } else {
         toast({
           variant: "destructive",
@@ -111,10 +107,10 @@ export default function DocumentGeneratorPage() {
   };
 
   const handleDownloadPdf = async () => {
-    if (!result) return;
+    if (!editedContent) return;
   
     const doc = new jsPDF();
-    const tokens = marked.lexer(result.markdownContent);
+    const tokens = marked.lexer(editedContent);
     
     const margin = 15;
     const pageHeight = doc.internal.pageSize.height;
@@ -333,14 +329,14 @@ export default function DocumentGeneratorPage() {
 
 
   const handleDownloadMd = () => {
-    if (!result) return;
-    const blob = new Blob([result.markdownContent], { type: "text/markdown" });
+    if (!editedContent) return;
+    const blob = new Blob([editedContent], { type: "text/markdown" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
     a.download = `${form.getValues("title") || "document"}.md`;
     document.body.appendChild(a);
-a.click();
+    a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
   };
@@ -351,7 +347,7 @@ a.click();
         <header>
           <h1 className="text-3xl font-bold font-headline">Document Generator</h1>
           <p className="text-muted-foreground">
-            Create professional project documents in minutes.
+            Create and refine professional project documents in minutes.
           </p>
         </header>
 
@@ -391,7 +387,7 @@ a.click();
                     name="description"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Description</FormLabel>
+                        <FormLabel>Optional Description</FormLabel>
                         <FormControl>
                           <Textarea
                             placeholder="Describe the project, its goals, and key features..."
@@ -473,7 +469,7 @@ a.click();
                   <Skeleton className="h-6 w-1/2" />
                 </CardHeader>
                 <CardContent>
-                  <Skeleton className="h-40 w-full" />
+                  <Skeleton className="h-[500px] w-full" />
                 </CardContent>
                 <CardFooter>
                   <Skeleton className="h-10 w-32" />
@@ -481,24 +477,24 @@ a.click();
               </Card>
             )}
 
-            {result && (
+            {editedContent && !isPending && (
               <Card>
                 <CardHeader>
-                  <CardTitle>Generated Document</CardTitle>
+                  <CardTitle>Edit Generated Document</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div
-                    ref={reportRef}
-                    className="prose prose-sm dark:prose-invert max-w-none bg-muted p-4 rounded-md overflow-y-auto text-sm max-h-[500px]"
-                  >
-                    <div dangerouslySetInnerHTML={{ __html: htmlContent }} />
-                  </div>
+                  <Textarea
+                    value={editedContent}
+                    onChange={(e) => setEditedContent(e.target.value)}
+                    className="h-[500px] w-full resize-y text-sm font-mono"
+                    placeholder="Your generated markdown will appear here..."
+                  />
                 </CardContent>
                 <CardFooter className="flex gap-2">
                   <Button
                     variant="outline"
                     onClick={handleDownloadPdf}
-                    disabled={!result}
+                    disabled={!editedContent}
                   >
                     <Download className="mr-2 h-4 w-4" />
                     Download .pdf
@@ -506,7 +502,7 @@ a.click();
                   <Button
                     variant="outline"
                     onClick={handleDownloadMd}
-                    disabled={!result}
+                    disabled={!editedContent}
                   >
                     <Download className="mr-2 h-4 w-4" />
                     Download .md
@@ -515,7 +511,7 @@ a.click();
               </Card>
             )}
 
-            {!isPending && !result && (
+            {!isPending && !editedContent && (
               <Card className="flex flex-col items-center justify-center min-h-[400px]">
                 <CardContent className="text-center">
                   <p className="text-muted-foreground">
