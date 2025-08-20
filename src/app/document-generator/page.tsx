@@ -139,8 +139,9 @@ export default function DocumentGeneratorPage() {
             doc.setPage(i);
             doc.setDrawColor(200);
             doc.line(margin, pageHeight - 18, pageWidth - margin, pageHeight - 18);
-            doc.setTextColor(0); // Black color
+            doc.setTextColor(0, 0, 255); // Blue color
             doc.text(`© Geega Technologies`, margin, pageHeight - 10);
+            doc.setTextColor(0); // Black color
             doc.text(`Generated on: ${new Date().toLocaleDateString()}`, pageWidth - margin, pageHeight - 10, { align: 'right' });
         }
     };
