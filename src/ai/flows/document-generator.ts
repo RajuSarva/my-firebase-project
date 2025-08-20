@@ -11,7 +11,7 @@
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
-const GenerateRefinedDocumentInputSchema = z.object({
+export const GenerateRefinedDocumentInputSchema = z.object({
   title: z.string().describe('The title of the document.'),
   description: z.string().optional().describe('The description of the document.'),
   documentType: z.enum(['BRD', 'FRS', 'SRS']).describe('The type of the document to generate.'),
@@ -22,7 +22,7 @@ const GenerateRefinedDocumentInputSchema = z.object({
 });
 export type GenerateRefinedDocumentInput = z.infer<typeof GenerateRefinedDocumentInputSchema>;
 
-const GenerateRefinedDocumentOutputSchema = z.object({
+export const GenerateRefinedDocumentOutputSchema = z.object({
   markdownContent: z.string().describe('The generated document content in markdown format.'),
 });
 export type GenerateRefinedDocumentOutput = z.infer<typeof GenerateRefinedDocumentOutputSchema>;
@@ -441,7 +441,7 @@ Ensure the generated markdown is extremely comprehensive, detailed, well-formatt
 
 export const generateRefinedDocument = ai.defineFlow(
   {
-    name: 'generateRefinedDocumentFlow',
+    name: 'generateRefinedDocument',
     inputSchema: GenerateRefinedDocumentInputSchema,
     outputSchema: GenerateRefinedDocumentOutputSchema,
   },
@@ -454,11 +454,10 @@ export const generateRefinedDocument = ai.defineFlow(
 
     const model = input.uploadedFile ? 'googleai/gemini-1.5-pro-latest' : 'googleai/gemini-1.5-flash-latest';
     
-    const llmResponse = await refineDocumentPrompt(
+    const { output } = await refineDocumentPrompt(
         { ...input, currentDate },
         { model }
     );
-    const output = llmResponse.output;
 
     if (!output) {
       throw new Error("The AI model failed to return a valid document. Please try again.");
