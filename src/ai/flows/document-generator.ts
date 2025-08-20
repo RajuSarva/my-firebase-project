@@ -422,19 +422,19 @@ Ensure the generated markdown is extremely comprehensive, detailed, well-formatt
     safetySettings: [
       {
         category: 'HARM_CATEGORY_DANGEROUS_CONTENT',
-        threshold: 'BLOCK_ONLY_HIGH',
+        threshold: 'BLOCK_NONE',
       },
       {
         category: 'HARM_CATEGORY_HARASSMENT',
-        threshold: 'BLOCK_MEDIUM_AND_ABOVE',
+        threshold: 'BLOCK_NONE',
       },
       {
         category: 'HARM_CATEGORY_HATE_SPEECH',
-        threshold: 'BLOCK_ONLY_HIGH',
+        threshold: 'BLOCK_NONE',
       },
       {
         category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT',
-        threshold: 'BLOCK_LOW_AND_ABOVE',
+        threshold: 'BLOCK_NONE',
       },
     ],
   }
@@ -450,8 +450,13 @@ const generateRefinedDocumentFlow = ai.defineFlow(
     const model = input.uploadedFile ? 'googleai/gemini-1.5-pro-latest' : 'googleai/gemini-1.5-flash-latest';
     
     const llmResponse = await refineDocumentPrompt(input, { model });
+    const output = llmResponse.output;
+
+    if (!output) {
+      throw new Error("The AI model failed to return a valid document. Please try again.");
+    }
     
-    return llmResponse.output!;
+    return output;
   }
 );
 
