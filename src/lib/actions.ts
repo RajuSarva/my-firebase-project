@@ -52,12 +52,21 @@ export async function handleDocumentGeneration(formData: FormData) {
 // Flowchart Generator Action
 const flowchartSchema = z.object({
   title: z.string().min(1, "Title is required."),
-  description: z.string().min(1, "Description is required."),
+  description: z.string().optional(),
   file: fileSchema,
 });
 export async function handleFlowchartGeneration(formData: FormData) {
   try {
-    const data = Object.fromEntries(formData);
+    const data: { [key: string]: any } = Object.fromEntries(formData);
+
+    if (!formData.has("description")) {
+        data.description = undefined;
+    }
+
+    if (!formData.has("file")) {
+        data.file = undefined;
+    }
+    
     const parsed = flowchartSchema.parse(data);
 
     let uploadedFile: string | undefined = undefined;

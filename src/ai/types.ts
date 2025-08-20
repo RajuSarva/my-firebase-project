@@ -29,7 +29,7 @@ export type GenerateRefinedDocumentOutput = z.infer<typeof GenerateRefinedDocume
 
 export const GenerateFlowchartInputSchema = z.object({
     title: z.string().describe('The title of the flowchart.'),
-    description: z.string().describe('The description of the process for the flowchart.'),
+    description: z.string().optional().describe('The description of the process for the flowchart.'),
     uploadedFile: z
       .string()
       .optional()

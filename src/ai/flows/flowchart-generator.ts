@@ -18,8 +18,11 @@ const prompt = ai.definePrompt({
   Create a flowchart based on the following information:
 
   Title: {{{title}}}
+  {{#if description}}
   Description: {{{description}}}
+  {{/if}}
   {{#if uploadedFile}}
+  The following document is the primary source of truth. Create the flowchart based on its content.
   Additional context from uploaded file: {{media url=uploadedFile}}
   {{/if}}
 
