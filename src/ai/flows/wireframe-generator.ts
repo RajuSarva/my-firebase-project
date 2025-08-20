@@ -125,4 +125,6 @@ const generateWireframesFlow = ai.defineFlow(
   }
 );
 
-export const generateWireframes = generateWireframesFlow;
+export async function generateWireframes(input: GenerateWireframesInput): Promise<GenerateWireframesOutput> {
+    return await generateWireframesFlow(input);
+}

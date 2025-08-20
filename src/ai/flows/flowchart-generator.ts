@@ -79,4 +79,6 @@ const generateFlowchartFlow = ai.defineFlow(
   }
 );
 
-export const generateFlowchart = generateFlowchartFlow;
+export async function generateFlowchart(input: GenerateFlowchartInput): Promise<GenerateFlowchartOutput> {
+    return await generateFlowchartFlow(input);
+}

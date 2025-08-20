@@ -439,9 +439,9 @@ Ensure the generated markdown is extremely comprehensive, detailed, well-formatt
   }
 });
 
-export const generateRefinedDocument = ai.defineFlow(
+const generateRefinedDocumentFlow = ai.defineFlow(
   {
-    name: 'generateRefinedDocument',
+    name: 'generateRefinedDocumentFlow',
     inputSchema: GenerateRefinedDocumentInputSchema,
     outputSchema: GenerateRefinedDocumentOutputSchema,
   },
@@ -467,4 +467,6 @@ export const generateRefinedDocument = ai.defineFlow(
   }
 );
 
-    
+export async function generateRefinedDocument(input: GenerateRefinedDocumentInput): Promise<GenerateRefinedDocumentOutput> {
+    return await generateRefinedDocumentFlow(input);
+}
