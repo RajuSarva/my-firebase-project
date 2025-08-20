@@ -33,7 +33,7 @@ const refineDocumentPrompt = ai.definePrompt({
   name: 'refineDocumentPrompt',
   input: {schema: GenerateRefinedDocumentInputSchema},
   output: {schema: GenerateRefinedDocumentOutputSchema},
-  prompt: `You are a world-class expert in software development and project management documentation. Your task is to generate an exceptionally comprehensive, extremely detailed, and very lengthy document of the specified type. The document must be well-structured, professionally formatted in Markdown, and exceed 2000 words.
+  prompt: `You are a world-class expert in software development and project management documentation. Your task is to generate an exceptionally comprehensive, extremely detailed, and very lengthy document of the specified type. The document must be well-structured, professionally formatted in Markdown, and result in a document that would span at least 10-15 pages when converted to a standard PDF.
 
 Base the document on the following inputs:
 - Document Title: {{{title}}}
@@ -67,7 +67,7 @@ This section provides a high-level summary of the project. Based on the project 
 Describe the core components of the project and which departments or user groups they will affect. For example, break it down into a User App, Vendor Panel, Admin Panel, etc., based on the project's nature.
 
 ## 3. Glossary
-Define all key terms, acronyms, and jargon associated with this project. Generate at least 8-10 relevant terms based on the project description.
+Define all key terms, acronyms, and jargon associated with this project. Generate at least 15-20 relevant terms based on the project description.
 | Term | Definition |
 | :--- | :--- |
 | *(Generate Term 1)* | *(Generate Definition 1)* |
@@ -75,80 +75,83 @@ Define all key terms, acronyms, and jargon associated with this project. Generat
 | ... | ... |
 
 ## 4. Business Goals
-Based on the project description, generate a detailed list of business goals, categorized into sections like 'Growth and Development'. Each goal should be specific, measurable, achievable, relevant, and time-bound (SMART), if possible.
+Based on the project description, generate a detailed list of business goals, categorized into sections like 'Growth and Development'. Elaborate extensively on each goal, providing context, justification, and expected outcomes. Each goal should be specific, measurable, achievable, relevant, and time-bound (SMART), if possible.
 **Growth and Development:**
-1. **(Generate Goal 1)**: (Elaborate on the goal)
-2. **(Generate Goal 2)**: (Elaborate on the goal)
-3. **(Generate Goal 3)**: (Elaborate on the goal)
+1. **(Generate Goal 1)**: (Elaborate on the goal in great detail)
+2. **(Generate Goal 2)**: (Elaborate on the goal in great detail)
+3. **(Generate Goal 3)**: (Elaborate on the goal in great detail)
 4. ...
 
 ## 5. Project Overview and Objectives
 **Overview:**
-Provide a detailed narrative of the project. Describe the system's vision, what it will do, who will use it, and how it fits into the overall business strategy. This should be an expansion of the executive summary.
+Provide a detailed narrative of the project. Describe the system's vision, what it will do, who will use it, and how it fits into the overall business strategy. This should be a significant expansion of the executive summary.
 
 **Objectives:**
-List the specific, measurable outcomes the project is expected to achieve. These should be more granular than the business goals.
-1. **(Generate Objective 1)**: (Elaborate on the objective)
-2. **(Generate Objective 2)**: (Elaborate on the objective)
-3. **(Generate Objective 3)**: (Elaborate on the objective)
+List the specific, measurable outcomes the project is expected to achieve. These should be more granular than the business goals and very detailed.
+1. **(Generate Objective 1)**: (Elaborate on the objective in great detail)
+2. **(Generate Objective 2)**: (Elaborate on the objective in great detail)
+3. **(Generate Objective 3)**: (Elaborate on the objective in great detail)
 4. ...
 
 ## 6. Project Scope
 **In Scope:**
-List all the features, functionalities, and deliverables that are included in this project. Be very specific. Use bullet points and sub-points to structure the list.
+List all the features, functionalities, and deliverables that are included in this project. Be extremely specific. Use multiple levels of bullet points and sub-points to structure the list comprehensively.
 1. **(Generate Main Feature Area 1, e.g., User App):**
     - (Sub-feature 1.1)
+        - (Detail 1.1.1)
+        - (Detail 1.1.2)
     - (Sub-feature 1.2)
 2. **(Generate Main Feature Area 2, e.g., Admin Panel):**
     - (Sub-feature 2.1)
+        - (Detail 2.1.1)
     - (Sub-feature 2.2)
 
 **Out of Scope:**
-Clearly define what will **not** be included in the project to manage expectations.
+Clearly define what will **not** be included in the project to manage expectations. Be explicit and provide reasons.
 1. **(Generate Out of Scope Item 1):**
 2. **(Generate Out of Scope Item 2):**
 3. ...
 
 ## 7. Success Criteria
-Define the metrics that will be used to measure the success of the project.
+Define the metrics that will be used to measure the success of the project in detail.
 **Metrics for Success:**
 1. **(Generate Metric 1, e.g., User Acquisition):**
-    - Target: (Define a specific target)
+    - Target: (Define a specific target and how it will be measured)
 2. **(Generate Metric 2, e.g., Engagement Volume):**
-    - Target: (Define a specific target)
+    - Target: (Define a specific target and how it will be measured)
 3. **(Generate Metric 3, e.g., System Performance):**
-    - Target: (Define a specific target)
+    - Target: (Define a specific target and how it will be measured)
 
 ## 8. Current State
-Describe the current process or system that is in place before this project is implemented. Explain the pain points and inefficiencies of the current state.
+Describe the current process or system that is in place before this project is implemented. Elaborate significantly on the pain points and inefficiencies of the current state.
 **Current Situation:**
-- (Describe current process/system)
-- (Describe current challenges)
+- (Describe current process/system in detail)
+- (Describe current challenges with examples)
 
 ## 9. Target State
-Describe the desired future state after the project is successfully implemented. Explain how the new system will improve upon the current state.
+Describe the desired future state after the project is successfully implemented. Explain in great detail how the new system will improve upon the current state.
 **Future State:**
-- (Describe the fully functional new platform)
-- (Describe the robust new processes)
+- (Describe the fully functional new platform with all its benefits)
+- (Describe the robust new processes in detail)
 
 ## 10. RAID (Risks, Assumptions, Issues, Dependencies)
 **Risks**
-Identify potential risks that could negatively impact the project's success.
-1. **(Generate Risk 1):** (Mitigation strategy)
-2. **(Generate Risk 2):** (Mitigation strategy)
+Identify potential risks that could negatively impact the project's success. Provide detailed mitigation strategies for each.
+1. **(Generate Risk 1):** (Detailed mitigation strategy)
+2. **(Generate Risk 2):** (Detailed mitigation strategy)
 
 **Assumptions**
-List all assumptions being made at the start of the project.
+List all assumptions being made at the start of the project. Explain the impact if an assumption is proven false.
 1. **(Generate Assumption 1)**
 2. **(Generate Assumption 2)**
 
 **Issues**
-List any known issues or problems that need to be addressed.
+List any known issues or problems that need to be addressed, with proposed solutions.
 1. **(Generate Issue 1)**
 2. **(Generate Issue 2)**
 
 **Dependencies**
-List all external factors or other projects that this project depends on.
+List all external factors or other projects that this project depends on, explaining the nature of the dependency.
 1. **(Generate Dependency 1)**
 2. **(Generate Dependency 2)**
 
@@ -157,26 +160,26 @@ This is the core of the BRD. Generate an extremely detailed list of high-level r
 **High-Level Requirements**
 **1. (Generate Component 1, e.g., Admin Panel)**
     **1.1 (Generate Feature Group 1.1, e.g., User Management)**
-    - (Detail requirement 1.1.1)
-    - (Detail requirement 1.1.2)
+    - (Detail requirement 1.1.1 with rationale)
+    - (Detail requirement 1.1.2 with rationale)
     **1.2 (Generate Feature Group 1.2, e.g., Content Management)**
-    - (Detail requirement 1.2.1)
-    - (Detail requirement 1.2.2)
+    - (Detail requirement 1.2.1 with rationale)
+    - (Detail requirement 1.2.2 with rationale)
 
 **2. (Generate Component 2, e.g., User Panel)**
     **2.1 (Generate Feature Group 2.1, e.g., Authentication)**
-    - (Detail requirement 2.1.1)
-    - (Detail requirement 2.1.2)
+    - (Detail requirement 2.1.1 with rationale)
+    - (Detail requirement 2.1.2 with rationale)
 
 ## 12. Business Rules and Acceptance Criteria
 **Business Rules**
-List the specific rules and policies that the system must adhere to.
+List the specific rules and policies that the system must adhere to. Provide at least 10-15 detailed rules.
 1. **(Generate Business Rule 1)**
 2. **(Generate Business Rule 2)**
 3. ...
 
 **Acceptance Criteria**
-For each major requirement, define the criteria that will be used to determine if it has been successfully implemented.
+For each major requirement, define detailed criteria that will be used to determine if it has been successfully implemented.
 1. **(For Requirement 1):**
     - (Criterion 1.1)
     - (Criterion 1.2)
@@ -189,15 +192,15 @@ List any other relevant documents.
 - (e.g., Project Proposal, Market Analysis, etc.)
 
 ## 14. Support
-Describe the post-launch support plan.
+Describe the post-launch support plan in detail.
 
 ## 15. Pointers to be noted
 Include any important notes regarding project execution, costing, or timelines.
 
 ## 16. Deliverables
-List the tangible outputs of the project.
+List the tangible outputs of the project with detailed descriptions.
 1. Fully functional platform with all specified panels.
-2. Comprehensive documentation.
+2. Comprehensive documentation (User manuals, API docs, etc.).
 3. ...
 
 ## 17. Payment Details
@@ -271,7 +274,7 @@ This document defines the functional requirements for the **{{{title}}}**. It ai
 
 ### **2.2 Core Application Features**
 
-**(Generate 8-10 core features based on the project description and uploaded file. For each feature, provide the same extremely detailed breakdown as the examples above. Ensure the "Basic Flow" section contains a comprehensive, step-by-step description of user actions and system responses. The "Validation" section must contain multiple, specific validation rules.)**
+**(Generate at least 15-20 core features based on the project description and uploaded file. For each feature, provide the same extremely detailed breakdown as the examples above. Ensure the "Basic Flow" section contains a comprehensive, step-by-step description of user actions and system responses. The "Validation" section must contain multiple, specific validation rules.)**
 
 #### **Feature**: [Core Feature 1 from Description/File]
 - **User Story**: As a [user type], I want to [perform a core action], so that I can [achieve a primary goal].
@@ -321,62 +324,62 @@ Date: _________________________________
 # **Software Requirements Specification for {{{title}}}**
 ## **1. Introduction**
 ### **1.1. Purpose**
-(Generate a detailed purpose statement for the SRS based on the project title and description.)
+(Generate a very detailed purpose statement for the SRS based on the project title and description.)
 ### **1.2. Document Conventions**
 (Describe the conventions used in this document, e.g., formatting, terminology.)
 ### **1.3. Intended Audience**
 (List and describe the intended audience for this SRS, e.g., developers, project managers, QA teams.)
 ### **1.4. Product Scope**
-(Provide a detailed description of the product's scope, its boundaries, and major capabilities.)
+(Provide a very detailed description of the product's scope, its boundaries, and major capabilities, with specific examples.)
 ### **1.5. References**
 (List any other documents referenced in this SRS.)
 
 ## **2. Overall Description**
 ### **2.1. Product Perspective**
-(Describe the product's relationship to other products or systems.)
+(Describe the product's relationship to other products or systems in detail.)
 ### **2.2. Product Functions**
-(Provide a summary of the major functions the product will perform, generated from the description.)
+(Provide a detailed summary of the major functions the product will perform, generated from the description.)
 ### **2.3. User Classes and Characteristics**
-(Identify the different classes of users and describe their characteristics.)
+(Identify the different classes of users and describe their characteristics, permissions, and workflows in detail.)
 ### **2.4. Operating Environment**
 (Describe the environment in which the software will operate, including hardware, operating systems, and other software.)
 ### **2.5. Design and Implementation Constraints**
-(List any constraints on the design or implementation, such as language, libraries, or regulatory constraints.)
+(List any constraints on the design or implementation, such as language, libraries, or regulatory constraints, with explanations.)
 
 ## **3. System Features**
-(Generate detailed descriptions for at least 5-7 key system features.)
+(Generate detailed descriptions for at least 10-15 key system features.)
 ### **3.1. System Feature 1 (e.g., User Profile Management)**
 #### **3.1.1. Description and Priority**
 (Provide a detailed description of the feature and its priority.)
 #### **3.1.2. Stimulus/Response Sequences**
-(Detail the sequences of user actions and system responses.)
+(Detail the sequences of user actions and system responses with exhaustive steps.)
 #### **3.1.3. Functional Requirements**
-(Provide a detailed, itemized list of the functional requirements for this feature.)
+(Provide an extremely detailed, itemized list of the functional requirements for this feature, including sub-requirements.)
 ### **3.2. System Feature 2**
 ... (and so on for all features)
 
 ## **4. External Interface Requirements**
 ### **4.1. User Interfaces**
-(Describe the user interface requirements, including screen layouts, GUI standards, and interaction design.)
+(Describe the user interface requirements in detail, including screen layouts, GUI standards, and interaction design principles.)
 ### **4.2. Hardware Interfaces**
 (Describe any hardware interfaces the software will have.)
 ### **4.3. Software Interfaces**
-(Describe any software interfaces, like APIs to other systems or database connections.)
+(Describe any software interfaces, like APIs to other systems or database connections, specifying data formats and protocols.)
 ### **4.4. Communications Interfaces**
-(Describe any communications interfaces, such as network protocols or security requirements.)
+(Describe any communications interfaces, such as network protocols or security requirements like SSL/TLS.)
 
 ## **5. Non-functional Requirements**
 ### **5.1. Performance Requirements**
-(Detail the performance requirements, such as response times, throughput, and capacity.)
+(Detail the performance requirements, such as response times under specific loads, throughput, and capacity, with measurable targets.)
 ### **5.2. Safety Requirements**
-(Detail any safety requirements for the system.)
+(Detail any safety requirements for the system, including handling of hazardous conditions.)
 ### **5.3. Security Requirements**
-(Detail the security requirements, including access control, data encryption, and user authentication.)
+(Detail the security requirements, including access control, data encryption, user authentication, and protection against common vulnerabilities.)
 ### **5.4. Software Quality Attributes**
-(Detail the desired software quality attributes, such as reliability, availability, maintainability, and portability.)
+(Detail the desired software quality attributes, such as reliability (MTBF), availability (uptime percentage), maintainability, and portability.)
 
 ## **6. Other Requirements**
-(Detail any other requirements not covered elsewhere, such as legal, regulatory, or data requirements.)
+(Detail any other requirements not covered elsewhere, such as legal, regulatory (e.g., GDPR, HIPAA), or data requirements.)
 
 Ensure the generated markdown is extremely comprehensive, detailed, well-formatted, and adheres to the requested length. The content must be of the highest professional standard, ready for a real-world project.
 `,
