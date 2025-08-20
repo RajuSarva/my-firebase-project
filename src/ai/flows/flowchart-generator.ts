@@ -24,20 +24,15 @@ const prompt = ai.definePrompt({
   Additional context from uploaded file: {{media url=uploadedFile}}
   {{/if}}
 
-  Your response MUST contain only the Mermaid syntax for the flowchart, enclosed in a single markdown code block.
+  Your response MUST be a JSON object with a single key "mermaidSyntax" containing the Mermaid syntax for the flowchart.
   The text inside the flowchart nodes (e.g., inside brackets) MUST NOT contain any special characters like parentheses, commas, or quotes. Use only alphanumeric characters and spaces.
 
   For example:
-  \`\`\`mermaid
-  graph TD
-      A[Start] --> B{Is it Friday?};
-      B -- Yes --> C[Good];
-      B -- No --> D[Work];
-      C --> E[End];
-      D --> E;
-  \`\`\`
+  {
+    "mermaidSyntax": "graph TD\\n    A[Start] --> B{Is it Friday?};\\n    B -- Yes --> C[Good];\\n    B -- No --> D[Work];\\n    C --> E[End];\\n    D --> E;"
+  }
   
-  Do not include any other text, explanations, or markdown formatting outside of the single "mermaid" code block. The output must be only the code block.`,
+  Do not include any other text, explanations, or markdown formatting. The output must be only the JSON object.`,
 });
 
 const generateFlowchartFlow = ai.defineFlow(
@@ -52,8 +47,8 @@ const generateFlowchartFlow = ai.defineFlow(
     const llmResponse = await prompt(input, { model });
     const output = llmResponse.output;
 
-    if (!output) {
-      throw new Error("Failed to generate flowchart.");
+    if (!output || !output.mermaidSyntax) {
+      throw new Error("Failed to generate flowchart or the output was empty.");
     }
     
     return output;

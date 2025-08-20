@@ -69,20 +69,7 @@ export default function FlowchartGeneratorPage() {
       
       const response = await handleFlowchartGeneration(formData);
       if (response.success && response.data) {
-        // The AI can sometimes return the mermaid syntax inside a markdown block,
-        // and sometimes it returns the raw syntax. We need to handle both cases.
-        const mermaidBlockRegex = /```mermaid\n([\s\S]*?)\n```/;
-        const match = response.data.mermaidSyntax.match(mermaidBlockRegex);
-        
-        let mermaidSyntax = "";
-        if (match && match[1]) {
-          // If we found a markdown block, use its content.
-          mermaidSyntax = match[1].trim();
-        } else if (!response.data.mermaidSyntax.includes("```")) {
-          // Otherwise, if there are no backticks, assume it's raw syntax.
-          mermaidSyntax = response.data.mermaidSyntax.trim();
-        }
-
+        const mermaidSyntax = response.data.mermaidSyntax?.trim();
         if (mermaidSyntax) {
             setResult({ mermaidSyntax });
         } else {
@@ -207,5 +194,3 @@ export default function FlowchartGeneratorPage() {
     </DashboardLayout>
   );
 }
-
-    
