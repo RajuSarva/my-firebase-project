@@ -83,7 +83,7 @@ const generateWireframesFlow = ai.defineFlow(
       }
       return {
         ...wireframe,
-        image: imageUrl, // The media object is not serializable. Extract the URL string.
+        image: imageUrl,
       };
     });
 
