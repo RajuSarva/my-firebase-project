@@ -40,8 +40,10 @@ export default function SignUpForm() {
        <div className="w-full max-w-md">
         <Card className="bg-secondary border-primary/20 shadow-lg shadow-primary/10">
            <CardHeader className="text-center">
-            <div className="flex items-center justify-center mb-4">
-               <Feather className="h-10 w-10 text-primary" />
+             <div className="flex items-center justify-center mb-4">
+               <div className="p-3 bg-primary/10 rounded-full border-2 border-primary/30">
+                 <Feather className="h-8 w-8 text-primary" />
+               </div>
             </div>
             <CardTitle className="text-3xl font-bold font-headline text-primary">GT-DOC AI</CardTitle>
             <CardDescription>
