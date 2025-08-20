@@ -7,6 +7,7 @@ import { generateWireframes } from "@/ai/flows/wireframe-generator";
 import { z } from "zod";
 import { fileToBase64 } from "./utils";
 
+// A more flexible schema for the file, as it's handled after parsing.
 const fileSchema = z.any().optional();
 
 // Document Generator Action
@@ -16,6 +17,7 @@ const docSchema = z.object({
   documentType: z.enum(["BRD", "FRS", "SRS"]),
   file: fileSchema,
 });
+
 export async function handleDocumentGeneration(formData: FormData) {
   try {
     const data = Object.fromEntries(formData);
@@ -35,7 +37,7 @@ export async function handleDocumentGeneration(formData: FormData) {
 
     return { success: true, data: result };
   } catch (error) {
-    console.error(error);
+    console.error("Error in handleDocumentGeneration:", error);
     const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
     return { success: false, error: `Failed to generate document: ${errorMessage}` };
   }
@@ -65,7 +67,7 @@ export async function handleFlowchartGeneration(formData: FormData) {
     
     return { success: true, data: result };
   } catch (error) {
-    console.error(error);
+    console.error("Error in handleFlowchartGeneration:", error);
     const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
     return { success: false, error: `Failed to generate flowchart: ${errorMessage}` };
   }
@@ -96,8 +98,9 @@ export async function handleWireframeGeneration(formData: FormData) {
     });
 
     return { success: true, data: result };
-  } catch (error) {
-    console.error(error);
+  } catch (error)
+ {
+    console.error("Error in handleWireframeGeneration:", error);
     const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
     return { success: false, error: `Failed to generate wireframes: ${errorMessage}` };
   }
