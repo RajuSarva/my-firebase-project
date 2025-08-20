@@ -13,7 +13,6 @@ import { GenerateFlowchartInputSchema, GenerateFlowchartOutputSchema, type Gener
 const prompt = ai.definePrompt({
   name: 'generateFlowchartPrompt',
   input: {schema: GenerateFlowchartInputSchema},
-  output: {schema: GenerateFlowchartOutputSchema},
   prompt: `You are an expert in creating flowcharts using Mermaid syntax.
 
   Create a flowchart based on the following information:
@@ -24,7 +23,7 @@ const prompt = ai.definePrompt({
   Additional context from uploaded file: {{media url=uploadedFile}}
   {{/if}}
 
-  Your response MUST be a JSON object with a single key "mermaidSyntax" containing the Mermaid syntax for the flowchart.
+  Your response MUST be a valid JSON object with a single key "mermaidSyntax" containing the Mermaid syntax for the flowchart.
   The text inside the flowchart nodes (e.g., inside brackets) MUST NOT contain any special characters like parentheses, commas, or quotes. Use only alphanumeric characters and spaces.
 
   For example:
@@ -45,13 +44,22 @@ const generateFlowchartFlow = ai.defineFlow(
     const model = input.uploadedFile ? 'googleai/gemini-1.5-pro-latest' : 'googleai/gemini-1.5-flash-latest';
     
     const llmResponse = await prompt(input, { model });
-    const output = llmResponse.output;
+    const jsonString = llmResponse.text();
 
-    if (!output || !output.mermaidSyntax) {
-      throw new Error("Failed to generate flowchart or the output was empty.");
+    if (!jsonString) {
+      throw new Error("Failed to generate flowchart: AI returned an empty response.");
     }
     
-    return output;
+    try {
+      const parsedOutput = JSON.parse(jsonString);
+      if (typeof parsedOutput.mermaidSyntax !== 'string' || !parsedOutput.mermaidSyntax.trim()) {
+        throw new Error("Invalid or empty mermaidSyntax in AI response.");
+      }
+      return { mermaidSyntax: parsedOutput.mermaidSyntax };
+    } catch(e) {
+      console.error("Failed to parse AI response as JSON:", e);
+      throw new Error("Failed to generate flowchart: AI returned invalid JSON.");
+    }
   }
 );
 
