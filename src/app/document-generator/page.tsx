@@ -114,13 +114,13 @@ export default function DocumentGeneratorPage() {
     const addHeader = (pageNumber: number) => {
         // Placeholder for Logo
         doc.setDrawColor(150);
-        doc.rect(margin, 5, 30, 15); // A box for the logo
+        doc.rect(pageWidth / 2 - 15, 5, 30, 15); // Centered box for the logo
         doc.setTextColor(150);
         doc.setFontSize(8);
-        doc.text('LOGO', margin + 15, 13, { align: 'center' });
+        doc.text('LOGO', pageWidth / 2, 13, { align: 'center' });
 
         doc.setFontSize(8);
-        doc.setTextColor(150);
+        doc.setTextColor(0); // Black color
         doc.text(`Page ${pageNumber}`, pageWidth - margin, 10, { align: 'right' });
         doc.setDrawColor(200);
         doc.line(margin, 28, pageWidth - margin, 28);
@@ -133,6 +133,7 @@ export default function DocumentGeneratorPage() {
             doc.setPage(i);
             doc.setDrawColor(200);
             doc.line(margin, pageHeight - 18, pageWidth - margin, pageHeight - 18);
+            doc.setTextColor(0); // Black color
             doc.text(`© Geega Technologies`, margin, pageHeight - 10);
             doc.text(`Generated on: ${new Date().toLocaleDateString()}`, pageWidth - margin, pageHeight - 10, { align: 'right' });
         }
@@ -148,7 +149,7 @@ export default function DocumentGeneratorPage() {
         doc.setTextColor(0);
         doc.text("COMPANY LOGO", pageWidth / 2, pageHeight / 2, {
           align: "center",
-          angle: -45,
+          angle: 0, // Straight watermark
         });
         doc.restoreGraphicsState();
       }
@@ -189,6 +190,7 @@ export default function DocumentGeneratorPage() {
                     checkPageBreak(textLines.length * headingLineHeight + 5);
                     doc.setFont('helvetica', 'bold');
                     doc.setFontSize(headingSize);
+                    doc.setTextColor(0); // Black color
                     doc.text(textLines, margin, y);
                     y += textLines.length * headingLineHeight + 5;
                     break;
@@ -199,6 +201,7 @@ export default function DocumentGeneratorPage() {
                     checkPageBreak(textLines.length * paraLineHeight + 4);
                     doc.setFont('helvetica', 'normal');
                     doc.setFontSize(12);
+                    doc.setTextColor(0); // Black color
                     doc.text(textLines, margin, y, { maxWidth: pageWidth - margin * 2 });
                     y += textLines.length * paraLineHeight + 4;
                     break;
@@ -223,6 +226,7 @@ export default function DocumentGeneratorPage() {
                         
                         doc.setFont('helvetica', 'normal');
                         doc.setFontSize(12);
+                        doc.setTextColor(0); // Black color
                         
                         let bullet;
                         if (newListContext.isOrdered) {
@@ -268,12 +272,13 @@ export default function DocumentGeneratorPage() {
                             font: 'helvetica',
                             fontSize: 10,
                             cellPadding: 2,
-                            overflow: 'linebreak'
+                            overflow: 'linebreak',
+                            textColor: [0, 0, 0] // Black text for table
                         },
                         headStyles: {
                             fontStyle: 'bold',
                             fillColor: [230, 230, 230],
-                            textColor: [20, 20, 20]
+                            textColor: [0, 0, 0] // Black text for header
                         },
                         didDrawPage: (data) => {
                           if (data.pageNumber !== currentPage) {

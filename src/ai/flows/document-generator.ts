@@ -48,25 +48,25 @@ Base the document on the following inputs:
 Adhere strictly to the following structure based on the Document Type, ensuring every section is flushed out with substantial detail and examples. All headings and subheadings MUST be bold.
 
 **If Document Type is "BRD" (Business Requirements Document):**
-# Lead Generation App: Business Requirement Document
-## 1. Author and Change Control
+# **Lead Generation App: Business Requirement Document**
+## **1. Author and Change Control**
 | Approver | Name | Date Approved | Role | Signature | Version |
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | | [Project Sponsor Name] | {{{currentDate}}} | Stakeholder | | 1.0 |
 
-**Change Control**
+### **Change Control**
 | Version | Date | Author | Description of Changes |
 | :--- | :--- | :--- | :--- |
 | 1.0 | {{{currentDate}}} | Project Team | Initial Draft |
 
-## 2. Executive Summary
-**Overview**
+## **2. Executive Summary**
+### **Overview**
 This section provides a high-level summary of the project. Based on the project description, {{{description}}}, generate a detailed overview of the proposed system, its purpose, the problem it solves, and the value it will bring to the business.
 
-**Department Summary**
+### **Department Summary**
 Describe the core components of the project and which departments or user groups they will affect. For example, break it down into a User App, Vendor Panel, Admin Panel, etc., based on the project's nature.
 
-## 3. Glossary
+## **3. Glossary**
 Define all key terms, acronyms, and jargon associated with this project. Generate at least 15-20 relevant terms based on the project description.
 | Term | Definition |
 | :--- | :--- |
@@ -74,27 +74,27 @@ Define all key terms, acronyms, and jargon associated with this project. Generat
 | *(Generate Term 2)* | *(Generate Definition 2)* |
 | ... | ... |
 
-## 4. Business Goals
+## **4. Business Goals**
 Based on the project description, generate a detailed list of business goals, categorized into sections like 'Growth and Development'. Elaborate extensively on each goal, providing context, justification, and expected outcomes. Each goal should be specific, measurable, achievable, relevant, and time-bound (SMART), if possible.
-**Growth and Development:**
+### **Growth and Development:**
 1. **(Generate Goal 1)**: (Elaborate on the goal in great detail)
 2. **(Generate Goal 2)**: (Elaborate on the goal in great detail)
 3. **(Generate Goal 3)**: (Elaborate on the goal in great detail)
 4. ...
 
-## 5. Project Overview and Objectives
-**Overview:**
+## **5. Project Overview and Objectives**
+### **Overview:**
 Provide a detailed narrative of the project. Describe the system's vision, what it will do, who will use it, and how it fits into the overall business strategy. This should be a significant expansion of the executive summary.
 
-**Objectives:**
+### **Objectives:**
 List the specific, measurable outcomes the project is expected to achieve. These should be more granular than the business goals and very detailed.
 1. **(Generate Objective 1)**: (Elaborate on the objective in great detail)
 2. **(Generate Objective 2)**: (Elaborate on the objective in great detail)
 3. **(Generate Objective 3)**: (Elaborate on the objective in great detail)
 4. ...
 
-## 6. Project Scope
-**In Scope:**
+## **6. Project Scope**
+### **In Scope:**
 List all the features, functionalities, and deliverables that are included in this project. Be extremely specific. Use multiple levels of bullet points and sub-points to structure the list comprehensively.
 1. **(Generate Main Feature Area 1, e.g., User App):**
     - (Sub-feature 1.1)
@@ -106,15 +106,15 @@ List all the features, functionalities, and deliverables that are included in th
         - (Detail 2.1.1)
     - (Sub-feature 2.2)
 
-**Out of Scope:**
+### **Out of Scope:**
 Clearly define what will **not** be included in the project to manage expectations. Be explicit and provide reasons.
 1. **(Generate Out of Scope Item 1):**
 2. **(Generate Out of Scope Item 2):**
 3. ...
 
-## 7. Success Criteria
+## **7. Success Criteria**
 Define the metrics that will be used to measure the success of the project in detail.
-**Metrics for Success:**
+### **Metrics for Success:**
 1. **(Generate Metric 1, e.g., User Acquisition):**
     - Target: (Define a specific target and how it will be measured)
 2. **(Generate Metric 2, e.g., Engagement Volume):**
@@ -122,63 +122,63 @@ Define the metrics that will be used to measure the success of the project in de
 3. **(Generate Metric 3, e.g., System Performance):**
     - Target: (Define a specific target and how it will be measured)
 
-## 8. Current State
+## **8. Current State**
 Describe the current process or system that is in place before this project is implemented. Elaborate significantly on the pain points and inefficiencies of the current state.
-**Current Situation:**
+### **Current Situation:**
 - (Describe current process/system in detail)
 - (Describe current challenges with examples)
 
-## 9. Target State
+## **9. Target State**
 Describe the desired future state after the project is successfully implemented. Explain in great detail how the new system will improve upon the current state.
-**Future State:**
+### **Future State:**
 - (Describe the fully functional new platform with all its benefits)
 - (Describe the robust new processes in detail)
 
-## 10. RAID (Risks, Assumptions, Issues, Dependencies)
-**Risks**
+## **10. RAID (Risks, Assumptions, Issues, Dependencies)**
+### **Risks**
 Identify potential risks that could negatively impact the project's success. Provide detailed mitigation strategies for each.
 1. **(Generate Risk 1):** (Detailed mitigation strategy)
 2. **(Generate Risk 2):** (Detailed mitigation strategy)
 
-**Assumptions**
+### **Assumptions**
 List all assumptions being made at the start of the project. Explain the impact if an assumption is proven false.
 1. **(Generate Assumption 1)**
 2. **(Generate Assumption 2)**
 
-**Issues**
+### **Issues**
 List any known issues or problems that need to be addressed, with proposed solutions.
 1. **(Generate Issue 1)**
 2. **(Generate Issue 2)**
 
-**Dependencies**
+### **Dependencies**
 List all external factors or other projects that this project depends on, explaining the nature of the dependency.
 1. **(Generate Dependency 1)**
 2. **(Generate Dependency 2)**
 
-## 11. Major Requirements
+## **11. Major Requirements**
 This is the core of the BRD. Generate an extremely detailed list of high-level requirements for each major component of the system.
-**High-Level Requirements**
-**1. (Generate Component 1, e.g., Admin Panel)**
-    **1.1 (Generate Feature Group 1.1, e.g., User Management)**
+### **High-Level Requirements**
+#### **1. (Generate Component 1, e.g., Admin Panel)**
+    ##### **1.1 (Generate Feature Group 1.1, e.g., User Management)**
     - (Detail requirement 1.1.1 with rationale)
     - (Detail requirement 1.1.2 with rationale)
-    **1.2 (Generate Feature Group 1.2, e.g., Content Management)**
+    ##### **1.2 (Generate Feature Group 1.2, e.g., Content Management)**
     - (Detail requirement 1.2.1 with rationale)
     - (Detail requirement 1.2.2 with rationale)
 
-**2. (Generate Component 2, e.g., User Panel)**
-    **2.1 (Generate Feature Group 2.1, e.g., Authentication)**
+#### **2. (Generate Component 2, e.g., User Panel)**
+    ##### **2.1 (Generate Feature Group 2.1, e.g., Authentication)**
     - (Detail requirement 2.1.1 with rationale)
     - (Detail requirement 2.1.2 with rationale)
 
-## 12. Business Rules and Acceptance Criteria
-**Business Rules**
+## **12. Business Rules and Acceptance Criteria**
+### **Business Rules**
 List the specific rules and policies that the system must adhere to. Provide at least 10-15 detailed rules.
 1. **(Generate Business Rule 1)**
 2. **(Generate Business Rule 2)**
 3. ...
 
-**Acceptance Criteria**
+### **Acceptance Criteria**
 For each major requirement, define detailed criteria that will be used to determine if it has been successfully implemented.
 1. **(For Requirement 1):**
     - (Criterion 1.1)
@@ -187,23 +187,23 @@ For each major requirement, define detailed criteria that will be used to determ
     - (Criterion 2.1)
     - (Criterion 2.2)
 
-## 13. Reference Documents
+## **13. Reference Documents**
 List any other relevant documents.
 - (e.g., Project Proposal, Market Analysis, etc.)
 
-## 14. Support
+## **14. Support**
 Describe the post-launch support plan in detail.
 
-## 15. Pointers to be noted
+## **15. Pointers to be noted**
 Include any important notes regarding project execution, costing, or timelines.
 
-## 16. Deliverables
+## **16. Deliverables**
 List the tangible outputs of the project with detailed descriptions.
 1. Fully functional platform with all specified panels.
 2. Comprehensive documentation (User manuals, API docs, etc.).
 3. ...
 
-## 17. Payment Details
+## **17. Payment Details**
 Include placeholder for payment information if applicable.
 
 
